@@ -15,6 +15,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  Loader,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,13 +33,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import { SupplierForm } from "./supplier-form"
 import { PeriodFilter } from "@/components/common/period-filter"
 import { FilterCustomizer, FilterOption } from "@/components/common/filter-customizer"
-import { Settings } from "lucide-react"
+import { useFornecedores, useRemoveFornecedor } from "@/hooks/use-fornecedores"
 
 interface Supplier {
   id: string
@@ -58,110 +69,6 @@ interface Supplier {
   lastPurchase?: string
 }
 
-const mockSuppliers: Supplier[] = [
-  {
-    id: "1",
-    code: "FOR-001",
-    name: "Placo do Brasil S.A.",
-    tradeName: "Placo",
-    document: "12.345.678/0001-90",
-    email: "comercial@placo.com.br",
-    phone: "(11) 3025-1234",
-    cellphone: "(11) 99876-5432",
-    city: "São Paulo",
-    state: "SP",
-    status: "active",
-    category: "Drywall",
-    deliveryDays: 7,
-    balance: -45000,
-    lastPurchase: "2025-11-20",
-  },
-  {
-    id: "2",
-    code: "FOR-002",
-    name: "Gypsum Nordeste Ltda",
-    tradeName: "Gypsum",
-    document: "23.456.789/0001-01",
-    email: "vendas@gypsum.com.br",
-    phone: "(81) 3322-5678",
-    cellphone: "(81) 99123-4567",
-    city: "Recife",
-    state: "PE",
-    status: "active",
-    category: "Steel Frame",
-    deliveryDays: 10,
-    balance: -28500,
-    lastPurchase: "2025-11-18",
-  },
-  {
-    id: "3",
-    code: "FOR-003",
-    name: "Ciser Parafusos e Fixadores S.A.",
-    tradeName: "Ciser",
-    document: "34.567.890/0001-12",
-    email: "vendas@ciser.com.br",
-    phone: "(47) 3251-0000",
-    cellphone: "(47) 99888-7777",
-    city: "Joinville",
-    state: "SC",
-    status: "active",
-    category: "Ferramentas",
-    deliveryDays: 5,
-    balance: -12800,
-    lastPurchase: "2025-11-22",
-  },
-  {
-    id: "4",
-    code: "FOR-004",
-    name: "3M do Brasil Ltda",
-    tradeName: "3M",
-    document: "45.678.901/0001-23",
-    email: "industrial@3m.com.br",
-    phone: "(11) 3838-3636",
-    cellphone: "(11) 99765-4321",
-    city: "Sumaré",
-    state: "SP",
-    status: "active",
-    category: "Acessórios",
-    deliveryDays: 3,
-    balance: -8900,
-    lastPurchase: "2025-11-15",
-  },
-  {
-    id: "5",
-    code: "FOR-005",
-    name: "Distribuidora Centro Sul",
-    tradeName: "Centro Sul",
-    document: "56.789.012/0001-34",
-    email: "compras@centrosul.com.br",
-    phone: "(41) 3333-4444",
-    cellphone: "(41) 99555-6666",
-    city: "Curitiba",
-    state: "PR",
-    status: "inactive",
-    category: "Diversos",
-    deliveryDays: 14,
-    balance: 0,
-    lastPurchase: "2025-06-10",
-  },
-  {
-    id: "6",
-    code: "FOR-006",
-    name: "Metalúrgica Paraná",
-    tradeName: "Metalpar",
-    document: "67.890.123/0001-45",
-    email: "contato@metalpar.com.br",
-    phone: "(44) 3025-9999",
-    cellphone: "(44) 99444-3333",
-    city: "Maringá",
-    state: "PR",
-    status: "pending",
-    category: "Steel Frame",
-    deliveryDays: 8,
-    balance: 0,
-  },
-]
-
 const statusConfig = {
   active: { label: "Ativo", icon: CheckCircle, className: "text-green-600 bg-green-50" },
   inactive: { label: "Inativo", icon: XCircle, className: "text-muted-foreground bg-muted" },
@@ -169,18 +76,31 @@ const statusConfig = {
 }
 
 export function SupplierList() {
-  const [suppliers] = useState<Supplier[]>(mockSuppliers)
   const [searchTerm, setSearchTerm] = useState("")
+  const [page, setPage] = useState(1)
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [showForm, setShowForm] = useState(false)
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
   const [viewMode, setViewMode] = useState<"new" | "edit" | "view">("new")
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null)
   const [availableFilters, setAvailableFilters] = useState<FilterOption[]>([
     { id: "period", label: "Período", enabled: true },
     { id: "category", label: "Categoria", enabled: true },
     { id: "status", label: "Status", enabled: true },
   ])
+
+  const { data, isLoading, error } = useFornecedores({
+    page,
+    limit: 20,
+    search: searchTerm || undefined,
+  })
+
+  const removeFornecedor = useRemoveFornecedor()
+
+  const suppliers = (data?.data ?? []) as unknown as Supplier[]
+  const pagination = data?.pagination
 
   useEffect(() => {
     const savedFilters = localStorage.getItem("fornecedores-filters")
@@ -190,19 +110,12 @@ export function SupplierList() {
   }, [])
 
   const filteredSuppliers = suppliers.filter((supplier) => {
-    const matchesSearch =
-      supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.document.includes(searchTerm) ||
-      supplier.tradeName.toLowerCase().includes(searchTerm.toLowerCase())
-
     const matchesCategory = categoryFilter === "all" || supplier.category === categoryFilter
     const matchesStatus = statusFilter === "all" || supplier.status === statusFilter
-
-    return matchesSearch && matchesCategory && matchesStatus
+    return matchesCategory && matchesStatus
   })
 
-  const categories = [...new Set(suppliers.map((s) => s.category))]
+  const categories = [...new Set(suppliers.map((s) => s.category).filter(Boolean))]
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -234,15 +147,25 @@ export function SupplierList() {
     setEditingSupplier(null)
   }
 
-  const getDialogTitle = () => {
-    if (viewMode === "new") return "Novo Fornecedor"
-    if (viewMode === "edit") return "Editar Fornecedor"
-    return "Visualizar Fornecedor"
-  }
-
   const handleSaveFilters = (filters: FilterOption[]) => {
     setAvailableFilters(filters)
     localStorage.setItem("fornecedores-filters", JSON.stringify(filters))
+  }
+
+  const handleDeleteClick = (supplier: Supplier) => {
+    setSupplierToDelete(supplier)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (supplierToDelete) {
+      removeFornecedor.mutate(supplierToDelete.id, {
+        onSuccess: () => {
+          setDeleteDialogOpen(false)
+          setSupplierToDelete(null)
+        },
+      })
+    }
   }
 
   return (
@@ -256,7 +179,10 @@ export function SupplierList() {
               <Input
                 placeholder="Buscar por nome, código ou CNPJ..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setPage(1)
+                }}
                 className="pl-9 h-8"
               />
             </div>
@@ -305,7 +231,7 @@ export function SupplierList() {
         </CardContent>
       </Card>
 
-      {/* Formulário - Aparece entre filtros e tabela */}
+      {/* Formulário */}
       {showForm && (
         <Card className="transition-all duration-300 ease-in-out">
           <CardHeader className="border-b border-border">
@@ -333,156 +259,228 @@ export function SupplierList() {
       {/* Suppliers Table */}
       <Card>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Fornecedor
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    CNPJ
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Contato
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Categoria
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Prazo Entrega
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Saldo
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSuppliers.map((supplier, index) => {
-                  const status = statusConfig[supplier.status]
-                  const StatusIcon = status.icon
-                  return (
-                    <tr
-                      key={supplier.id}
-                      className={cn(
-                        "border-b border-border transition-colors hover:bg-muted/30",
-                        index % 2 === 0 ? "bg-card" : "bg-muted/10"
-                      )}
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                            <Building2 className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">{supplier.tradeName}</p>
-                            <p className="text-xs text-muted-foreground">{supplier.code}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="font-mono text-sm text-foreground">{supplier.document}</p>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-sm text-foreground">
-                            <Mail className="h-3 w-3 text-muted-foreground" />
-                            {supplier.email}
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Phone className="h-3 w-3" />
-                            {supplier.phone}
-                            {supplier.cellphone && (
-                              <>
-                                <span className="text-muted-foreground/50">•</span>
-                                {supplier.cellphone}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge variant="secondary">{supplier.category}</Badge>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="text-sm text-foreground">{supplier.deliveryDays} dias</span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <span
-                          className={cn(
-                            "text-sm font-medium",
-                            supplier.balance < 0 ? "text-red-600" : "text-foreground"
-                          )}
-                        >
-                          {formatCurrency(supplier.balance)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center">
-                          <Badge variant="secondary" className={cn("gap-1", status.className)}>
-                            <StatusIcon className="h-3 w-3" />
-                            {status.label}
-                          </Badge>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewSupplier(supplier)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                Visualizar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditSupplier(supplier)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Editar
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Excluir
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="flex items-center justify-between border-t border-border px-4 py-3">
-            <p className="text-sm text-muted-foreground">
-              Mostrando {filteredSuppliers.length} de {suppliers.length} fornecedores
-            </p>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" disabled className="bg-transparent">
-                Anterior
-              </Button>
-              <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">
-                1
-              </Button>
-              <Button variant="outline" size="sm" className="bg-transparent">
-                Próximo
-              </Button>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-sm text-muted-foreground">Carregando fornecedores...</span>
             </div>
-          </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-16">
+              <p className="text-sm text-destructive">
+                Erro ao carregar fornecedores. Verifique sua conexão.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/50">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Fornecedor
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        CNPJ
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Contato
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Categoria
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Prazo Entrega
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Saldo
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSuppliers.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                          Nenhum fornecedor encontrado.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredSuppliers.map((supplier, index) => {
+                        const status = statusConfig[supplier.status] ?? statusConfig.inactive
+                        const StatusIcon = status.icon
+                        return (
+                          <tr
+                            key={supplier.id}
+                            className={cn(
+                              "border-b border-border transition-colors hover:bg-muted/30",
+                              index % 2 === 0 ? "bg-card" : "bg-muted/10"
+                            )}
+                          >
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                                  <Building2 className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-foreground">{supplier.tradeName || supplier.name}</p>
+                                  <p className="text-xs text-muted-foreground">{supplier.code}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <p className="font-mono text-sm text-foreground">{supplier.document}</p>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1 text-sm text-foreground">
+                                  <Mail className="h-3 w-3 text-muted-foreground" />
+                                  {supplier.email}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Phone className="h-3 w-3" />
+                                  {supplier.phone}
+                                  {supplier.cellphone && (
+                                    <>
+                                      <span className="text-muted-foreground/50">•</span>
+                                      {supplier.cellphone}
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <Badge variant="secondary">{supplier.category}</Badge>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <span className="text-sm text-foreground">{supplier.deliveryDays} dias</span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span
+                                className={cn(
+                                  "text-sm font-medium",
+                                  (supplier.balance ?? 0) < 0 ? "text-red-600" : "text-foreground"
+                                )}
+                              >
+                                {formatCurrency(supplier.balance ?? 0)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex justify-center">
+                                <Badge variant="secondary" className={cn("gap-1", status.className)}>
+                                  <StatusIcon className="h-3 w-3" />
+                                  {status.label}
+                                </Badge>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex justify-center">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleViewSupplier(supplier)}>
+                                      <Eye className="mr-2 h-4 w-4" />
+                                      Visualizar
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleEditSupplier(supplier)}>
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      Editar
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      className="text-destructive"
+                                      onClick={() => handleDeleteClick(supplier)}
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Excluir
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+                <p className="text-sm text-muted-foreground">
+                  {pagination
+                    ? `Mostrando ${suppliers.length} de ${pagination.total} fornecedores`
+                    : `Mostrando ${filteredSuppliers.length} fornecedores`}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1 || isLoading}
+                    className="bg-transparent"
+                  >
+                    Anterior
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-primary text-primary-foreground"
+                  >
+                    {page}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={!pagination || page >= pagination.totalPages || isLoading}
+                    className="bg-transparent"
+                  >
+                    Próximo
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o fornecedor{" "}
+              <span className="font-semibold">
+                {supplierToDelete?.tradeName || supplierToDelete?.name}
+              </span>
+              ? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setDeleteDialogOpen(false); setSupplierToDelete(null) }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={removeFornecedor.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {removeFornecedor.isPending ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

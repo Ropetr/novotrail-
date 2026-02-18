@@ -17,6 +17,9 @@ importers:
 
   erp-backend:
     dependencies:
+      '@erp/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
@@ -66,6 +69,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@18.3.1)
+      '@erp/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.71.1(react@18.3.1))
@@ -265,6 +271,16 @@ importers:
       wrangler:
         specifier: ^3.102.0
         version: 3.114.17(@cloudflare/workers-types@4.20260207.0)
+
+  packages/shared:
+    dependencies:
+      zod:
+        specifier: ^3.24.1
+        version: 3.25.76
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
 
 packages:
 

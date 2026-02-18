@@ -13,6 +13,8 @@ import {
   Mail,
   Phone,
   TrendingUp,
+  Loader,
+  Plus,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,16 +32,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import { PartnerForm } from "./partner-form"
 import { useExport } from "@/contexts/export-context"
-import { useTabs } from "@/contexts/tabs-context"
-import { useNavigate } from "react-router-dom"
 import { PeriodFilter } from "@/components/common/period-filter"
 import { FilterCustomizer, FilterOption } from "@/components/common/filter-customizer"
-import { Settings, Plus } from "lucide-react"
+import { useParceiros, useRemoveParceiro } from "@/hooks/use-parceiros"
 
 interface Partner {
   id: string
@@ -54,84 +64,11 @@ interface Partner {
   city: string
   state: string
   status: "active" | "inactive"
-  clientId: string // Sempre vinculado a um cliente
-  commissionRate: number // Percentual de cashback
-  totalCommission: number // Total acumulado de comissões
+  clientId: string
+  commissionRate: number
+  totalCommission: number
   lastIndicationDate?: string
 }
-
-const mockPartners: Partner[] = [
-  {
-    id: "1",
-    code: "PAR-001",
-    name: "Carlos Alberto Santos",
-    type: "pf",
-    document: "123.456.789-00",
-    email: "carlos.santos@email.com",
-    phone: "(44) 3025-7890",
-    cellphone: "(44) 99912-3456",
-    city: "Maringá",
-    state: "PR",
-    status: "active",
-    clientId: "CLI-003",
-    commissionRate: 5,
-    totalCommission: 12500,
-    lastIndicationDate: "2025-11-20",
-  },
-  {
-    id: "2",
-    code: "PAR-002",
-    name: "Imobiliária Horizonte Ltda",
-    tradeName: "Horizonte Imóveis",
-    type: "pj",
-    document: "12.345.678/0001-90",
-    email: "contato@horizonteimoveis.com.br",
-    phone: "(44) 3025-1234",
-    cellphone: "(44) 99876-5432",
-    city: "Maringá",
-    state: "PR",
-    status: "active",
-    clientId: "CLI-001",
-    commissionRate: 3,
-    totalCommission: 45000,
-    lastIndicationDate: "2025-11-18",
-  },
-  {
-    id: "3",
-    code: "PAR-003",
-    name: "Arquitetura & Design Silva",
-    tradeName: "AD Silva",
-    type: "pj",
-    document: "23.456.789/0001-01",
-    email: "comercial@adsilva.com.br",
-    phone: "(43) 3322-5678",
-    cellphone: "(43) 99123-4567",
-    city: "Londrina",
-    state: "PR",
-    status: "active",
-    clientId: "CLI-002",
-    commissionRate: 4,
-    totalCommission: 8900,
-    lastIndicationDate: "2025-11-15",
-  },
-  {
-    id: "4",
-    code: "PAR-004",
-    name: "João Pedro Oliveira",
-    type: "pf",
-    document: "987.654.321-00",
-    email: "joao.oliveira@email.com",
-    phone: "(41) 3338-2222",
-    cellphone: "(41) 99887-6543",
-    city: "Curitiba",
-    state: "PR",
-    status: "inactive",
-    clientId: "CLI-004",
-    commissionRate: 2,
-    totalCommission: 3200,
-    lastIndicationDate: "2025-08-10",
-  },
-]
 
 const statusConfig = {
   active: { label: "Ativo", className: "text-green-600 bg-green-50" },
@@ -139,23 +76,33 @@ const statusConfig = {
 }
 
 export function PartnerList() {
-  const [partners] = useState<Partner[]>(mockPartners)
   const [searchTerm, setSearchTerm] = useState("")
+  const [page, setPage] = useState(1)
   const [typeFilter, setTypeFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [showForm, setShowForm] = useState(false)
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null)
   const [viewMode, setViewMode] = useState<"new" | "edit" | "view">("new")
-  const { consumeExportData, setExportData } = useExport()
-  const { addTab } = useTabs()
-  const navigate = useNavigate()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [partnerToDelete, setPartnerToDelete] = useState<Partner | null>(null)
+  const { consumeExportData } = useExport()
   const [availableFilters, setAvailableFilters] = useState<FilterOption[]>([
     { id: "period", label: "Período", enabled: true },
     { id: "type", label: "Tipo (PF/PJ)", enabled: true },
     { id: "status", label: "Status", enabled: true },
   ])
 
-  // Verifica se há dados de exportação de Cliente ao montar o componente
+  const { data, isLoading, error } = useParceiros({
+    page,
+    limit: 20,
+    search: searchTerm || undefined,
+  })
+
+  const removeParceiro = useRemoveParceiro()
+
+  const partners = (data?.data ?? []) as unknown as Partner[]
+  const pagination = data?.pagination
+
   useEffect(() => {
     const savedFilters = localStorage.getItem("parceiros-filters")
     if (savedFilters) {
@@ -164,21 +111,20 @@ export function PartnerList() {
 
     const exportData = consumeExportData()
     if (exportData && exportData.targetType === "parceiro" && exportData.sourceType === "cliente") {
-      // Converte os dados do cliente para o formato de parceiro
       const clientData = exportData.data
       const partnerData: Partial<Partner> = {
-        name: clientData.name,
-        tradeName: clientData.tradeName,
-        type: clientData.type,
-        document: clientData.document,
-        email: clientData.email,
-        phone: clientData.phone,
-        city: clientData.city,
-        state: clientData.state,
+        name: clientData.name as string,
+        tradeName: clientData.tradeName as string | undefined,
+        type: clientData.type as "pf" | "pj",
+        document: clientData.document as string,
+        email: clientData.email as string,
+        phone: clientData.phone as string,
+        city: clientData.city as string,
+        state: clientData.state as string,
         status: "active",
-        clientId: clientData.id, // Vincula ao cliente
-        commissionRate: 5, // Default 5% de cashback
-        totalCommission: 0, // Inicia zerado
+        clientId: clientData.id as string,
+        commissionRate: 5,
+        totalCommission: 0,
       }
 
       setEditingPartner(partnerData as Partner)
@@ -188,16 +134,9 @@ export function PartnerList() {
   }, [])
 
   const filteredPartners = partners.filter((partner) => {
-    const matchesSearch =
-      partner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      partner.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      partner.document.includes(searchTerm) ||
-      partner.email.toLowerCase().includes(searchTerm.toLowerCase())
-
     const matchesType = typeFilter === "all" || partner.type === typeFilter
     const matchesStatus = statusFilter === "all" || partner.status === statusFilter
-
-    return matchesSearch && matchesType && matchesStatus
+    return matchesType && matchesStatus
   })
 
   const formatCurrency = (value: number) => {
@@ -205,6 +144,12 @@ export function PartnerList() {
       style: "currency",
       currency: "BRL",
     }).format(value)
+  }
+
+  const handleNewPartner = () => {
+    setEditingPartner(null)
+    setViewMode("new")
+    setShowForm(true)
   }
 
   const handleEditPartner = (partner: Partner) => {
@@ -224,23 +169,26 @@ export function PartnerList() {
     setEditingPartner(null)
   }
 
-  const getDialogTitle = () => {
-    if (viewMode === "new") return "Novo Parceiro"
-    if (viewMode === "edit") return "Editar Parceiro"
-    return "Visualizar Parceiro"
-  }
-
   const handleSaveFilters = (filters: FilterOption[]) => {
     setAvailableFilters(filters)
     localStorage.setItem("parceiros-filters", JSON.stringify(filters))
   }
 
-  const handleNewPartner = () => {
-    setEditingPartner(null)
-    setViewMode("new")
-    setShowForm(true)
+  const handleDeleteClick = (partner: Partner) => {
+    setPartnerToDelete(partner)
+    setDeleteDialogOpen(true)
   }
 
+  const handleConfirmDelete = () => {
+    if (partnerToDelete) {
+      removeParceiro.mutate(partnerToDelete.id, {
+        onSuccess: () => {
+          setDeleteDialogOpen(false)
+          setPartnerToDelete(null)
+        },
+      })
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -253,7 +201,10 @@ export function PartnerList() {
               <Input
                 placeholder="Buscar por nome, código, documento ou e-mail..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setPage(1)
+                }}
                 className="pl-9 h-8"
               />
             </div>
@@ -298,7 +249,7 @@ export function PartnerList() {
         </CardContent>
       </Card>
 
-      {/* Formulário - Aparece entre filtros e tabela */}
+      {/* Formulário */}
       {showForm && (
         <Card className="transition-all duration-300 ease-in-out">
           <CardHeader className="border-b border-border">
@@ -326,159 +277,227 @@ export function PartnerList() {
       {/* Partners Table */}
       <Card>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Parceiro
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Documento
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Contato
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    % Cashback
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Total Acumulado
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPartners.map((partner, index) => {
-                  const status = statusConfig[partner.status]
-                  return (
-                    <tr
-                      key={partner.id}
-                      className={cn(
-                        "border-b border-border transition-colors hover:bg-muted/30",
-                        index % 2 === 0 ? "bg-card" : "bg-muted/10"
-                      )}
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                            {partner.type === "pj" ? (
-                              <Building2 className="h-5 w-5 text-muted-foreground" />
-                            ) : (
-                              <User className="h-5 w-5 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">
-                              {partner.tradeName || partner.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">{partner.code}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <Badge variant="outline" className="mb-1">
-                            {partner.type === "pj" ? "CNPJ" : "CPF"}
-                          </Badge>
-                          <p className="font-mono text-sm text-foreground">{partner.document}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-sm text-foreground">
-                            <Mail className="h-3 w-3 text-muted-foreground" />
-                            {partner.email}
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Phone className="h-3 w-3" />
-                            {partner.phone}
-                            {partner.cellphone && (
-                              <>
-                                <span className="text-muted-foreground/50">•</span>
-                                {partner.cellphone}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <TrendingUp className="h-3 w-3 text-green-600" />
-                          <span className="text-sm font-medium text-foreground">
-                            {partner.commissionRate}%
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <span className="text-sm font-medium text-green-600">
-                          {formatCurrency(partner.totalCommission)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center">
-                          <Badge variant="secondary" className={cn("gap-1", status.className)}>
-                            {status.label}
-                          </Badge>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewPartner(partner)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                Visualizar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditPartner(partner)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Editar Comissão
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Excluir
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="flex items-center justify-between border-t border-border px-4 py-3">
-            <p className="text-sm text-muted-foreground">
-              Mostrando {filteredPartners.length} de {partners.length} parceiros
-            </p>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" disabled className="bg-transparent">
-                Anterior
-              </Button>
-              <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">
-                1
-              </Button>
-              <Button variant="outline" size="sm" className="bg-transparent">
-                Próximo
-              </Button>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-sm text-muted-foreground">Carregando parceiros...</span>
             </div>
-          </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-16">
+              <p className="text-sm text-destructive">
+                Erro ao carregar parceiros. Verifique sua conexão.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/50">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Parceiro
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Documento
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Contato
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        % Cashback
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Total Acumulado
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPartners.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                          Nenhum parceiro encontrado.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredPartners.map((partner, index) => {
+                        const status = statusConfig[partner.status] ?? statusConfig.inactive
+                        return (
+                          <tr
+                            key={partner.id}
+                            className={cn(
+                              "border-b border-border transition-colors hover:bg-muted/30",
+                              index % 2 === 0 ? "bg-card" : "bg-muted/10"
+                            )}
+                          >
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                  {partner.type === "pj" ? (
+                                    <Building2 className="h-5 w-5 text-muted-foreground" />
+                                  ) : (
+                                    <User className="h-5 w-5 text-muted-foreground" />
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="font-medium text-foreground">
+                                    {partner.tradeName || partner.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">{partner.code}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div>
+                                <Badge variant="outline" className="mb-1">
+                                  {partner.type === "pj" ? "CNPJ" : "CPF"}
+                                </Badge>
+                                <p className="font-mono text-sm text-foreground">{partner.document}</p>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1 text-sm text-foreground">
+                                  <Mail className="h-3 w-3 text-muted-foreground" />
+                                  {partner.email}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Phone className="h-3 w-3" />
+                                  {partner.phone}
+                                  {partner.cellphone && (
+                                    <>
+                                      <span className="text-muted-foreground/50">•</span>
+                                      {partner.cellphone}
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <TrendingUp className="h-3 w-3 text-green-600" />
+                                <span className="text-sm font-medium text-foreground">
+                                  {partner.commissionRate}%
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className="text-sm font-medium text-green-600">
+                                {formatCurrency(partner.totalCommission ?? 0)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex justify-center">
+                                <Badge variant="secondary" className={cn("gap-1", status.className)}>
+                                  {status.label}
+                                </Badge>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex justify-center">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleViewPartner(partner)}>
+                                      <Eye className="mr-2 h-4 w-4" />
+                                      Visualizar
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleEditPartner(partner)}>
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      Editar Comissão
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      className="text-destructive"
+                                      onClick={() => handleDeleteClick(partner)}
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Excluir
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+                <p className="text-sm text-muted-foreground">
+                  {pagination
+                    ? `Mostrando ${partners.length} de ${pagination.total} parceiros`
+                    : `Mostrando ${filteredPartners.length} parceiros`}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1 || isLoading}
+                    className="bg-transparent"
+                  >
+                    Anterior
+                  </Button>
+                  <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">
+                    {page}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={!pagination || page >= pagination.totalPages || isLoading}
+                    className="bg-transparent"
+                  >
+                    Próximo
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o parceiro{" "}
+              <span className="font-semibold">
+                {partnerToDelete?.tradeName || partnerToDelete?.name}
+              </span>
+              ? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setDeleteDialogOpen(false); setPartnerToDelete(null) }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={removeParceiro.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {removeParceiro.isPending ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
