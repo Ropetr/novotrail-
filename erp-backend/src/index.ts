@@ -1,21 +1,23 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { HonoContext } from './infrastructure/cloudflare/types';
-import { createDatabaseConnection } from './infrastructure/database/connection';
-import { TenantRepository } from './infrastructure/repositories/TenantRepository';
-import { UserRepository } from './infrastructure/repositories/UserRepository';
-import { RegisterUserUseCase } from './domain/use-cases/RegisterUser';
-import { LoginUserUseCase } from './domain/use-cases/LoginUser';
-import { AuthService } from './application/services/AuthService';
-import { AuthController } from './presentation/controllers/AuthController';
-import { createAuthRoutes } from './presentation/routes/auth';
-import { createAuthMiddleware } from './presentation/middlewares/auth';
-import { createNuvemFiscalRoutes } from './presentation/routes/nuvem-fiscal';
+import { HonoContext } from './shared/cloudflare/types';
+import { createDatabaseConnection } from './shared/database/connection';
+import { AuthService } from './shared/services/AuthService';
+import { createAuthMiddleware } from './shared/middlewares/auth';
+
+// Modules
+import { createAuthModule } from './modules/auth/index';
+import { createFiscalModule } from './modules/fiscal/index';
+import { createCadastrosModule } from './modules/cadastros/index';
+import { createProdutosModule } from './modules/produtos/index';
+import { createComercialModule } from './modules/comercial/index';
 
 const app = new Hono<HonoContext>();
 
-// Middlewares
+// ============================================
+// GLOBAL MIDDLEWARES
+// ============================================
 app.use('*', logger());
 app.use(
   '*',
@@ -27,7 +29,9 @@ app.use(
   })
 );
 
-// Health check
+// ============================================
+// HEALTH CHECK
+// ============================================
 app.get('/health', (c) => {
   return c.json({
     status: 'ok',
@@ -35,6 +39,10 @@ app.get('/health', (c) => {
     environment: c.env.ENVIRONMENT,
   });
 });
+
+// ============================================
+// DEV-ONLY ENDPOINTS
+// ============================================
 
 // Seed endpoint (development only)
 app.post('/seed', async (c) => {
@@ -67,7 +75,7 @@ app.post('/update-password', async (c) => {
     }
 
     const db = createDatabaseConnection(c.env.DB);
-    const { users } = await import('./infrastructure/database/schema');
+    const { users } = await import('./shared/database/schema');
     const { eq, and } = await import('drizzle-orm');
 
     // Update password hash directly
@@ -86,62 +94,65 @@ app.post('/update-password', async (c) => {
   }
 });
 
-// API v1 routes
+// ============================================
+// API v1 - MODULE REGISTRATION
+// ============================================
 const apiV1 = new Hono<HonoContext>();
 
-// Initialize dependencies
-apiV1.use('*', async (c, next) => {
-  const db = createDatabaseConnection(c.env.DB);
+// Auth module (PUBLIC routes - no auth middleware)
+apiV1.route('/auth', createAuthModule());
+
+// Protected routes - shared auth middleware setup
+apiV1.use('/protected/*', async (c, next) => {
   const authService = new AuthService(c.env.JWT_SECRET);
-
-  // Repositories
-  const tenantRepository = new TenantRepository(db);
-  const userRepository = new UserRepository(db);
-
-  // Use cases
-  const registerUserUseCase = new RegisterUserUseCase(userRepository, tenantRepository);
-  const loginUserUseCase = new LoginUserUseCase(userRepository);
-
-  // Controllers
-  const authController = new AuthController(registerUserUseCase, loginUserUseCase, authService);
-
-  // Store in context for routes
-  c.set('authController' as any, authController);
-  c.set('authService' as any, authService);
-
-  await next();
-});
-
-// Auth routes (public)
-const authRoutes = new Hono<HonoContext>();
-authRoutes.post('/register', (c) => (c.get('authController' as any) as AuthController).register(c));
-authRoutes.post('/login', (c) => (c.get('authController' as any) as AuthController).login(c));
-apiV1.route('/auth', authRoutes);
-
-// Protected routes example
-const protectedRoutes = new Hono<HonoContext>();
-protectedRoutes.use('*', (c, next) => {
-  const authService = c.get('authService' as any) as AuthService;
   const authMiddleware = createAuthMiddleware(authService);
   return authMiddleware(c, next);
 });
-protectedRoutes.get('/me', (c) => {
+apiV1.get('/protected/me', (c) => {
   return c.json({
     success: true,
     data: c.get('user'),
   });
 });
-apiV1.route('/protected', protectedRoutes);
 
-// Nuvem Fiscal routes (protected)
-apiV1.use('/nuvem-fiscal/*', (c, next) => {
-  const authService = c.get('authService' as any) as AuthService;
+// Fiscal module (PROTECTED routes)
+apiV1.use('/nuvem-fiscal/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
   const authMiddleware = createAuthMiddleware(authService);
   return authMiddleware(c, next);
 });
-apiV1.route('/nuvem-fiscal', createNuvemFiscalRoutes(undefined as any));
+apiV1.route('/nuvem-fiscal', createFiscalModule());
 
+// Cadastros module (PROTECTED routes)
+apiV1.use('/cadastros/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
+  const authMiddleware = createAuthMiddleware(authService);
+  return authMiddleware(c, next);
+});
+apiV1.route('/cadastros', createCadastrosModule());
+
+// Produtos module (PROTECTED routes)
+apiV1.use('/produtos/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
+  const authMiddleware = createAuthMiddleware(authService);
+  return authMiddleware(c, next);
+});
+apiV1.route('/produtos', createProdutosModule());
+
+// Comercial module (PROTECTED routes)
+apiV1.use('/comercial/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
+  const authMiddleware = createAuthMiddleware(authService);
+  return authMiddleware(c, next);
+});
+apiV1.route('/comercial', createComercialModule());
+
+// Mount API v1
 app.route('/api/v1', apiV1);
+
+// ============================================
+// ERROR HANDLING
+// ============================================
 
 // 404 handler
 app.notFound((c) => {
@@ -166,5 +177,45 @@ app.onError((err, c) => {
   );
 });
 
-export default app;
-export { SessionManager } from './infrastructure/cloudflare/SessionManager';
+// ============================================
+// QUEUE CONSUMER (Domain Events)
+// ============================================
+import { EventHandlerRegistry } from './shared/events/event-bus';
+import type { DomainEvent } from './shared/events/events';
+import type { CloudflareEnv } from './shared/cloudflare/types';
+
+const eventRegistry = new EventHandlerRegistry();
+
+// Register event handlers here as modules grow:
+// eventRegistry.register('sale.created', async (event) => { /* update stock, create receivable */ });
+// eventRegistry.register('return.approved', async (event) => { /* restore stock */ });
+// eventRegistry.register('product.stock_low', async (event) => { /* send notification */ });
+
+export default {
+  fetch: app.fetch,
+  async queue(batch: MessageBatch<DomainEvent>, env: CloudflareEnv): Promise<void> {
+    for (const message of batch.messages) {
+      const event = message.body;
+      console.log(`[Queue] Processing event: ${event.type}`, {
+        tenantId: event.tenantId,
+        timestamp: event.metadata.timestamp,
+      });
+
+      const handlers = eventRegistry.getHandlers(event.type);
+      if (handlers.length === 0) {
+        console.log(`[Queue] No handlers registered for event: ${event.type}`);
+        message.ack();
+        continue;
+      }
+
+      try {
+        await Promise.all(handlers.map(handler => handler(event)));
+        message.ack();
+      } catch (error) {
+        console.error(`[Queue] Error processing event ${event.type}:`, error);
+        message.retry();
+      }
+    }
+  },
+};
+export { SessionManager } from './shared/cloudflare/SessionManager';

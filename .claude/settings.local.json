@@ -21,7 +21,14 @@
       "Bash(wrangler r2 bucket:*)",
       "Bash(git remote add:*)",
       "Bash(cat:*)",
-      "Bash(dir \"C:\\Users\\WINDOWS GAMER\\Desktop\\Code1\\erp-backend\\nul\")"
+      "Bash(dir \"C:\\Users\\WINDOWS GAMER\\Desktop\\Code1\\erp-backend\\nul\")",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm run type-check:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx drizzle-kit generate:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

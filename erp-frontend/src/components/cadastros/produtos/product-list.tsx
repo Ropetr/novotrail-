@@ -14,6 +14,7 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
+  Loader,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,13 +32,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import { ProductForm } from "./product-form"
 import { PeriodFilter } from "@/components/common/period-filter"
 import { FilterCustomizer, FilterOption } from "@/components/common/filter-customizer"
-import { Settings } from "lucide-react"
+import { useProdutos, useRemoveProduto } from "@/hooks/use-produtos"
 
 interface Product {
   id: string
@@ -53,81 +64,6 @@ interface Product {
   image?: string
 }
 
-const mockProducts: Product[] = [
-  {
-    id: "1",
-    sku: "DRY-001",
-    name: "Placa Drywall ST 12.5mm",
-    category: "Drywall",
-    brand: "Placo",
-    price: 45.90,
-    cost: 32.00,
-    stock: 2450,
-    status: "active",
-    ean: "7891234567890",
-  },
-  {
-    id: "2",
-    sku: "PER-001",
-    name: "Perfil Montante 70mm",
-    category: "Steel Frame",
-    brand: "Gypsum",
-    price: 28.50,
-    cost: 18.00,
-    stock: 1820,
-    status: "active",
-    ean: "7891234567891",
-  },
-  {
-    id: "3",
-    sku: "MAS-001",
-    name: "Massa para Drywall 28kg",
-    category: "Acessórios",
-    brand: "Placo",
-    price: 85.00,
-    cost: 55.00,
-    stock: 0,
-    status: "out_of_stock",
-    ean: "7891234567892",
-  },
-  {
-    id: "4",
-    sku: "PAR-001",
-    name: "Parafuso Drywall 25mm",
-    category: "Ferramentas",
-    brand: "Ciser",
-    price: 32.00,
-    cost: 18.00,
-    stock: 3200,
-    status: "active",
-    ean: "7891234567893",
-  },
-  {
-    id: "5",
-    sku: "FIT-001",
-    name: "Fita Telada 50m",
-    category: "Acessórios",
-    brand: "3M",
-    price: 28.00,
-    cost: 15.00,
-    stock: 850,
-    status: "active",
-    ean: "7891234567894",
-  },
-  {
-    id: "6",
-    sku: "CAN-001",
-    name: "Perfil Canaleta 40mm",
-    category: "Steel Frame",
-    brand: "Gypsum",
-    price: 22.00,
-    cost: 12.00,
-    stock: 120,
-    status: "inactive",
-    ean: "7891234567895",
-  },
-]
-
 const statusConfig = {
   active: { label: "Ativo", icon: CheckCircle, className: "text-green-600 bg-green-50" },
   inactive: { label: "Inativo", icon: XCircle, className: "text-muted-foreground bg-muted" },
@@ -135,18 +71,31 @@ const statusConfig = {
 }
 
 export function ProductList() {
-  const [products] = useState<Product[]>(mockProducts)
   const [searchTerm, setSearchTerm] = useState("")
+  const [page, setPage] = useState(1)
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [showForm, setShowForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [viewMode, setViewMode] = useState<"new" | "edit" | "view">("new")
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null)
   const [availableFilters, setAvailableFilters] = useState<FilterOption[]>([
     { id: "period", label: "Período", enabled: true },
     { id: "category", label: "Categoria", enabled: true },
     { id: "status", label: "Status", enabled: true },
   ])
+
+  const { data, isLoading, error } = useProdutos({
+    page,
+    limit: 20,
+    search: searchTerm || undefined,
+  })
+
+  const removeProduto = useRemoveProduto()
+
+  const products = (data?.data ?? []) as unknown as Product[]
+  const pagination = data?.pagination
 
   useEffect(() => {
     const savedFilters = localStorage.getItem("produtos-filters")
@@ -156,18 +105,12 @@ export function ProductList() {
   }, [])
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.ean.includes(searchTerm)
-
     const matchesCategory = categoryFilter === "all" || product.category === categoryFilter
     const matchesStatus = statusFilter === "all" || product.status === statusFilter
-
-    return matchesSearch && matchesCategory && matchesStatus
+    return matchesCategory && matchesStatus
   })
 
-  const categories = [...new Set(products.map((p) => p.category))]
+  const categories = [...new Set(products.map((p) => p.category).filter(Boolean))]
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -199,15 +142,25 @@ export function ProductList() {
     setEditingProduct(null)
   }
 
-  const getDialogTitle = () => {
-    if (viewMode === "new") return "Novo Produto"
-    if (viewMode === "edit") return "Editar Produto"
-    return "Visualizar Produto"
-  }
-
   const handleSaveFilters = (filters: FilterOption[]) => {
     setAvailableFilters(filters)
     localStorage.setItem("produtos-filters", JSON.stringify(filters))
+  }
+
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (productToDelete) {
+      removeProduto.mutate(productToDelete.id, {
+        onSuccess: () => {
+          setDeleteDialogOpen(false)
+          setProductToDelete(null)
+        },
+      })
+    }
   }
 
   return (
@@ -221,7 +174,10 @@ export function ProductList() {
               <Input
                 placeholder="Buscar por nome, SKU ou EAN..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setPage(1)
+                }}
                 className="pl-9 h-8"
               />
             </div>
@@ -270,7 +226,7 @@ export function ProductList() {
         </CardContent>
       </Card>
 
-      {/* Formulário - Aparece entre filtros e tabela */}
+      {/* Formulário */}
       {showForm && (
         <Card className="transition-all duration-300 ease-in-out">
           <CardHeader className="border-b border-border">
@@ -298,165 +254,238 @@ export function ProductList() {
       {/* Products Table */}
       <Card>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Produto
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    SKU / EAN
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Categoria
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Custo
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Preço
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Estoque
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.map((product, index) => {
-                  const status = statusConfig[product.status]
-                  const StatusIcon = status.icon
-                  return (
-                    <tr
-                      key={product.id}
-                      className={cn(
-                        "border-b border-border transition-colors hover:bg-muted/30",
-                        index % 2 === 0 ? "bg-card" : "bg-muted/10"
-                      )}
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                            <Package className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">{product.name}</p>
-                            <p className="text-xs text-muted-foreground">{product.brand}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="font-mono text-sm text-foreground">{product.sku}</p>
-                          <p className="font-mono text-xs text-muted-foreground">{product.ean}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge variant="secondary">{product.category}</Badge>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <span className="text-sm text-muted-foreground">
-                          {formatCurrency(product.cost)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <span className="text-sm font-medium text-foreground">
-                          {formatCurrency(product.price)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <span
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-sm text-muted-foreground">Carregando produtos...</span>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-16">
+              <p className="text-sm text-destructive">
+                Erro ao carregar produtos. Verifique sua conexão.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/50">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Produto
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        SKU / EAN
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Categoria
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Custo
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Preço
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Estoque
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredProducts.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                          Nenhum produto encontrado.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredProducts.map((product, index) => {
+                        const status = statusConfig[product.status] ?? statusConfig.inactive
+                        const StatusIcon = status.icon
+                        return (
+                          <tr
+                            key={product.id}
+                            className={cn(
+                              "border-b border-border transition-colors hover:bg-muted/30",
+                              index % 2 === 0 ? "bg-card" : "bg-muted/10"
+                            )}
+                          >
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                                  <Package className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-foreground">{product.name}</p>
+                                  <p className="text-xs text-muted-foreground">{product.brand}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div>
+                                <p className="font-mono text-sm text-foreground">{product.sku}</p>
+                                <p className="font-mono text-xs text-muted-foreground">{product.ean}</p>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <Badge variant="secondary">{product.category}</Badge>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className="text-sm text-muted-foreground">
+                                {formatCurrency(product.cost ?? 0)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className="text-sm font-medium text-foreground">
+                                {formatCurrency(product.price)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span
+                                className={cn(
+                                  "text-sm font-medium",
+                                  (product.stock ?? 0) === 0
+                                    ? "text-destructive"
+                                    : (product.stock ?? 0) < 200
+                                    ? "text-orange-600"
+                                    : "text-foreground"
+                                )}
+                              >
+                                {(product.stock ?? 0).toLocaleString("pt-BR")}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex justify-center">
+                                <Badge variant="secondary" className={cn("gap-1", status.className)}>
+                                  <StatusIcon className="h-3 w-3" />
+                                  {status.label}
+                                </Badge>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex justify-center">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleViewProduct(product)}>
+                                      <Eye className="mr-2 h-4 w-4" />
+                                      Visualizar
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleEditProduct(product)}>
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      Editar
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                      <Copy className="mr-2 h-4 w-4" />
+                                      Duplicar
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      className="text-destructive"
+                                      onClick={() => handleDeleteClick(product)}
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Excluir
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+                <p className="text-sm text-muted-foreground">
+                  {pagination
+                    ? `Mostrando ${products.length} de ${pagination.total} produtos`
+                    : `Mostrando ${filteredProducts.length} produtos`}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1 || isLoading}
+                    className="bg-transparent"
+                  >
+                    Anterior
+                  </Button>
+                  {pagination &&
+                    Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
+                      const pageNum = i + 1
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPage(pageNum)}
                           className={cn(
-                            "text-sm font-medium",
-                            product.stock === 0
-                              ? "text-destructive"
-                              : product.stock < 200
-                              ? "text-orange-600"
-                              : "text-foreground"
+                            pageNum === page
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-transparent"
                           )}
                         >
-                          {product.stock.toLocaleString("pt-BR")}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center">
-                          <Badge
-                            variant="secondary"
-                            className={cn("gap-1", status.className)}
-                          >
-                            <StatusIcon className="h-3 w-3" />
-                            {status.label}
-                          </Badge>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewProduct(product)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                Visualizar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditProduct(product)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Editar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Copy className="mr-2 h-4 w-4" />
-                                Duplicar
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Excluir
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="flex items-center justify-between border-t border-border px-4 py-3">
-            <p className="text-sm text-muted-foreground">
-              Mostrando {filteredProducts.length} de {products.length} produtos
-            </p>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" disabled className="bg-transparent">
-                Anterior
-              </Button>
-              <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">
-                1
-              </Button>
-              <Button variant="outline" size="sm" className="bg-transparent">
-                2
-              </Button>
-              <Button variant="outline" size="sm" className="bg-transparent">
-                3
-              </Button>
-              <Button variant="outline" size="sm" className="bg-transparent">
-                Próximo
-              </Button>
-            </div>
-          </div>
+                          {pageNum}
+                        </Button>
+                      )
+                    })}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={!pagination || page >= pagination.totalPages || isLoading}
+                    className="bg-transparent"
+                  >
+                    Próximo
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o produto{" "}
+              <span className="font-semibold">{productToDelete?.name}</span>? Esta ação não pode ser
+              desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setDeleteDialogOpen(false); setProductToDelete(null) }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={removeProduto.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {removeProduto.isPending ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

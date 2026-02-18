@@ -1,0 +1,90 @@
+import { Hono } from 'hono';
+import type { HonoContext } from '../../shared/cloudflare/types';
+import { createDatabaseConnection } from '../../shared/database/connection';
+
+// Repositories
+import { QuoteRepository } from './infrastructure/repositories/quote-repository';
+import { SaleRepository } from './infrastructure/repositories/sale-repository';
+import { ReturnRepository } from './infrastructure/repositories/return-repository';
+
+// Controllers
+import { QuoteController } from './presentation/controllers/quote-controller';
+import { SaleController } from './presentation/controllers/sale-controller';
+import { ReturnController } from './presentation/controllers/return-controller';
+
+/**
+ * Creates and configures the Comercial bounded context module.
+ * Manages quotes (orçamentos), sales (vendas) and returns (devoluções).
+ *
+ * All routes are PROTECTED — auth middleware must be applied externally.
+ *
+ * Business rules enforced:
+ *   - Quotes must be approved before conversion to sale
+ *   - Invoiced sales cannot be cancelled
+ *   - Only pending returns can be approved
+ *
+ * Dependency graph (Clean Architecture):
+ *   Controller -> Repository interfaces
+ *                       ^
+ *            Infrastructure (implementations)
+ */
+export function createComercialModule() {
+  const router = new Hono<HonoContext>();
+
+  // DI middleware - create all dependencies per-request from Cloudflare env
+  router.use('*', async (c, next) => {
+    const db = createDatabaseConnection(c.env.DB);
+
+    // Repositories
+    const quoteRepository = new QuoteRepository(db);
+    const saleRepository = new SaleRepository(db);
+    const returnRepository = new ReturnRepository(db);
+
+    // Controllers
+    const quoteController = new QuoteController(quoteRepository);
+    const saleController = new SaleController(saleRepository);
+    const returnController = new ReturnController(returnRepository);
+
+    c.set('quoteController' as any, quoteController);
+    c.set('saleController' as any, saleController);
+    c.set('returnController' as any, returnController);
+
+    await next();
+  });
+
+  const getQuoteCtrl = (c: any) => c.get('quoteController') as unknown as QuoteController;
+  const getSaleCtrl = (c: any) => c.get('saleController') as unknown as SaleController;
+  const getReturnCtrl = (c: any) => c.get('returnController') as unknown as ReturnController;
+
+  // Orçamentos (Quotes) routes
+  router.get('/orcamentos', (c) => getQuoteCtrl(c).list(c));
+  router.post('/orcamentos', (c) => getQuoteCtrl(c).create(c));
+  router.get('/orcamentos/:id', (c) => getQuoteCtrl(c).getById(c));
+  router.put('/orcamentos/:id', (c) => getQuoteCtrl(c).update(c));
+  router.delete('/orcamentos/:id', (c) => getQuoteCtrl(c).remove(c));
+  router.post('/orcamentos/:id/aprovar', (c) => getQuoteCtrl(c).approve(c));
+  router.post('/orcamentos/:id/venda', (c) => getQuoteCtrl(c).convertToSale(c));
+
+  // Vendas (Sales) routes
+  router.get('/vendas', (c) => getSaleCtrl(c).list(c));
+  router.post('/vendas', (c) => getSaleCtrl(c).create(c));
+  router.get('/vendas/:id', (c) => getSaleCtrl(c).getById(c));
+  router.put('/vendas/:id', (c) => getSaleCtrl(c).update(c));
+  router.post('/vendas/:id/cancelar', (c) => getSaleCtrl(c).cancel(c));
+
+  // Devoluções (Returns) routes
+  router.get('/devolucoes', (c) => getReturnCtrl(c).list(c));
+  router.post('/devolucoes', (c) => getReturnCtrl(c).create(c));
+  router.get('/devolucoes/:id', (c) => getReturnCtrl(c).getById(c));
+  router.put('/devolucoes/:id', (c) => getReturnCtrl(c).update(c));
+  router.post('/devolucoes/:id/aprovar', (c) => getReturnCtrl(c).approve(c));
+
+  return router;
+}
+
+// Re-export domain contracts for inter-module communication
+export type { IQuoteRepository, ISaleRepository, IReturnRepository } from './domain/repositories';
+export { QuoteRepository } from './infrastructure/repositories/quote-repository';
+export { SaleRepository } from './infrastructure/repositories/sale-repository';
+export { ReturnRepository } from './infrastructure/repositories/return-repository';
+export { quotes, quoteItems, sales, saleItems, returns, returnItems } from './infrastructure/schema';

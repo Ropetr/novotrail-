@@ -1,0 +1,21 @@
+// Re-export comercial types from @erp/shared
+export type {
+  Quote,
+  QuoteItem,
+  QuoteStatus,
+  CreateQuoteDTO,
+  CreateQuoteItemDTO,
+  UpdateQuoteDTO,
+  Sale,
+  SaleItem,
+  SaleStatus,
+  CreateSaleDTO,
+  CreateSaleItemDTO,
+  UpdateSaleDTO,
+  Return,
+  ReturnItem,
+  ReturnStatus,
+  CreateReturnDTO,
+  CreateReturnItemDTO,
+  UpdateReturnDTO,
+} from '@erp/shared';

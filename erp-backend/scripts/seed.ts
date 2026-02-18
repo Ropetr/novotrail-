@@ -1,9 +1,10 @@
-import { tenants, users } from '../src/infrastructure/database/schema';
+import { tenants } from '../src/modules/tenant/infrastructure/schema';
+import { users } from '../src/modules/auth/infrastructure/schema';
 import { eq, and } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 
 export async function seed(db: any) {
-  console.log('🌱 Seeding database...');
+  console.log('Seeding database...');
 
   // Create tenant
   const tenantId = '00000000-0000-0000-0000-000000000001';
@@ -23,9 +24,9 @@ export async function seed(db: any) {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    console.log('✅ Tenant created');
+    console.log('Tenant created');
   } else {
-    console.log('ℹ️  Tenant already exists');
+    console.log('Tenant already exists');
   }
 
   // Create admin user
@@ -52,10 +53,10 @@ export async function seed(db: any) {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    console.log('✅ Admin user created');
+    console.log('Admin user created');
   } else {
-    console.log('ℹ️  Admin user already exists');
+    console.log('Admin user already exists');
   }
 
-  console.log('🎉 Seeding completed!');
+  console.log('Seeding completed!');
 }
