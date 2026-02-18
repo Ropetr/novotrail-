@@ -1,0 +1,113 @@
+import { NuvemFiscalService } from '../../../infrastructure/external-apis/nuvem-fiscal/NuvemFiscalService';
+import {
+  ApiResponse,
+  CertificadoDigital,
+  ListarCertificadosRequest,
+  ListarCertificadosResponse,
+  CadastrarCertificadoBase64Request,
+} from '../../entities/nuvem-fiscal/NuvemFiscalTypes';
+
+/**
+ * Use Case: Listar certificados
+ */
+export class ListarCertificadosUseCase {
+  constructor(private nuvemFiscalService: NuvemFiscalService) {}
+
+  async execute(params?: ListarCertificadosRequest): Promise<ApiResponse<ListarCertificadosResponse>> {
+    return this.nuvemFiscalService.listarCertificados(params);
+  }
+}
+
+/**
+ * Use Case: Consultar certificado de uma empresa
+ */
+export class ConsultarCertificadoUseCase {
+  constructor(private nuvemFiscalService: NuvemFiscalService) {}
+
+  async execute(cpfCnpj: string): Promise<ApiResponse<CertificadoDigital>> {
+    if (!cpfCnpj) {
+      return { success: false, error: 'CPF/CNPJ é obrigatório' };
+    }
+
+    return this.nuvemFiscalService.consultarCertificado(cpfCnpj);
+  }
+}
+
+/**
+ * Use Case: Cadastrar certificado (Base64)
+ */
+export class CadastrarCertificadoBase64UseCase {
+  constructor(private nuvemFiscalService: NuvemFiscalService) {}
+
+  async execute(cpfCnpj: string, dados: CadastrarCertificadoBase64Request): Promise<ApiResponse<CertificadoDigital>> {
+    if (!cpfCnpj) {
+      return { success: false, error: 'CPF/CNPJ é obrigatório' };
+    }
+
+    if (!dados.certificado) {
+      return { success: false, error: 'Certificado (base64) é obrigatório' };
+    }
+
+    if (!dados.password) {
+      return { success: false, error: 'Senha do certificado é obrigatória' };
+    }
+
+    const resultado = await this.nuvemFiscalService.cadastrarCertificadoBase64(cpfCnpj, dados);
+
+    if (resultado.success) {
+      console.log(`[AUDIT] Certificado cadastrado para empresa: ${cpfCnpj}`);
+    }
+
+    return resultado;
+  }
+}
+
+/**
+ * Use Case: Upload de certificado (Multipart)
+ */
+export class UploadCertificadoUseCase {
+  constructor(private nuvemFiscalService: NuvemFiscalService) {}
+
+  async execute(cpfCnpj: string, file: Blob, password: string): Promise<ApiResponse<CertificadoDigital>> {
+    if (!cpfCnpj) {
+      return { success: false, error: 'CPF/CNPJ é obrigatório' };
+    }
+
+    if (!file) {
+      return { success: false, error: 'Arquivo do certificado é obrigatório' };
+    }
+
+    if (!password) {
+      return { success: false, error: 'Senha do certificado é obrigatória' };
+    }
+
+    const resultado = await this.nuvemFiscalService.uploadCertificado(cpfCnpj, file, password);
+
+    if (resultado.success) {
+      console.log(`[AUDIT] Certificado enviado via upload para empresa: ${cpfCnpj}`);
+    }
+
+    return resultado;
+  }
+}
+
+/**
+ * Use Case: Deletar certificado
+ */
+export class DeletarCertificadoUseCase {
+  constructor(private nuvemFiscalService: NuvemFiscalService) {}
+
+  async execute(cpfCnpj: string): Promise<ApiResponse<void>> {
+    if (!cpfCnpj) {
+      return { success: false, error: 'CPF/CNPJ é obrigatório' };
+    }
+
+    const resultado = await this.nuvemFiscalService.deletarCertificado(cpfCnpj);
+
+    if (resultado.success) {
+      console.log(`[AUDIT] Certificado deletado da empresa: ${cpfCnpj}`);
+    }
+
+    return resultado;
+  }
+}

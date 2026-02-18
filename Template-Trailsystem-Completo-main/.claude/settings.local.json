@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/WINDOWS GAMER/Desktop/Code1/**)",
+      "Bash(cd:*)",
+      "Bash(mkdir:*)",
+      "Bash(cat:*)",
+      "Read(//c/Users/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

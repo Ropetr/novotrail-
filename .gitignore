@@ -1,0 +1,29 @@
+node_modules
+dist
+.wrangler
+.dev.vars
+.env
+*.log
+.DS_Store
+.idea
+.vscode
+*.swp
+*.swo
+*~
+.turbo
+
+# Windows reserved filenames
+nul
+con
+prn
+aux
+com[0-9]
+lpt[0-9]
+
+# Sensitive credentials
+CREDENTIALS.md
+credentials/
+*.key
+*.pem
+*.p12
+*.pfx
