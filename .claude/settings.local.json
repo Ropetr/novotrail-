@@ -28,7 +28,8 @@
       "Bash(pnpm run type-check:*)",
       "Bash(npx tsc:*)",
       "Bash(npx drizzle-kit generate:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Depth 3 | Where-Object { $_SIsContainer } | Select-Object FullName\")"
     ],
     "deny": [],
     "ask": []
