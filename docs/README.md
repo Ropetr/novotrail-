@@ -1,18 +1,26 @@
-﻿# Documentação
+# ⚠️ DOCUMENTAÇÃO DESCONTINUADA
 
-## Operação
-- Operação local: `OPERACAO_LOCAL.md`
-- Entrega para cliente: `ENTREGA_CLIENTE.md`
+> **Os arquivos nesta pasta `/docs/` foram substituídos pela Apostila ERP em `/Apostila-ERP/`.**
 
-## Integração
-- Frontend x Backend: `INTEGRACAO_FRONTEND_BACKEND.md`
-- Padrão de resposta da API: `PADRAO_RESPOSTA_API.md`
+A Apostila ERP contém documentação profissional completa com:
+- ERDs com campos e tipos
+- Especificações de APIs com endpoints
+- Regras de negócio com fórmulas
+- User Stories com critérios de aceite
+- Decisões registradas
 
-## Arquitetura
-- Resumo da arquitetura: `ARQUITETURA_RESUMO.md`
-- Design guidelines: DESIGN_GUIDELINES.md
-- Convenções do projeto: CONVENCOES_PROJETO.md
-- Checklist por módulo: CHECKLIST_MODULOS.md
-- Checklist técnico: CHECKLIST_TECNICO.md
-- Status atual: STATUS_ATUAL.md
+## Mapeamento
 
+| Arquivo antigo | Substituído por |
+|---------------|----------------|
+| `ARQUITETURA_RESUMO.md` | `Apostila-ERP/00-Estrategia/raio_x_tecnico.docx` |
+| `CHECKLIST_MODULOS.md` | `Apostila-ERP/00-Estrategia/plano_mestre_documentacao.docx` |
+| `CHECKLIST_TECNICO.md` | `Apostila-ERP/00-Estrategia/raio_x_tecnico.docx` |
+| `CONVENCOES_PROJETO.md` | `Apostila-ERP/00-Estrategia/raio_x_tecnico.docx` |
+| `DESIGN_GUIDELINES.md` | Incorporado nos módulos individuais |
+| `INTEGRACAO_FRONTEND_BACKEND.md` | `Apostila-ERP/00-Estrategia/mapa_fluxos_integrados.docx` |
+| `PADRAO_RESPOSTA_API.md` | Seção 3 de cada módulo na Apostila |
+| `PLANO_PROFISSIONAL.md` | `Apostila-ERP/00-Estrategia/plano_mestre_documentacao.docx` |
+| `STATUS_ATUAL.md` | `Apostila-ERP/README.md` |
+
+> Estes arquivos serão removidos em uma versão futura. Consulte sempre `/Apostila-ERP/`.
