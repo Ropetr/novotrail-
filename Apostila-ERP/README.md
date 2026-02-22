@@ -12,10 +12,10 @@ Produto SaaS multi-tenant para distribuidoras de materiais de construção.
 | `00-Estrategia/` | Plano Mestre, Mapa de Fluxos, Raio-X Técnico | ✅ Completo |
 | `01-Auth-MultiTenancy/` | ERD + APIs + User Stories | ✅ Completo |
 | `02-Cadastros/` | Clientes, Fornecedores, Parceiros, Colaboradores | ✅ Completo |
-| `03-Produtos/` | Categorias e Produtos | 🔄 Em andamento |
-| `04-Comercial/` | Orçamentos, Vendas, Devoluções | 🔄 Em andamento |
-| `05-Fiscal/` | Nuvem Fiscal, NF-e | 🔄 Em andamento |
-| `06-Dashboard/` | KPIs, Gráficos, Analytics | 🔄 Em andamento |
+| `03-Produtos/` | Categorias e Produtos | ✅ Completo |
+| `04-Comercial/` | Orçamentos, Vendas, Devoluções | ✅ Completo |
+| `05-Fiscal/` | Nuvem Fiscal, NF-e | ✅ Completo |
+| `06-Dashboard/` | KPIs, Gráficos, Analytics | ✅ Completo |
 | `07-Omnichannel/` | WhatsApp, IA, Filas, RAG | ✅ Parcial (3/6 docs) |
 
 ---
@@ -61,6 +61,10 @@ Para módulos do código existente (Fase 1), os 4 tipos são consolidados em um 
 | 22/02/2026 | Raio-X Técnico do código-fonte |
 | 22/02/2026 | Plano Mestre + Mapa de Fluxos Integrados |
 | 22/02/2026 | Módulo Auth & Multi-Tenancy + Cadastros |
+| 22/02/2026 | Módulo Produtos & Categorias |
+| 22/02/2026 | Módulo Comercial (Orçamentos, Vendas, Devoluções) |
+| 22/02/2026 | Módulo Fiscal (Nuvem Fiscal) |
+| 22/02/2026 | Módulo Dashboard — **FASE 1 COMPLETA** |
 
 ---
 
