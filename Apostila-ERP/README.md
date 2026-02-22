@@ -13,10 +13,13 @@ Produto SaaS multi-tenant para distribuidoras de materiais de construção.
 | `01-Auth-MultiTenancy/` | ERD + APIs + User Stories | ✅ Completo |
 | `02-Cadastros/` | Clientes, Fornecedores, Parceiros, Colaboradores | ✅ Completo |
 | `03-Produtos/` | Categorias e Produtos | ✅ Completo |
-| `04-Comercial/` | Orçamentos, Vendas, Devoluções | ✅ Completo |
+| `04-Comercial/` | **Pilar Comercial (4 submódulos)** | ✅ Completo |
+| ↳ `04.1-Atendimento-Omnichannel/` | WhatsApp, IA, Filas, RAG (3 docs) | ✅ Completo |
+| ↳ `04.2-Orcamentos/` | Orçamentos, conversão em venda | ✅ Completo |
+| ↳ `04.3-Vendas/` | Vendas, eventos, automação | ✅ Completo |
+| ↳ `04.4-Devolucoes/` | Devoluções, reversões | ✅ Completo |
 | `05-Fiscal/` | Nuvem Fiscal, NF-e | ✅ Completo |
 | `06-Dashboard/` | KPIs, Gráficos, Analytics | ✅ Completo |
-| `07-Omnichannel/` | WhatsApp, IA, Filas, RAG | ✅ Parcial (3/6 docs) |
 
 ---
 
@@ -27,6 +30,7 @@ Produto SaaS multi-tenant para distribuidoras de materiais de construção.
 - **37 eventos** de domínio catalogados
 - **82 documentos** planejados no total
 - **4 fases** de documentação priorizadas
+- **14 documentos** entregues na Fase 1
 
 ---
 
@@ -65,6 +69,7 @@ Para módulos do código existente (Fase 1), os 4 tipos são consolidados em um 
 | 22/02/2026 | Módulo Comercial (Orçamentos, Vendas, Devoluções) |
 | 22/02/2026 | Módulo Fiscal (Nuvem Fiscal) |
 | 22/02/2026 | Módulo Dashboard — **FASE 1 COMPLETA** |
+| 22/02/2026 | Reorganização: Comercial separado em 4 submódulos, Omnichannel movido para 04.1 |
 
 ---
 
