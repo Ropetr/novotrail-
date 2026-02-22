@@ -11,6 +11,9 @@ dist
 *.swo
 *~
 .turbo
+.mf-test
+playwright-report
+test-results
 
 # Windows reserved filenames
 nul
@@ -23,6 +26,7 @@ lpt[0-9]
 # Sensitive credentials
 CREDENTIALS.md
 credentials/
+.secrets/
 *.key
 *.pem
 *.p12

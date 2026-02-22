@@ -13,7 +13,10 @@ import {
   Shield,
   Clock,
   UserCheck,
+  User as UserIcon,
   Lock,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -36,7 +39,6 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { PeriodFilter } from "@/components/common/period-filter"
 import { FilterCustomizer, FilterOption } from "@/components/common/filter-customizer"
-import { Settings } from "lucide-react"
 
 export interface User {
   id: string
@@ -154,7 +156,7 @@ const mockUsers: User[] = [
 const statusConfig = {
   ativo: { label: "Ativo", className: "text-green-600 bg-green-50" },
   inativo: { label: "Inativo", className: "text-muted-foreground bg-muted" },
-  bloqueado: { label: "Bloqueado", className: "text-red-600 bg-red-50" },
+  bloqueado: { label: "Bloqueado", className: "text-primary bg-primary/10" },
 }
 
 const roleConfig = {
@@ -163,7 +165,7 @@ const roleConfig = {
   vendedor: { label: "Vendedor", className: "text-green-600 bg-green-50" },
   estoquista: { label: "Estoquista", className: "text-orange-600 bg-orange-50" },
   financeiro: { label: "Financeiro", className: "text-yellow-600 bg-yellow-50" },
-  customizado: { label: "Customizado", className: "text-gray-600 bg-gray-50" },
+  customizado: { label: "Customizado", className: "text-muted-foreground bg-muted/10" },
 }
 
 export function UserList() {
@@ -283,29 +285,29 @@ export function UserList() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <tr className="border-b border-border bg-muted/50 h-8">
+                  <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Usuário
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Dados
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Perfil
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Colaborador
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Último Acesso
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     2FA
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Ações
                   </th>
                 </tr>
@@ -324,9 +326,7 @@ export function UserList() {
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                            <Shield className="h-5 w-5 text-muted-foreground" />
-                          </div>
+                          <UserIcon className="h-4 w-4 text-primary" />
                           <div>
                             <p className="font-medium text-foreground">{user.username}</p>
                             <p className="text-xs text-muted-foreground">{user.code}</p>
@@ -424,19 +424,31 @@ export function UserList() {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between border-t border-border px-4 py-3">
+          <div className="flex items-center justify-between border-t border-border px-4 h-8">
             <p className="text-sm text-muted-foreground">
               Mostrando {filteredUsers.length} de {users.length} usuários
             </p>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" disabled className="bg-transparent">
-                Anterior
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled
+                className="h-8 w-8"
+                title="Anterior"
+              >
+                <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">
+              <span className="min-w-[24px] text-center text-sm font-medium text-primary">
                 1
-              </Button>
-              <Button variant="outline" size="sm" className="bg-transparent">
-                Próximo
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled
+                className="h-8 w-8"
+                title="Pr�ximo"
+              >
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -445,3 +457,10 @@ export function UserList() {
     </div>
   )
 }
+
+
+
+
+
+
+

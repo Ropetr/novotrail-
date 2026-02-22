@@ -3,8 +3,10 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { HonoContext } from './shared/cloudflare/types';
 import { createDatabaseConnection } from './shared/database/connection';
-import { AuthService } from './shared/services/AuthService';
-import { createAuthMiddleware } from './shared/middlewares/auth';
+import { fail } from './shared/http/response';
+import { AuthService } from './core/auth/AuthService';
+import { createAuthMiddleware } from './core/auth/auth-middleware';
+import { resolveTenant } from './core/tenancy/resolve-tenant';
 
 // Modules
 import { createAuthModule } from './modules/auth/index';
@@ -22,9 +24,15 @@ app.use('*', logger());
 app.use(
   '*',
   cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:5174',
+    ],
     credentials: true,
-    allowHeaders: ['Content-Type', 'Authorization'],
+    allowHeaders: ['Content-Type', 'Authorization', 'x-tenant-id'],
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   })
 );
@@ -99,6 +107,9 @@ app.post('/update-password', async (c) => {
 // ============================================
 const apiV1 = new Hono<HonoContext>();
 
+// Tenant resolution for all API routes
+apiV1.use('*', resolveTenant);
+
 // Auth module (PUBLIC routes - no auth middleware)
 apiV1.route('/auth', createAuthModule());
 
@@ -156,25 +167,13 @@ app.route('/api/v1', apiV1);
 
 // 404 handler
 app.notFound((c) => {
-  return c.json(
-    {
-      success: false,
-      error: 'Not found',
-    },
-    404
-  );
+  return fail(c, 'Not found', 404);
 });
 
 // Error handler
 app.onError((err, c) => {
   console.error('Error:', err);
-  return c.json(
-    {
-      success: false,
-      error: err.message || 'Internal server error',
-    },
-    500
-  );
+  return fail(c, err.message || 'Internal server error', 500);
 });
 
 // ============================================

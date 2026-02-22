@@ -10,6 +10,7 @@ export interface CloudflareBindings {
 export interface CloudflareEnv extends CloudflareBindings {
   ENVIRONMENT: string;
   JWT_SECRET: string;
+  BASE_DOMAIN?: string;
 }
 
 export interface HonoContext {
@@ -20,6 +21,14 @@ export interface HonoContext {
       tenantId: string;
       email: string;
       role: string;
+    };
+    tenantId?: string;
+    tenant?: {
+      id: string;
+      name: string;
+      subdomain: string;
+      status: string;
+      plan: string;
     };
   };
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react"
+import { createContext, useContext, useState, ReactNode } from "react"
 
 // Types para os dados de export
 export interface ExportData {
@@ -39,3 +39,6 @@ export function useExport() {
   }
   return context
 }
+
+
+

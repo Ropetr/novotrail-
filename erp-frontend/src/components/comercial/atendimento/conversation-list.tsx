@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, MessageSquare } from "lucide-react"
+import { Search, MessageSquare } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -39,7 +39,7 @@ const channelConfig = {
   whatsapp: { icon: MessageCircle, color: "text-green-500", bg: "bg-green-50 dark:bg-green-950" },
   instagram: { icon: Instagram, color: "text-pink-500", bg: "bg-pink-50 dark:bg-pink-950" },
   facebook: { icon: Facebook, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950" },
-  email: { icon: Mail, color: "text-gray-500", bg: "bg-gray-50 dark:bg-gray-950" },
+  email: { icon: Mail, color: "text-muted-foreground", bg: "bg-muted/10 dark:bg-muted/10" },
   web: { icon: Globe, color: "text-primary", bg: "bg-primary/10" },
 }
 
@@ -178,3 +178,7 @@ export function ConversationList({ conversations, selectedId, onSelect }: Conver
     </div>
   )
 }
+
+
+
+

@@ -9,9 +9,10 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "wrangler d1 migrations apply erp-db --local",
-    "db:migrate:prod": "wrangler d1 migrations apply erp-db",
+    "db:migrate": "wrangler d1 migrations apply novotraildesktop-db --local",
+    "db:migrate:prod": "wrangler d1 migrations apply novotraildesktop-db",
     "db:studio": "drizzle-kit studio",
+    "seed": "node -e \"fetch('http://localhost:8787/seed',{method:'POST'}).then(r=>r.text()).then(console.log).catch(err=>{console.error(err);process.exit(1);})\"",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

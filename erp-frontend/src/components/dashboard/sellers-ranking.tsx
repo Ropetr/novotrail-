@@ -2,7 +2,6 @@
 
 import { Trophy, TrendingUp, TrendingDown } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 
 const sellers = [
@@ -51,16 +50,16 @@ const sellers = [
 export function SellersRanking() {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium flex items-center gap-2">
-          <Trophy className="h-4 w-4 text-muted-foreground" />
+      <CardHeader className="h-8 px-4 py-0 border-b border-border/60 flex items-center">
+        <CardTitle className="text-base font-medium flex items-center gap-2 h-8 leading-none">
+          <Trophy className="h-4 w-4 text-foreground" />
           Ranking Vendedores
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-3">
         <div className="space-y-4">
           {sellers.map((seller) => (
-            <div key={seller.position} className="flex items-center gap-3">
+            <div key={seller.position} className="flex items-center gap-2">
               <div className="flex items-center gap-2 w-8">
                 {seller.position <= 3 ? (
                   <Trophy
@@ -68,21 +67,16 @@ export function SellersRanking() {
                       seller.position === 1
                         ? "text-amber-500"
                         : seller.position === 2
-                        ? "text-gray-400"
+                        ? "text-foreground"
                         : "text-amber-700"
                     }`}
                   />
                 ) : (
-                  <span className="text-sm font-medium text-muted-foreground">
+                  <span className="text-sm font-medium text-foreground">
                     {seller.position}º
                   </span>
                 )}
               </div>
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className={`${seller.color} text-white text-xs`}>
-                  {seller.initials}
-                </AvatarFallback>
-              </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-foreground truncate">{seller.name}</p>
@@ -101,7 +95,7 @@ export function SellersRanking() {
                     </span>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">{seller.value}</p>
+                <p className="text-xs text-foreground">{seller.value}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <Progress
                     value={seller.meta}
@@ -113,8 +107,8 @@ export function SellersRanking() {
                         : "[&>div]:bg-rose-500"
                     }`}
                   />
-                  <span className="text-xs text-muted-foreground w-16">
-                    {seller.meta}% da meta
+                  <span className="text-xs text-foreground w-16">
+                    {seller.meta}%
                   </span>
                 </div>
               </div>
@@ -125,3 +119,15 @@ export function SellersRanking() {
     </Card>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+

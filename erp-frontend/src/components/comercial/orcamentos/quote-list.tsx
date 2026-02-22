@@ -19,6 +19,8 @@ import {
   User,
   Users,
   Loader,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -36,7 +38,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { QuoteForm } from "./quote-form"
@@ -63,7 +65,7 @@ interface Quote {
 const statusConfig = {
   pending: { label: "Pendente", icon: Clock, className: "text-yellow-600 bg-yellow-50" },
   approved: { label: "Aprovado", icon: CheckCircle, className: "text-green-600 bg-green-50" },
-  rejected: { label: "Recusado", icon: XCircle, className: "text-red-600 bg-red-50" },
+  rejected: { label: "Recusado", icon: XCircle, className: "text-primary bg-primary/10" },
   expired: { label: "Expirado", icon: Clock, className: "text-muted-foreground bg-muted" },
   converted: { label: "Convertido", icon: ShoppingCart, className: "text-blue-600 bg-blue-50" },
 }
@@ -154,13 +156,7 @@ export function QuoteList() {
       {/* Formulário de Orçamento */}
       {showForm && (
         <Card className="transition-all duration-300 ease-in-out">
-          <CardHeader className="border-b border-border">
-            <div className="flex items-center justify-end">
-              <Button variant="ghost" size="sm" onClick={handleCloseForm}>
-                Fechar
-              </Button>
-            </div>
-          </CardHeader>
+          
           <CardContent className="pt-6">
             <QuoteForm quote={editingQuote} onClose={handleCloseForm} viewMode={viewMode} />
           </CardContent>
@@ -271,35 +267,35 @@ export function QuoteList() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-border bg-muted/50">
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <tr className="border-b border-border bg-muted/50 h-8">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Orçamento
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Cliente
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Vendedor
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Itens
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Total
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Desconto
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Valor Final
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Validade
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
@@ -331,9 +327,7 @@ export function QuoteList() {
                           >
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                                  <FileText className="h-5 w-5 text-muted-foreground" />
-                                </div>
+                                <FileText className="h-4 w-4 text-primary" />
                                 <div>
                                   <p className="font-medium text-foreground">{quote.number}</p>
                                   <p className="text-xs text-muted-foreground">{formatDate(quote.date)}</p>
@@ -457,7 +451,7 @@ export function QuoteList() {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+              <div className="flex items-center justify-between border-t border-border px-4 h-8">
                 <p className="text-sm text-muted-foreground">
                   {pagination
                     ? `Mostrando ${quotes.length} de ${pagination.total} orçamentos`
@@ -465,25 +459,27 @@ export function QuoteList() {
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1 || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Anterior"
                   >
-                    Anterior
+                    <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">
+                  <span className="min-w-[24px] text-center text-sm font-medium text-primary">
                     {page}
-                  </Button>
+                  </span>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => p + 1)}
                     disabled={!pagination || page >= pagination.totalPages || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Pr�ximo"
                   >
-                    Próximo
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -494,3 +490,10 @@ export function QuoteList() {
     </div>
   )
 }
+
+
+
+
+
+
+

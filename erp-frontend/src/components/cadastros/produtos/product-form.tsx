@@ -4,21 +4,19 @@ import React from "react"
 
 import { useState } from "react"
 import {
-  ArrowLeft,
   Save,
-  Plus,
   Trash2,
   Upload,
   Package,
   Info,
   DollarSign,
   Layers,
-  Truck,
   Store,
   FileText,
   ImageIcon,
   Search,
   Boxes,
+  X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -91,6 +89,7 @@ interface KitItem {
 
 export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormProps) {
   const [activeTab, setActiveTab] = useState<TabType>("geral")
+  const [isSaving, setIsSaving] = useState(false)
   const isViewOnly = viewMode === "view"
   const [isKit, setIsKit] = useState(false)
   const [kitItems, setKitItems] = useState<KitItem[]>([])
@@ -146,9 +145,19 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 800))
+      onClose()
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   // Funções para gerenciar itens do kit
   const addKitItem = (product: typeof availableProducts[0]) => {
-    const existingItem = kitItems.find(item => item.productId === product.id)
+    const existingItem = kitItems.find((item) => item.productId === product.id)
     if (existingItem) {
       updateKitItemQuantity(existingItem.id, existingItem.quantity + 1)
     } else {
@@ -162,7 +171,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
         unitPrice: product.price,
         totalPrice: product.price,
       }
-      setKitItems(prev => [...prev, newItem])
+      setKitItems((prev) => [...prev, newItem])
     }
     setKitSearchTerm("")
   }
@@ -172,52 +181,79 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
       removeKitItem(itemId)
       return
     }
-    setKitItems(prev => prev.map(item => 
-      item.id === itemId 
-        ? { ...item, quantity, totalPrice: item.unitPrice * quantity }
-        : item
-    ))
+    setKitItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId
+          ? { ...item, quantity, totalPrice: item.unitPrice * quantity }
+          : item
+      )
+    )
   }
 
   const removeKitItem = (itemId: string) => {
-    setKitItems(prev => prev.filter(item => item.id !== itemId))
+    setKitItems((prev) => prev.filter((item) => item.id !== itemId))
   }
 
   const getKitTotalCost = () => {
     return kitItems.reduce((sum, item) => sum + item.totalPrice, 0)
   }
 
-  const filteredAvailableProducts = availableProducts.filter(p => 
-    kitSearchTerm && (
-      p.name.toLowerCase().includes(kitSearchTerm.toLowerCase()) ||
-      p.sku.toLowerCase().includes(kitSearchTerm.toLowerCase())
-    )
+    const filteredAvailableProducts = availableProducts.filter(
+    (p) =>
+      kitSearchTerm &&
+      (p.name.toLowerCase().includes(kitSearchTerm.toLowerCase()) ||
+        p.sku.toLowerCase().includes(kitSearchTerm.toLowerCase()))
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
       {/* Tabs */}
-      <div className="border-b border-border">
-        <nav className="flex gap-4">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors",
-                  activeTab === tab.id
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                )}
+      <div className="relative border-b-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-border">
+        <div className="flex items-end justify-between gap-3">
+          <nav className="flex gap-3">
+            {tabs.map((tab) => {
+              const Icon = tab.icon
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 h-8 text-sm font-medium rounded-t-md border border-transparent transition-colors",
+                    activeTab === tab.id
+                      ? "border-border border-b-background bg-background text-foreground -mb-px"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              )
+            })}
+          </nav>
+          <div className="flex items-center gap-2 self-end">
+            {!isViewOnly && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="h-8 w-8 text-primary hover:text-primary/80"
+                title="Salvar"
               >
-                <Icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            )
-          })}
-        </nav>
+                <Save className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8 text-primary hover:text-primary/80"
+              title="Fechar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -229,7 +265,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardHeader>
                 <CardTitle className="text-base">Informações Básicas</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nome do Produto *</Label>
                   <Input
@@ -239,7 +275,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                     placeholder="Ex: Placa Drywall ST 12.5mm"
                   />
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="sku">SKU *</Label>
                     <Input
@@ -259,7 +295,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                     />
                   </div>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="ncm">NCM</Label>
                     <Input
@@ -302,12 +338,12 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               </CardContent>
             </Card>
 
-            <div className="space-y-6">
+            <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">Classificação</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3">
                   <div className="space-y-2">
                     <Label>Categoria *</Label>
                     <Select
@@ -386,7 +422,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                 <CardHeader>
                   <CardTitle className="text-base">Status</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3">
                   <div className="space-y-2">
                     <Label>Situação do Produto</Label>
                     <Select
@@ -440,7 +476,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardHeader>
                 <CardTitle className="text-base">Preços</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="costPrice">Preço de Custo *</Label>
                   <div className="relative">
@@ -496,8 +532,8 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardHeader>
                 <CardTitle className="text-base">Margem de Lucro</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 rounded-lg bg-muted/50 space-y-3">
+              <CardContent className="space-y-3">
+                <div className="p-4 rounded-lg bg-muted/10 space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Custo:</span>
                     <span className="font-medium">
@@ -537,7 +573,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardHeader>
                 <CardTitle className="text-base">Controle de Estoque</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="currentStock">Estoque Atual</Label>
                   <Input
@@ -547,7 +583,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                     onChange={(e) => handleInputChange("currentStock", parseInt(e.target.value) || 0)}
                   />
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="minStock">Estoque Mínimo</Label>
                     <Input
@@ -583,7 +619,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardHeader>
                 <CardTitle className="text-base">Peso e Dimensões</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="weight">Peso (kg)</Label>
                   <Input
@@ -594,7 +630,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                     step="0.001"
                   />
                 </div>
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-3">
                   <div className="space-y-2">
                     <Label htmlFor="height">Altura (cm)</Label>
                     <Input
@@ -641,7 +677,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                   Composição do Kit
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {!isKit ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Boxes className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -672,7 +708,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                               key={product.id}
                               type="button"
                               onClick={() => addKitItem(product)}
-                              className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors text-left border-b border-border last:border-b-0"
+                              className="w-full flex items-center justify-between p-3 hover:bg-muted/10 transition-colors text-left border-b border-border last:border-b-0"
                             >
                               <div>
                                 <p className="text-sm font-medium">{product.name}</p>
@@ -694,7 +730,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                     {kitItems.length > 0 ? (
                       <div className="border border-border rounded-md overflow-hidden">
                         <table className="w-full">
-                          <thead className="bg-muted/50">
+                          <thead className="bg-muted/10">
                             <tr>
                               <th className="text-left text-xs font-medium text-muted-foreground p-3">Produto</th>
                               <th className="text-center text-xs font-medium text-muted-foreground p-3 w-24">Qtd</th>
@@ -753,7 +789,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                               </tr>
                             ))}
                           </tbody>
-                          <tfoot className="bg-muted/50">
+                          <tfoot className="bg-muted/10">
                             <tr className="border-t border-border">
                               <td colSpan={3} className="p-3 text-right text-sm font-medium">
                                 Custo Total do Kit:
@@ -776,7 +812,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
 
                     {/* Resumo */}
                     {kitItems.length > 0 && (
-                      <div className="p-4 rounded-lg bg-muted/50 space-y-2">
+                      <div className="p-4 rounded-lg bg-muted/10 space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Total de itens:</span>
                           <span className="font-medium">{kitItems.length} produto(s)</span>
@@ -807,7 +843,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardHeader>
                 <CardTitle className="text-base">Dados Fiscais</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label>Origem do Produto</Label>
                   <Select
@@ -827,7 +863,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="cfop">CFOP Padrão</Label>
                     <Input
@@ -854,8 +890,8 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardHeader>
                 <CardTitle className="text-base">Alíquotas de Impostos</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <CardContent className="space-y-3">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="icms">ICMS (%)</Label>
                     <Input
@@ -909,7 +945,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardHeader>
                 <CardTitle className="text-base">Publicação Online</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Publicar na Loja Virtual</Label>
@@ -947,7 +983,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardHeader>
                 <CardTitle className="text-base">SEO - Otimização para Buscadores</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="metaTitle">Título SEO</Label>
                   <Input
@@ -981,7 +1017,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                 <CardTitle className="text-base">Canais de Venda (Marketplaces)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {["Mercado Livre", "Amazon", "Shopee", "Magazine Luiza"].map((marketplace) => (
                     <div
                       key={marketplace}
@@ -1004,9 +1040,9 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
               <CardTitle className="text-base">Imagens do Produto</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Upload Area */}
-                <div className="aspect-square rounded-lg border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors">
+                <div className="aspect-square rounded-lg border-2 border-dashed border-border bg-muted/10 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-muted/10 transition-colors">
                   <Upload className="h-8 w-8 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">Clique para enviar</span>
                   <span className="text-xs text-muted-foreground">ou arraste uma imagem</span>
@@ -1016,7 +1052,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="aspect-square rounded-lg border border-border bg-muted/30 flex items-center justify-center relative group"
+                    className="aspect-square rounded-lg border border-border bg-muted/10 flex items-center justify-center relative group"
                   >
                     <Package className="h-12 w-12 text-muted-foreground/30" />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-lg">
@@ -1034,19 +1070,36 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
           </Card>
         )}
       </div>
-
-      {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-        <Button variant="outline" onClick={onClose} className="bg-transparent">
-          {isViewOnly ? "Fechar" : "Cancelar"}
-        </Button>
-        {!isViewOnly && (
-          <Button>
-            <Save className="mr-2 h-4 w-4" />
-            Salvar
-          </Button>
-        )}
-      </div>
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

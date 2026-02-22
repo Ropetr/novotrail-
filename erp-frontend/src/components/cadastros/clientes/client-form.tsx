@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Save, Building2, User, MapPin, CreditCard, FileText, Truck, Plus, Trash2 } from "lucide-react"
+import { Save, User, MapPin, CreditCard, FileText, Plus, Trash2, X } from "lucide-react"
 import { useCNPJLookup } from "@/hooks/useCNPJLookup"
 import { useCEPLookup } from "@/hooks/useCEPLookup"
 import { InputDocumento } from "@/components/ui/input-documento"
@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -45,7 +44,6 @@ interface DeliveryAddress {
 }
 
 export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProps) {
-  const [personType, setPersonType] = useState<"pf" | "pj">(client?.type || "pj")
   const [activeTab, setActiveTab] = useState("general")
   const [billingAddressSame, setBillingAddressSame] = useState(true)
   const [deliveryAddresses, setDeliveryAddresses] = useState<DeliveryAddress[]>([
@@ -61,7 +59,6 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
   const [documentType, setDocumentType] = useState<"cpf" | "cnpj" | null>(client?.type === "pf" ? "cpf" : client?.type === "pj" ? "cnpj" : null)
   const [phoneValue, setPhoneValue] = useState(client?.phone || "")
   const [cellphoneValue, setCellphoneValue] = useState("")
-  const [mainCepValue, setMainCepValue] = useState("")
   const [emailValue, setEmailValue] = useState(client?.email || "")
   const [emailError, setEmailError] = useState("")
 
@@ -88,7 +85,6 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
       const nomeFantasiaInput = document.getElementById("tradeName") as HTMLInputElement
       const ieInput = document.getElementById("stateRegistration") as HTMLInputElement
       const imInput = document.getElementById("municipalRegistration") as HTMLInputElement
-      const emailInput = document.getElementById("email") as HTMLInputElement
 
       // Endereço principal
       const cepInput = document.getElementById("main-zipCode") as HTMLInputElement
@@ -194,8 +190,8 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
     const [cepValue, setCepValue] = useState("")
 
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+        <div className="grid grid-cols-4 gap-3">
           <div className="space-y-2">
             <Label htmlFor={`${prefix}-zipCode`}>CEP *</Label>
             <InputCEP
@@ -216,7 +212,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
           <Input id={`${prefix}-number`} placeholder="Nº" disabled={disabled} />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <div className="space-y-2">
           <Label htmlFor={`${prefix}-complement`}>Complemento</Label>
           <Input id={`${prefix}-complement`} placeholder="Apto, Sala, etc." disabled={disabled} />
@@ -230,7 +226,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
           <Input id={`${prefix}-reference`} placeholder="Ponto de referência" disabled={disabled} />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <div className="col-span-2 space-y-2">
           <Label htmlFor={`${prefix}-city`}>Cidade *</Label>
           <Input id={`${prefix}-city`} placeholder="Cidade" disabled={disabled} />
@@ -238,7 +234,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
         <div className="space-y-2">
           <Label htmlFor={`${prefix}-state`}>UF *</Label>
           <Select disabled={disabled}>
-            <SelectTrigger>
+            <SelectTrigger className="h-8">
               <SelectValue placeholder="UF" />
             </SelectTrigger>
             <SelectContent>
@@ -277,10 +273,11 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
   )}
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
       {/* Form Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <div className="flex items-end justify-between gap-3">
+          <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="general" className="gap-2">
             <User className="h-4 w-4" />
             Dados Gerais
@@ -297,21 +294,41 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
             <FileText className="h-4 w-4" />
             Fiscal
           </TabsTrigger>
-          <TabsTrigger value="carrier" className="gap-2">
-            <Truck className="h-4 w-4" />
-            Transportadora
-          </TabsTrigger>
         </TabsList>
+          <div className="flex items-center gap-2 self-end">
+            {!isViewOnly && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="h-8 w-8 text-primary hover:text-primary/80"
+                title="Salvar"
+              >
+                <Save className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8 text-primary hover:text-primary/80"
+              title="Fechar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
 
         {/* General Tab */}
-        <TabsContent value="general" className="space-y-4">
+        <TabsContent value="general" className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-border/60">
               <CardTitle className="text-lg">Identificação</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
               {/* Linha 1: Código, Nome/Razão Social, Documento (CPF/CNPJ) */}
-              <div className="grid grid-cols-6 gap-4">
+              <div className="grid grid-cols-6 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="code">Código</Label>
                   <Input id="code" placeholder="Auto" disabled />
@@ -345,7 +362,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
 
               {/* Linha 2: Campos específicos por tipo de documento */}
               {documentType === "cnpj" && (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="tradeName">Nome Fantasia</Label>
                     <Input
@@ -366,7 +383,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
               )}
 
               {documentType === "cpf" && (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="rg">RG</Label>
                     <Input id="rg" placeholder="RG" />
@@ -378,7 +395,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
                   <div className="space-y-2">
                     <Label htmlFor="gender">Sexo</Label>
                     <Select>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-8">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
@@ -394,11 +411,11 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-border/60">
               <CardTitle className="text-lg">Contato</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail *</Label>
                   <Input
@@ -411,7 +428,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
                     className={cn(emailError && "border-red-500")}
                   />
                   {emailError && (
-                    <p className="text-sm text-red-600">{emailError}</p>
+                    <p className="text-sm text-primary">{emailError}</p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -431,7 +448,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="contactName">Nome do Contato</Label>
                   <Input id="contactName" placeholder="Nome da pessoa de contato" />
@@ -445,15 +462,15 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-border/60">
               <CardTitle className="text-lg">Classificação</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="segment">Segmento</Label>
                   <Select>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -468,7 +485,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
                 <div className="space-y-2">
                   <Label htmlFor="seller">Vendedor</Label>
                   <Select>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -481,7 +498,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
                 <div className="space-y-2">
                   <Label htmlFor="priceTable">Tabela de Preço</Label>
                   <Select>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -506,10 +523,10 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
         </TabsContent>
 
         {/* Address Tab */}
-        <TabsContent value="address" className="space-y-4">
+        <TabsContent value="address" className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
           {/* Endereço Principal */}
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-border/60">
               <CardTitle className="text-lg">Endereço Principal (Registro da Empresa)</CardTitle>
             </CardHeader>
             <CardContent>
@@ -533,7 +550,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
               </div>
             </CardHeader>
             {!billingAddressSame && (
-              <CardContent className="pt-4">
+              <CardContent className="pt-6">
                 <AddressFields prefix="billing" />
               </CardContent>
             )}
@@ -543,7 +560,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg">Endereços de Entrega</CardTitle>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <Checkbox 
                     id="deliveryAddressSame" 
@@ -567,12 +584,12 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
               </div>
             </CardHeader>
             {!deliveryAddressSame && (
-              <CardContent className="pt-4 space-y-6">
+              <CardContent className="pt-6 space-y-3">
                 {deliveryAddresses.map((addr, index) => (
-                  <div key={addr.id} className="space-y-4">
-                    {index > 0 && <div className="border-t border-border pt-6" />}
+                  <div key={addr.id} className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+                    {index > 0 && <div className="border-t border-border/60 pt-6" />}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <div className="space-y-2">
                           <Label htmlFor={`delivery-name-${addr.id}`}>Nome do Endereço</Label>
                           <Input 
@@ -603,13 +620,13 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
         </TabsContent>
 
         {/* Financial Tab */}
-        <TabsContent value="financial" className="space-y-4">
+        <TabsContent value="financial" className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-border/60">
               <CardTitle className="text-lg">Crédito e Limites</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="creditLimit">Limite de Crédito</Label>
                   <Input
@@ -627,11 +644,11 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
                   <Input id="availableCredit" placeholder="R$ 0,00" disabled />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="paymentCondition">Condição de Pagamento Padrão</Label>
                   <Select>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -649,7 +666,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
                 <div className="space-y-2">
                   <Label htmlFor="paymentMethod">Forma de Pagamento Padrão</Label>
                   <Select>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -666,15 +683,15 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-border/60">
               <CardTitle className="text-lg">Dados Bancários</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-4 gap-4">
+            <CardContent className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+              <div className="grid grid-cols-4 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="bank">Banco</Label>
                   <Select>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -705,17 +722,17 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
         </TabsContent>
 
         {/* Fiscal Tab */}
-        <TabsContent value="fiscal" className="space-y-4">
+        <TabsContent value="fiscal" className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-border/60">
               <CardTitle className="text-lg">Configurações Fiscais</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="contribuinte">Contribuinte ICMS</Label>
                   <Select>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -732,7 +749,7 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
                 <div className="space-y-2">
                   <Label htmlFor="regime">Regime Tributário</Label>
                   <Select>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -743,141 +760,44 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
                   </Select>
                 </div>
               </div>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <Switch id="retainIss" />
+                  <Checkbox id="retainIss" />
                   <Label htmlFor="retainIss">Retém ISS</Label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Switch id="retainIr" />
+                  <Checkbox id="retainIr" />
                   <Label htmlFor="retainIr">Retém IR</Label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Switch id="retainPis" />
+                  <Checkbox id="retainPis" />
                   <Label htmlFor="retainPis">Retém PIS/COFINS/CSLL</Label>
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* Carrier Tab (anteriormente Entrega) */}
-        <TabsContent value="carrier" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Transportadora Preferencial</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="carrier">Transportadora</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Transportadora ABC</SelectItem>
-                      <SelectItem value="2">Expresso Rápido</SelectItem>
-                      <SelectItem value="3">Logística Sul</SelectItem>
-                      <SelectItem value="correios">Correios</SelectItem>
-                      <SelectItem value="own">Entrega Própria</SelectItem>
-                      <SelectItem value="pickup">Retira no Local</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="deliveryTime">Horário Preferencial</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="morning">Manhã (08h - 12h)</SelectItem>
-                      <SelectItem value="afternoon">Tarde (13h - 18h)</SelectItem>
-                      <SelectItem value="commercial">Horário Comercial</SelectItem>
-                      <SelectItem value="any">Qualquer Horário</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="freightType">Tipo de Frete</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cif">CIF (Frete por conta do remetente)</SelectItem>
-                      <SelectItem value="fob">FOB (Frete por conta do destinatário)</SelectItem>
-                      <SelectItem value="third">Frete por conta de terceiros</SelectItem>
-                      <SelectItem value="free">Sem frete</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="vehicleType">Tipo de Veículo</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="moto">Moto</SelectItem>
-                      <SelectItem value="car">Carro</SelectItem>
-                      <SelectItem value="van">Van</SelectItem>
-                      <SelectItem value="truck">Caminhão</SelectItem>
-                      <SelectItem value="any">Qualquer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="deliveryNotes">Instruções de Entrega</Label>
-                <Textarea
-                  id="deliveryNotes"
-                  placeholder="Instruções especiais para entrega... Ex: Entregar apenas com agendamento, ligar antes, etc."
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Restrições de Entrega</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="requireSchedule" />
-                  <Label htmlFor="requireSchedule" className="font-normal">Requer agendamento</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="restrictedAccess" />
-                  <Label htmlFor="restrictedAccess" className="font-normal">Acesso restrito (portaria)</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="noWeekend" />
-                  <Label htmlFor="noWeekend" className="font-normal">Não entrega aos finais de semana</Label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
-
-      {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-        <Button variant="outline" onClick={onClose} className="bg-transparent">
-          {isViewOnly ? "Fechar" : "Cancelar"}
-        </Button>
-        {!isViewOnly && (
-          <Button onClick={handleSave} disabled={isSaving}>
-            <Save className="mr-2 h-4 w-4" />
-            {isSaving ? "Salvando..." : "Salvar"}
-          </Button>
-        )}
-      </div>
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-# Integração Nuvem Fiscal - Documentação de Endpoints
+﻿# Integração Nuvem Fiscal - Documentação de Endpoints
 
 ## Visão Geral
 
@@ -464,3 +464,4 @@ src/
 **Versão**: 1.0.0
 **Última Atualização**: 12 de Fevereiro de 2026
 **Desenvolvido com**: Clean Architecture + DDD
+

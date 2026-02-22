@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import {
   Save,
   Search,
+  X,
   Info,
   FileText,
   DollarSign,
@@ -217,29 +218,54 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
       {/* Tabs */}
-      <div className="border-b border-border">
-        <nav className="flex gap-4">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors",
-                  activeTab === tab.id
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                )}
+      <div className="relative border-b-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-border">
+        <div className="flex items-end justify-between gap-3">
+          <nav className="flex gap-3">
+            {tabs.map((tab) => {
+              const Icon = tab.icon
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 h-8 text-sm font-medium rounded-t-md border border-transparent transition-colors",
+                    activeTab === tab.id
+                      ? "border-border border-b-background bg-background text-foreground -mb-px"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              )
+            })}
+          </nav>
+          <div className="flex items-center gap-2 self-end">
+            {!isViewOnly && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="h-8 w-8 text-primary hover:text-primary/80"
+                title="Salvar"
               >
-                <Icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            )
-          })}
-        </nav>
+                <Save className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8 text-primary hover:text-primary/80"
+              title="Fechar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -248,11 +274,11 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
         {activeTab === "geral" && (
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base">Informações da Devolução</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <CardContent className="space-y-3">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="number">Número da Devolução</Label>
                     <Input
@@ -279,7 +305,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
                     value={formData.status}
                     onValueChange={(value) => handleInputChange("status", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -295,15 +321,15 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base">Venda Origem e Motivo</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {/* Busca de Venda */}
                 <div className="space-y-2">
                   <Label>Venda *</Label>
                   {selectedSale ? (
-                    <div className="p-3 rounded-lg border border-border bg-muted/30">
+                    <div className="p-3 rounded-lg border border-border bg-muted/10">
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <p className="text-sm font-medium">{selectedSale.number}</p>
@@ -329,7 +355,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
                       </div>
                     </div>
                   ) : (
-                    <>
+                    <div className="relative">
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -340,13 +366,13 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
                         />
                       </div>
                       {filteredSales.length > 0 && (
-                        <div className="border border-border rounded-md max-h-48 overflow-y-auto">
+                        <div className="absolute left-0 right-0 top-full z-50 mt-1 border border-border rounded-md bg-background shadow-lg max-h-48 overflow-y-auto">
                           {filteredSales.map((sale) => (
                             <button
                               key={sale.id}
                               type="button"
                               onClick={() => handleSaleSelect(sale)}
-                              className="w-full flex flex-col p-3 hover:bg-muted/50 transition-colors text-left border-b border-border last:border-b-0"
+                              className="w-full flex flex-col p-3 hover:bg-muted/10 transition-colors text-left border-b border-border last:border-b-0"
                             >
                               <div className="flex items-center justify-between mb-1">
                                 <p className="text-sm font-medium">{sale.number}</p>
@@ -366,7 +392,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
                           ))}
                         </div>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
 
@@ -377,7 +403,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
                     value={formData.reason}
                     onValueChange={(value) => handleInputChange("reason", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione um motivo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -410,13 +436,13 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
         {activeTab === "itens" && (
           <div className="grid gap-6">
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Selecionar Itens para Devolução
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {!selectedSale ? (
                   <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-md">
                     <AlertCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -523,7 +549,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
 
                     {/* Resumo */}
                     {returnItems.length > 0 && (
-                      <div className="p-4 rounded-lg bg-muted/50 space-y-2">
+                      <div className="p-4 rounded-lg bg-muted/10 space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Itens selecionados:</span>
                           <span className="font-medium">{returnItems.length}</span>
@@ -556,11 +582,11 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
         {activeTab === "reembolso" && (
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base">Informações de Reembolso</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 rounded-lg bg-muted/50 space-y-2">
+              <CardContent className="space-y-3">
+                <div className="p-4 rounded-lg bg-muted/10 space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Valor da Devolução:</span>
                     <span className="font-bold text-primary">
@@ -578,7 +604,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
                     value={formData.refundMethod}
                     onValueChange={(value) => handleInputChange("refundMethod", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -597,7 +623,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
                     value={formData.refundStatus}
                     onValueChange={(value) => handleInputChange("refundStatus", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -637,7 +663,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base">Observações</CardTitle>
               </CardHeader>
               <CardContent>
@@ -652,19 +678,20 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
           </div>
         )}
       </div>
-
-      {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-        <Button variant="outline" onClick={onClose} className="bg-transparent">
-          {isViewOnly ? "Fechar" : "Cancelar"}
-        </Button>
-        {!isViewOnly && (
-          <Button onClick={handleSave} disabled={isSaving}>
-            <Save className="mr-2 h-4 w-4" />
-            {isSaving ? "Salvando..." : "Salvar Devolução"}
-          </Button>
-        )}
-      </div>
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

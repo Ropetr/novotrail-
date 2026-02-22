@@ -43,3 +43,5 @@ export function PrivateRoute({ children }: PrivateRouteProps) {
   // Usuário autenticado, renderiza o componente filho
   return <>{children}</>
 }
+
+

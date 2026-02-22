@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Save, User, FileText, Briefcase, MessageSquare } from "lucide-react"
+import { Save, User, FileText, Briefcase, MessageSquare, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,7 +16,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { InputPhone } from "@/components/ui/input-phone"
-import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
 interface EmployeeFormProps {
@@ -52,10 +51,11 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
       {/* Form Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <div className="flex items-end justify-between gap-3">
+          <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="personal" className="gap-2">
             <User className="h-4 w-4" />
             Dados Pessoais
@@ -73,16 +73,40 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
             Observações
           </TabsTrigger>
         </TabsList>
+          <div className="flex items-center gap-2 self-end">
+            {!isViewOnly && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="h-8 w-8 text-primary hover:text-primary/80"
+                title="Salvar"
+              >
+                <Save className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8 text-primary hover:text-primary/80"
+              title="Fechar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
 
         {/* Personal Tab */}
-        <TabsContent value="personal" className="space-y-4">
+        <TabsContent value="personal" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Identificação</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {/* Linha 1: Código, Nome Completo */}
-              <div className="grid grid-cols-6 gap-4">
+              <div className="grid grid-cols-6 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="code">Código</Label>
                   <Input
@@ -104,7 +128,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
               </div>
 
               {/* Linha 2: Data de Nascimento, Sexo, Estado Civil */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="birthDate">Data de Nascimento *</Label>
                   <Input
@@ -145,7 +169,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
               </div>
 
               {/* Linha 3: Nacionalidade, Naturalidade */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="nationality">Nacionalidade</Label>
                   <Input
@@ -172,8 +196,8 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
             <CardHeader>
               <CardTitle className="text-lg">Contato</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail *</Label>
                   <Input
@@ -210,8 +234,8 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
             <CardHeader>
               <CardTitle className="text-lg">Endereço</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-4 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-4 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="zipCode">CEP</Label>
                   <Input
@@ -240,7 +264,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="complement">Complemento</Label>
                   <Input
@@ -269,7 +293,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2 space-y-2">
                   <Label htmlFor="city">Cidade</Label>
                   <Input
@@ -322,13 +346,13 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
         </TabsContent>
 
         {/* Documents Tab */}
-        <TabsContent value="documents" className="space-y-4">
+        <TabsContent value="documents" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Documentos Pessoais</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="cpf">CPF *</Label>
                   <Input
@@ -357,7 +381,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="voterRegistration">Título de Eleitor</Label>
                   <Input
@@ -384,8 +408,8 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
             <CardHeader>
               <CardTitle className="text-lg">Documentos Trabalhistas</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="ctps">CTPS (Número)</Label>
                   <Input
@@ -420,7 +444,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="pis">PIS/PASEP</Label>
                   <Input
@@ -445,13 +469,13 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
         </TabsContent>
 
         {/* Contract Tab */}
-        <TabsContent value="contract" className="space-y-4">
+        <TabsContent value="contract" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Dados do Contrato</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="admissionDate">Data de Admissão *</Label>
                   <Input
@@ -498,8 +522,8 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
             <CardHeader>
               <CardTitle className="text-lg">Cargo e Departamento</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="position">Cargo *</Label>
                   <Input
@@ -527,7 +551,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="salary">Salário</Label>
                   <Input
@@ -574,8 +598,8 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
             <CardHeader>
               <CardTitle className="text-lg">Benefícios</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="mealVoucher">Vale Refeição (R$/dia)</Label>
                   <Input
@@ -599,7 +623,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="healthInsurance">Plano de Saúde</Label>
                   <Select defaultValue={employee?.healthInsurance} disabled={isViewOnly}>
@@ -632,12 +656,12 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
         </TabsContent>
 
         {/* Notes Tab */}
-        <TabsContent value="notes" className="space-y-4">
+        <TabsContent value="notes" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Observações e Informações Adicionais</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor="notes">Observações Gerais</Label>
                 <Textarea
@@ -658,7 +682,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   disabled={isViewOnly}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="emergencyContact">Contato de Emergência</Label>
                   <Input
@@ -682,19 +706,20 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-        <Button variant="outline" onClick={onClose} className="bg-transparent">
-          {isViewOnly ? "Fechar" : "Cancelar"}
-        </Button>
-        {!isViewOnly && (
-          <Button onClick={handleSave} disabled={isSaving}>
-            <Save className="mr-2 h-4 w-4" />
-            {isSaving ? "Salvando..." : "Salvar"}
-          </Button>
-        )}
-      </div>
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

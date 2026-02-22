@@ -29,13 +29,13 @@ const products = [
 export function StalledProducts() {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+      <CardHeader className="h-8 px-4 py-0 border-b border-border/60 flex items-center">
+        <CardTitle className="text-base font-medium flex items-center gap-2 h-8 leading-none">
+          <AlertTriangle className="h-4 w-4 text-foreground" />
           Produtos Parados
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-3">
         <div className="space-y-3">
           {products.map((product, index) => (
             <div key={index} className="flex items-start gap-2">
@@ -45,7 +45,7 @@ export function StalledProducts() {
                   <p className="text-sm font-medium text-foreground">{product.name}</p>
                   <span className="text-xs font-medium text-rose-500">{product.days} dias</span>
                 </div>
-                <p className="text-xs text-muted-foreground">Estoque: {product.stock}</p>
+                <p className="text-xs text-foreground">Estoque: {product.stock}</p>
               </div>
             </div>
           ))}
@@ -54,3 +54,9 @@ export function StalledProducts() {
     </Card>
   )
 }
+
+
+
+
+
+

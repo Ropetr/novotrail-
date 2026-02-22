@@ -8,13 +8,13 @@ import {
   Edit,
   Trash2,
   Eye,
-  Building2,
-  User,
   Mail,
   Phone,
   TrendingUp,
   Loader,
   Plus,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,7 +32,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
@@ -252,18 +252,7 @@ export function PartnerList() {
       {/* Formulário */}
       {showForm && (
         <Card className="transition-all duration-300 ease-in-out">
-          <CardHeader className="border-b border-border">
-            <div className="flex items-center justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseForm}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Fechar
-              </Button>
-            </div>
-          </CardHeader>
+          
           <CardContent className="pt-6">
             <PartnerForm
               partner={editingPartner}
@@ -293,26 +282,26 @@ export function PartnerList() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-border bg-muted/50">
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <tr className="border-b border-border bg-muted/50 h-8">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Parceiro
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Documento
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Contato
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         % Cashback
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Total Acumulado
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
@@ -337,13 +326,6 @@ export function PartnerList() {
                           >
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                  {partner.type === "pj" ? (
-                                    <Building2 className="h-5 w-5 text-muted-foreground" />
-                                  ) : (
-                                    <User className="h-5 w-5 text-muted-foreground" />
-                                  )}
-                                </div>
                                 <div>
                                   <p className="font-medium text-foreground">
                                     {partner.tradeName || partner.name}
@@ -436,7 +418,7 @@ export function PartnerList() {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+              <div className="flex items-center justify-between border-t border-border px-4 h-8">
                 <p className="text-sm text-muted-foreground">
                   {pagination
                     ? `Mostrando ${partners.length} de ${pagination.total} parceiros`
@@ -444,25 +426,27 @@ export function PartnerList() {
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1 || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Anterior"
                   >
-                    Anterior
+                    <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">
+                  <span className="min-w-[24px] text-center text-sm font-medium text-primary">
                     {page}
-                  </Button>
+                  </span>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => p + 1)}
                     disabled={!pagination || page >= pagination.totalPages || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Pr�ximo"
                   >
-                    Próximo
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -501,3 +485,10 @@ export function PartnerList() {
     </div>
   )
 }
+
+
+
+
+
+
+

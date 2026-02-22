@@ -29,7 +29,12 @@
       "Bash(npx tsc:*)",
       "Bash(npx drizzle-kit generate:*)",
       "Bash(dir:*)",
-      "Bash(powershell -Command \"Get-ChildItem -Recurse -Depth 3 | Where-Object { $_SIsContainer } | Select-Object FullName\")"
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Depth 3 | Where-Object { $_SIsContainer } | Select-Object FullName\")",
+      "Bash(find:*)",
+      "Bash(head:*)",
+      "Bash(awk:*)",
+      "Bash(node:*)",
+      "Bash(npx wrangler:*)"
     ],
     "deny": [],
     "ask": []

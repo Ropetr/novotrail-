@@ -9,7 +9,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
 } from "recharts"
 
 const data = [
@@ -24,25 +23,15 @@ const data = [
 export function SalesChart() {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-base font-medium flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          Evolução de Vendas
+      <CardHeader className="h-8 px-4 py-0 border-b border-border/60 flex items-center justify-between">
+        <CardTitle className="text-base font-medium flex items-center gap-2 h-8 leading-none">
+          <BarChart3 className="h-4 w-4 text-foreground" />
+          Evolucao de Vendas
         </CardTitle>
-        <div className="flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="h-2.5 w-2.5 rounded-sm bg-primary" />
-            <span className="text-muted-foreground">Este ano</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-2.5 w-2.5 rounded-sm bg-muted" />
-            <span className="text-muted-foreground">Ano anterior</span>
-          </div>
-        </div>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} barGap={4}>
+      <CardContent className="pt-3 pb-0">
+        <ResponsiveContainer width="100%" height={310}>
+          <BarChart data={data} barGap={4} margin={{ left: -20, right: 8, top: 0, bottom: 0 }}>
             <XAxis
               dataKey="name"
               stroke="#888888"
@@ -62,13 +51,17 @@ export function SalesChart() {
                 backgroundColor: "hsl(var(--card))",
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "8px",
+                color: "hsl(var(--foreground))",
               }}
-              formatter={(value: number) =>
-                new Intl.NumberFormat("pt-BR", {
+              labelStyle={{ color: "hsl(var(--foreground))" }}
+              formatter={(value: number, _name: string, props: any) => {
+                const formatted = new Intl.NumberFormat("pt-BR", {
                   style: "currency",
                   currency: "BRL",
                 }).format(value)
-              }
+                const color = props?.color || "hsl(var(--foreground))"
+                return [<span style={{ color }}>{formatted}</span>, _name]
+              }}
             />
             <Bar
               dataKey="esteAno"
@@ -80,13 +73,28 @@ export function SalesChart() {
             <Bar
               dataKey="anoAnterior"
               name="Ano anterior"
-              fill="hsl(var(--muted))"
+              fill="hsl(var(--muted-foreground))"
               radius={[4, 4, 0, 0]}
               maxBarSize={40}
             />
           </BarChart>
         </ResponsiveContainer>
+        <div className="mt-2 h-8 border-t border-border/60 flex items-center justify-end gap-4 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="h-2.5 w-2.5 rounded-sm bg-primary" />
+            <span className="text-foreground">Este ano</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-2.5 w-2.5 rounded-sm bg-muted-foreground" />
+            <span className="text-foreground">Ano anterior</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   )
 }
+
+
+
+
+

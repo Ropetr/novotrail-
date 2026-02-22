@@ -15,6 +15,8 @@ import {
   CheckCircle,
   XCircle,
   Loader,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,7 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
@@ -229,18 +231,7 @@ export function ProductList() {
       {/* Formulário */}
       {showForm && (
         <Card className="transition-all duration-300 ease-in-out">
-          <CardHeader className="border-b border-border">
-            <div className="flex items-center justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseForm}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Fechar
-              </Button>
-            </div>
-          </CardHeader>
+          
           <CardContent className="pt-6">
             <ProductForm
               product={editingProduct}
@@ -270,29 +261,29 @@ export function ProductList() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-border bg-muted/50">
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <tr className="border-b border-border bg-muted/50 h-8">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Produto
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        SKU / EAN
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Categoria
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Marca
+                      </th>
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Custo
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Preço
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Estoque
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
@@ -318,23 +309,22 @@ export function ProductList() {
                           >
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                                  <Package className="h-5 w-5 text-muted-foreground" />
-                                </div>
+                                <Package className="h-5 w-5 text-muted-foreground" />
                                 <div>
                                   <p className="font-medium text-foreground">{product.name}</p>
-                                  <p className="text-xs text-muted-foreground">{product.brand}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    SKU: <span className="font-mono">{product.sku}</span>
+                                    <span className="mx-2 text-muted-foreground/50">|</span>
+                                    EAN: <span className="font-mono">{product.ean}</span>
+                                  </p>
                                 </div>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">
-                              <div>
-                                <p className="font-mono text-sm text-foreground">{product.sku}</p>
-                                <p className="font-mono text-xs text-muted-foreground">{product.ean}</p>
                               </div>
                             </td>
                             <td className="px-4 py-3">
                               <Badge variant="secondary">{product.category}</Badge>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="text-sm text-muted-foreground">{product.brand}</span>
                             </td>
                             <td className="px-4 py-3 text-right">
                               <span className="text-sm text-muted-foreground">
@@ -410,7 +400,7 @@ export function ProductList() {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+              <div className="flex items-center justify-between border-t border-border px-4 h-8">
                 <p className="text-sm text-muted-foreground">
                   {pagination
                     ? `Mostrando ${products.length} de ${pagination.total} produtos`
@@ -418,41 +408,27 @@ export function ProductList() {
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1 || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Anterior"
                   >
-                    Anterior
+                    <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  {pagination &&
-                    Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
-                      const pageNum = i + 1
-                      return (
-                        <Button
-                          key={pageNum}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setPage(pageNum)}
-                          className={cn(
-                            pageNum === page
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-transparent"
-                          )}
-                        >
-                          {pageNum}
-                        </Button>
-                      )
-                    })}
+                  <span className="min-w-[24px] text-center text-sm font-medium text-primary">
+                    {page}
+                  </span>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => p + 1)}
                     disabled={!pagination || page >= pagination.totalPages || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Pr�ximo"
                   >
-                    Próximo
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -489,3 +465,12 @@ export function ProductList() {
     </div>
   )
 }
+
+
+
+
+
+
+
+
+

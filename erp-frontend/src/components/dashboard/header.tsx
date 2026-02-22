@@ -34,20 +34,20 @@ export function Header() {
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-card px-6">
       <div>
         <h1 className="text-lg font-semibold text-foreground">Dashboard de Vendas</h1>
-        <p className="text-sm text-muted-foreground">Bem-vindo, Rodrigo! Carregando dados...</p>
+        <p className="text-sm text-foreground">Bem-vindo, Rodrigo! Carregando dados...</p>
       </div>
 
       <div className="flex items-center gap-4">
         <Button 
           variant="ghost" 
           size="icon" 
-          className="text-muted-foreground hover:text-foreground"
+          className="text-foreground hover:text-foreground"
           onClick={toggleDarkMode}
         >
           {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
         
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground">
+        <Button variant="ghost" size="icon" className="relative text-foreground">
           <Bell className="h-5 w-5" />
           <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center">
             3
@@ -63,7 +63,7 @@ export function Header() {
               </Avatar>
               <div className="hidden flex-col items-start text-left md:flex">
                 <span className="text-sm font-medium text-foreground">Rodrigo</span>
-                <span className="text-xs text-muted-foreground">rodrigo@trailsystem.com.br</span>
+                <span className="text-xs text-foreground">rodrigo@trailsystem.com.br</span>
               </div>
             </Button>
           </DropdownMenuTrigger>
@@ -80,3 +80,6 @@ export function Header() {
     </header>
   )
 }
+
+
+

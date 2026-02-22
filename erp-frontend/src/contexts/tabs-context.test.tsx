@@ -86,8 +86,8 @@ describe("TabsContext - Multiple Tabs Feature", () => {
   it("should generate unique IDs for duplicate tabs", async () => {
     const { result } = renderHook(() => useTabs(), { wrapper })
 
-    let firstTabId: string
-    let secondTabId: string
+    let firstTabId = ""
+    let secondTabId = ""
 
     act(() => {
       firstTabId = result.current.addTab({
@@ -154,7 +154,7 @@ describe("TabsContext - Multiple Tabs Feature", () => {
   it("should activate newly created tab", () => {
     const { result } = renderHook(() => useTabs(), { wrapper })
 
-    let newTabId: string
+    let newTabId = ""
 
     act(() => {
       newTabId = result.current.addTab({
@@ -251,3 +251,5 @@ describe("TabsContext - Multiple Tabs Feature", () => {
     expect(result.current.tabs).toHaveLength(4) // Não aumenta
   })
 })
+
+

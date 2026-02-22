@@ -5,6 +5,7 @@ import {
   Save,
   Search,
   Trash2,
+  X,
   Info,
   Users,
   FileText,
@@ -160,21 +161,34 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
   }
 
   // Funções para gerenciar itens da venda
-  const addItem = (product: typeof availableProducts[0]) => {
+  const parseProductSearch = (term: string) => {
+    const trimmed = term.trim()
+    if (!trimmed) {
+      return { qty: 1, query: "" }
+    }
+    const match = trimmed.match(/^(\d+)\s*[xX]?\s+(.*)$/)
+    if (match) {
+      return { qty: Math.max(1, parseInt(match[1], 10) || 1), query: match[2].trim() }
+    }
+    return { qty: 1, query: trimmed }
+  }
+
+  const addItem = (product: typeof availableProducts[0], quantity: number) => {
+    const qty = Number.isFinite(quantity) && quantity > 0 ? quantity : 1
     const existingItem = items.find((item) => item.productId === product.id)
     if (existingItem) {
-      updateItemQuantity(existingItem.id, existingItem.quantity + 1)
+      updateItemQuantity(existingItem.id, existingItem.quantity + qty)
     } else {
       const newItem: SaleItem = {
         id: Date.now().toString(),
         productId: product.id,
         sku: product.sku,
         name: product.name,
-        quantity: 1,
+        quantity: qty,
         unit: product.unit,
         unitPrice: product.price,
         discount: 0,
-        totalPrice: product.price,
+        totalPrice: product.price * qty,
       }
       setItems((prev) => [...prev, newItem])
     }
@@ -249,11 +263,13 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
     return getSubtotal() - getTotalDiscount()
   }
 
+  const { qty: parsedQty, query: parsedQuery } = parseProductSearch(productSearchTerm)
+
   const filteredProducts = availableProducts.filter(
     (p) =>
-      productSearchTerm &&
-      (p.name.toLowerCase().includes(productSearchTerm.toLowerCase()) ||
-        p.sku.toLowerCase().includes(productSearchTerm.toLowerCase()))
+      parsedQuery &&
+      (p.name.toLowerCase().includes(parsedQuery.toLowerCase()) ||
+        p.sku.toLowerCase().includes(parsedQuery.toLowerCase()))
   )
 
   const filteredClients = availableClients.filter(
@@ -301,29 +317,54 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
       {/* Tabs */}
-      <div className="border-b border-border">
-        <nav className="flex gap-4">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors",
-                  activeTab === tab.id
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                )}
+      <div className="relative border-b-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-border">
+        <div className="flex items-end justify-between gap-3">
+          <nav className="flex gap-3">
+            {tabs.map((tab) => {
+              const Icon = tab.icon
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 h-8 text-sm font-medium rounded-t-md border border-transparent transition-colors",
+                    activeTab === tab.id
+                      ? "border-border border-b-background bg-background text-foreground -mb-px"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              )
+            })}
+          </nav>
+          <div className="flex items-center gap-2 self-end">
+            {!isViewOnly && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="h-8 w-8 text-primary hover:text-primary/80"
+                title="Salvar"
               >
-                <Icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            )
-          })}
-        </nav>
+                <Save className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8 text-primary hover:text-primary/80"
+              title="Fechar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -332,11 +373,11 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
         {activeTab === "geral" && (
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base">Informações da Venda</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <CardContent className="space-y-3">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="number">Número da Venda</Label>
                     <Input
@@ -363,7 +404,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                     value={formData.status}
                     onValueChange={(value) => handleInputChange("status", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -379,18 +420,18 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   Cliente e Vendedor
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {/* Busca de Cliente */}
                 <div className="space-y-2">
                   <Label>Cliente *</Label>
                   {formData.clientName ? (
-                    <div className="p-3 rounded-lg border border-border bg-muted/30 flex items-center justify-between">
+                    <div className="p-3 rounded-lg border border-border bg-muted/10 flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium">{formData.clientName}</p>
                         <p className="text-xs text-muted-foreground">
@@ -413,7 +454,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                       </Button>
                     </div>
                   ) : (
-                    <>
+                    <div className="relative">
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -424,13 +465,13 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                         />
                       </div>
                       {filteredClients.length > 0 && (
-                        <div className="border border-border rounded-md max-h-48 overflow-y-auto">
+                        <div className="absolute left-0 right-0 top-full z-50 mt-1 border border-border rounded-md bg-background shadow-lg max-h-48 overflow-y-auto">
                           {filteredClients.map((client) => (
                             <button
                               key={client.id}
                               type="button"
                               onClick={() => handleClientSelect(client)}
-                              className="w-full flex flex-col p-3 hover:bg-muted/50 transition-colors text-left border-b border-border last:border-b-0"
+                              className="w-full flex flex-col p-3 hover:bg-muted/10 transition-colors text-left border-b border-border last:border-b-0"
                             >
                               <p className="text-sm font-medium">{client.name}</p>
                               <p className="text-xs text-muted-foreground">
@@ -440,7 +481,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                           ))}
                         </div>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
 
@@ -448,7 +489,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                 <div className="space-y-2">
                   <Label>Vendedor *</Label>
                   <Select value={formData.sellerId} onValueChange={handleSellerSelect}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="Selecione um vendedor" />
                     </SelectTrigger>
                     <SelectContent>
@@ -469,54 +510,56 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
         {activeTab === "itens" && (
           <div className="grid gap-6">
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Produtos e Serviços
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {/* Busca de produtos */}
                 <div className="space-y-2">
                   <Label>Adicionar Item à Venda</Label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      value={productSearchTerm}
-                      onChange={(e) => setProductSearchTerm(e.target.value)}
-                      placeholder="Buscar produto por nome ou SKU..."
-                      className="pl-10"
-                    />
-                  </div>
-                  {/* Resultados da busca */}
-                  {filteredProducts.length > 0 && (
-                    <div className="border border-border rounded-md max-h-48 overflow-y-auto">
-                      {filteredProducts.map((product) => (
-                        <button
-                          key={product.id}
-                          type="button"
-                          onClick={() => addItem(product)}
-                          className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors text-left border-b border-border last:border-b-0"
-                        >
-                          <div>
-                            <p className="text-sm font-medium">{product.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              SKU: {product.sku} • Estoque: {product.stock} {product.unit}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-medium">
-                              {new Intl.NumberFormat("pt-BR", {
-                                style: "currency",
-                                currency: "BRL",
-                              }).format(product.price)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">/{product.unit}</p>
-                          </div>
-                        </button>
-                      ))}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        value={productSearchTerm}
+                        onChange={(e) => setProductSearchTerm(e.target.value)}
+                        placeholder="Ex: 3 cimento ou cimento"
+                        className="pl-10"
+                      />
                     </div>
-                  )}
+                    {/* Resultados da busca */}
+                    {filteredProducts.length > 0 && (
+                      <div className="absolute left-0 right-0 top-full z-50 mt-1 border border-border rounded-md bg-background shadow-lg max-h-48 overflow-y-auto">
+                        {filteredProducts.map((product) => (
+                          <button
+                            key={product.id}
+                            type="button"
+                            onClick={() => addItem(product, parsedQty)}
+                            className="w-full flex items-center justify-between p-3 hover:bg-muted/10 transition-colors text-left border-b border-border last:border-b-0"
+                          >
+                            <div>
+                              <p className="text-sm font-medium">{product.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                SKU: {product.sku} • Estoque: {product.stock} {product.unit}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-medium">
+                                {new Intl.NumberFormat("pt-BR", {
+                                  style: "currency",
+                                  currency: "BRL",
+                                }).format(product.price)}
+                              </p>
+                              <p className="text-xs text-muted-foreground">/{product.unit}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Lista de itens */}
@@ -524,24 +567,24 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                   <div className="border border-border rounded-md overflow-hidden">
                     <div className="overflow-x-auto">
                       <table className="w-full">
-                        <thead className="bg-muted/50">
-                          <tr>
-                            <th className="text-left text-xs font-medium text-muted-foreground p-3">
+                        <thead className="bg-muted/10">
+                          <tr className="h-8">
+                            <th className="text-left text-xs font-medium text-muted-foreground px-3 py-0 align-middle">
                               Produto
                             </th>
-                            <th className="text-center text-xs font-medium text-muted-foreground p-3 w-32">
+                            <th className="text-center text-xs font-medium text-muted-foreground px-3 py-0 align-middle w-32">
                               Qtd
                             </th>
-                            <th className="text-right text-xs font-medium text-muted-foreground p-3 w-32">
+                            <th className="text-left text-xs font-medium text-muted-foreground px-3 py-0 align-middle w-32">
                               Unitário
                             </th>
-                            <th className="text-right text-xs font-medium text-muted-foreground p-3 w-24">
+                            <th className="text-left text-xs font-medium text-muted-foreground px-3 py-0 align-middle w-24">
                               Desc %
                             </th>
-                            <th className="text-right text-xs font-medium text-muted-foreground p-3 w-32">
+                            <th className="text-right text-xs font-medium text-muted-foreground px-3 py-0 align-middle w-32">
                               Total
                             </th>
-                            <th className="w-10 p-3"></th>
+                            <th className="w-10 px-3 py-0 align-middle"></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -558,16 +601,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                                 <p className="text-xs text-muted-foreground">SKU: {item.sku}</p>
                               </td>
                               <td className="p-3">
-                                <div className="flex items-center justify-center gap-1">
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      updateItemQuantity(item.id, item.quantity - 1)
-                                    }
-                                    className="h-6 w-6 rounded border border-border flex items-center justify-center hover:bg-muted text-xs"
-                                  >
-                                    -
-                                  </button>
+                                <div className="flex items-center justify-center">
                                   <Input
                                     type="number"
                                     value={item.quantity}
@@ -577,18 +611,9 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                                         parseInt(e.target.value) || 0
                                       )
                                     }
-                                    className="w-16 h-6 text-center text-sm px-1"
+                                    className="w-20 h-7 text-center text-sm px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     min="1"
                                   />
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      updateItemQuantity(item.id, item.quantity + 1)
-                                    }
-                                    className="h-6 w-6 rounded border border-border flex items-center justify-center hover:bg-muted text-xs"
-                                  >
-                                    +
-                                  </button>
                                 </div>
                               </td>
                               <td className="p-3">
@@ -598,7 +623,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                                   onChange={(e) =>
                                     updateItemPrice(item.id, parseFloat(e.target.value) || 0)
                                   }
-                                  className="text-right text-sm h-8"
+                                  className="text-right text-sm h-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                   step="0.01"
                                 />
                               </td>
@@ -612,7 +637,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                                       parseFloat(e.target.value) || 0
                                     )
                                   }
-                                  className="text-right text-sm h-8"
+                                  className="text-right text-sm h-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                   step="0.01"
                                   min="0"
                                   max="100"
@@ -655,11 +680,11 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
         {activeTab === "totais" && (
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base">Resumo Financeiro</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 rounded-lg bg-muted/50 space-y-3">
+              <CardContent className="space-y-3">
+                <div className="p-4 rounded-lg bg-muted/10 space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Subtotal:</span>
                     <span className="font-medium">
@@ -706,19 +731,19 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
               </CardContent>
             </Card>
 
-            <div className="space-y-6">
+            <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
               <Card>
-                <CardHeader>
+                <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                   <CardTitle className="text-base">Informações de Pagamento</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3">
                   <div className="space-y-2">
                     <Label>Forma de Pagamento *</Label>
                     <Select
                       value={formData.paymentMethod}
                       onValueChange={(value) => handleInputChange("paymentMethod", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-8">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
@@ -736,7 +761,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                       value={formData.paymentTerm}
                       onValueChange={(value) => handleInputChange("paymentTerm", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-8">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
@@ -755,7 +780,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                       value={formData.paymentStatus}
                       onValueChange={(value) => handleInputChange("paymentStatus", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-8">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -775,13 +800,13 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
         {activeTab === "entrega" && (
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Truck className="h-4 w-4" />
                   Informações de Entrega
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="deliveryAddress">Endereço de Entrega</Label>
                   <Input
@@ -791,7 +816,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                     placeholder="Rua, número, complemento"
                   />
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="deliveryCity">Cidade</Label>
                     <Input
@@ -806,7 +831,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                       value={formData.deliveryState}
                       onValueChange={(value) => handleInputChange("deliveryState", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-8">
                         <SelectValue placeholder="UF" />
                       </SelectTrigger>
                       <SelectContent>
@@ -818,7 +843,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
                     </Select>
                   </div>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="deliveryZipCode">CEP</Label>
                     <Input
@@ -842,7 +867,7 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="h-8 px-4 py-0 flex items-center border-b border-border/60">
                 <CardTitle className="text-base">Observações</CardTitle>
               </CardHeader>
               <CardContent>
@@ -857,19 +882,22 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
           </div>
         )}
       </div>
-
-      {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-        <Button variant="outline" onClick={onClose} className="bg-transparent">
-          {isViewOnly ? "Fechar" : "Cancelar"}
-        </Button>
-        {!isViewOnly && (
-          <Button onClick={handleSave} disabled={isSaving}>
-            <Save className="mr-2 h-4 w-4" />
-            {isSaving ? "Salvando..." : "Salvar Venda"}
-          </Button>
-        )}
-      </div>
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -42,7 +42,13 @@ export default function LoginPage() {
       navigate("/dashboard", { replace: true })
     } catch (err: any) {
       console.error("[Login] Erro:", err)
-      setError(err.message || "Erro ao fazer login. Verifique suas credenciais.")
+      if (err?.error === "NETWORK_ERROR") {
+        setError(
+          "Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando em http://127.0.0.1:8787"
+        )
+      } else {
+        setError(err.message || "Erro ao fazer login. Verifique suas credenciais.")
+      }
     } finally {
       setLoading(false)
     }
@@ -147,8 +153,8 @@ export default function LoginPage() {
               Conta de demonstração:
             </p>
             <div className="text-xs text-center space-y-1">
-              <p className="font-mono">admin@trailsystem.com.br</p>
-              <p className="font-mono">senha: admin123</p>
+              <p className="font-mono">admin@demo.com</p>
+              <p className="font-mono">senha: 123456</p>
             </div>
           </div>
         </CardContent>
@@ -156,3 +162,6 @@ export default function LoginPage() {
     </div>
   )
 }
+
+
+

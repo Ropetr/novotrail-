@@ -10,11 +10,11 @@ import {
   Edit,
   Trash2,
   Eye,
-  Building2,
-  User,
   Mail,
   Phone,
   Loader,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,7 +35,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
@@ -79,7 +79,7 @@ interface Client {
 const statusConfig = {
   active: { label: "Ativo", className: "text-green-600 bg-green-50" },
   inactive: { label: "Inativo", className: "text-muted-foreground bg-muted" },
-  blocked: { label: "Bloqueado", className: "text-red-600 bg-red-50" },
+  blocked: { label: "Bloqueado", className: "text-primary bg-primary/10" },
 }
 
 export function ClientList() {
@@ -305,18 +305,6 @@ export function ClientList() {
       {/* Formulário - Aparece entre filtros e tabela */}
       {showForm && (
         <Card className="transition-all duration-300 ease-in-out">
-          <CardHeader className="border-b border-border">
-            <div className="flex items-center justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseForm}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Fechar
-              </Button>
-            </div>
-          </CardHeader>
           <CardContent className="pt-6">
             <ClientForm
               client={editingClient}
@@ -346,29 +334,29 @@ export function ClientList() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-border bg-muted/50">
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <tr className="border-b border-border bg-muted/50 h-8">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Cliente
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Dados
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Contato
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Cidade/UF
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Limite
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Saldo
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
@@ -393,13 +381,6 @@ export function ClientList() {
                           >
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                  {client.type === "pj" ? (
-                                    <Building2 className="h-5 w-5 text-muted-foreground" />
-                                  ) : (
-                                    <User className="h-5 w-5 text-muted-foreground" />
-                                  )}
-                                </div>
                                 <div>
                                   <p className="font-medium text-foreground">
                                     {client.tradeName || client.name}
@@ -450,7 +431,7 @@ export function ClientList() {
                               <span
                                 className={cn(
                                   "text-sm font-medium",
-                                  (client.balance ?? 0) < 0 ? "text-red-600" : "text-foreground"
+                                  (client.balance ?? 0) < 0 ? "text-primary" : "text-foreground"
                                 )}
                               >
                                 {formatCurrency(client.balance ?? 0)}
@@ -516,7 +497,7 @@ export function ClientList() {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+              <div className="flex items-center justify-between border-t border-border px-4 h-8">
                 <p className="text-sm text-muted-foreground">
                   {pagination
                     ? `Mostrando ${clients.length} de ${pagination.total} clientes (página ${pagination.page} de ${pagination.totalPages})`
@@ -524,41 +505,27 @@ export function ClientList() {
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1 || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Anterior"
                   >
-                    Anterior
+                    <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  {pagination &&
-                    Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
-                      const pageNum = i + 1
-                      return (
-                        <Button
-                          key={pageNum}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setPage(pageNum)}
-                          className={cn(
-                            pageNum === page
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-transparent"
-                          )}
-                        >
-                          {pageNum}
-                        </Button>
-                      )
-                    })}
+                  <span className="min-w-[24px] text-center text-sm font-medium text-primary">
+                    {page}
+                  </span>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => p + 1)}
                     disabled={!pagination || page >= pagination.totalPages || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Pr�ximo"
                   >
-                    Próximo
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -597,3 +564,9 @@ export function ClientList() {
     </div>
   )
 }
+
+
+
+
+
+

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Save, DollarSign, Percent, User, Building2, Mail, Phone, MapPin } from "lucide-react"
+import { Save, DollarSign, Percent, User, Building2, Mail, Phone, MapPin, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,20 +16,54 @@ interface PartnerFormProps {
 
 export function PartnerForm({ partner, onClose, viewMode = "new" }: PartnerFormProps) {
   const [commissionRate, setCommissionRate] = useState(partner?.commissionRate || 5)
+  const [isSaving, setIsSaving] = useState(false)
   const isViewOnly = viewMode === "view"
 
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 800))
+      onClose()
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+      <div className="flex items-center justify-end gap-2">
+        {!isViewOnly && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="h-8 w-8 text-primary hover:text-primary/80"
+            title="Salvar"
+          >
+            <Save className="h-4 w-4" />
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="h-8 w-8 text-primary hover:text-primary/80"
+          title="Fechar"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
       {/* Info: Dados do Cliente (somente leitura) */}
-      <Card className="bg-muted/30">
+      <Card className="bg-muted/10">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             {partner?.type === "pj" ? <Building2 className="h-5 w-5 text-primary" /> : <User className="h-5 w-5 text-primary" />}
             Dados do Cliente (vinculado automaticamente)
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label className="text-muted-foreground">Nome / Razão Social</Label>
               <Input value={partner?.name || ""} disabled className="bg-background" />
@@ -42,7 +76,7 @@ export function PartnerForm({ partner, onClose, viewMode = "new" }: PartnerFormP
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label className="text-muted-foreground">{partner?.type === "pj" ? "CNPJ" : "CPF"}</Label>
               <Input value={partner?.document || ""} disabled className="bg-background" />
@@ -63,7 +97,7 @@ export function PartnerForm({ partner, onClose, viewMode = "new" }: PartnerFormP
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label className="text-muted-foreground flex items-center gap-1">
                 <MapPin className="h-3 w-3" />
@@ -87,8 +121,8 @@ export function PartnerForm({ partner, onClose, viewMode = "new" }: PartnerFormP
             Configuração de Cashback
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="commissionRate">Percentual de Cashback (%) *</Label>
               <div className="relative">
@@ -116,7 +150,7 @@ export function PartnerForm({ partner, onClose, viewMode = "new" }: PartnerFormP
                 id="totalCommission"
                 value={partner?.totalCommission ? `R$ ${partner.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : "R$ 0,00"}
                 disabled
-                className="bg-muted/50 text-green-600 font-medium"
+                className="bg-muted/10 text-green-600 font-medium"
               />
               <p className="text-xs text-muted-foreground">
                 Crédito disponível para uso em compras
@@ -153,19 +187,16 @@ export function PartnerForm({ partner, onClose, viewMode = "new" }: PartnerFormP
           </div>
         </CardContent>
       </Card>
-
-      {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-        <Button variant="outline" onClick={onClose} className="bg-transparent">
-          {isViewOnly ? "Fechar" : "Cancelar"}
-        </Button>
-        {!isViewOnly && (
-          <Button className="bg-green-600 hover:bg-green-700">
-            <Save className="mr-2 h-4 w-4" />
-            Salvar Configuração
-          </Button>
-        )}
-      </div>
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+

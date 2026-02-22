@@ -12,15 +12,6 @@ type ToasterToast = {
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
 
-type ToastActionElement = React.ReactElement<any>
-
-type Toast = {
-  id: string
-  title?: React.ReactNode
-  description?: React.ReactNode
-  action?: ToastActionElement
-}
-
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
   UPDATE_TOAST: "UPDATE_TOAST",
@@ -193,3 +184,4 @@ function useToast() {
 }
 
 export { useToast, toast }
+

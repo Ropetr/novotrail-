@@ -100,7 +100,7 @@ function CalendarGrid({ year, month, startDate, endDate, onSelectDate, onChangeM
           onClick={() => onChangeMonth(-1)}
           className="p-1 hover:bg-accent rounded"
         >
-          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+          <ChevronLeft className="h-4 w-4 text-foreground" />
         </button>
         <span className="text-sm font-medium">
           {meses[month]} de {year}
@@ -110,13 +110,13 @@ function CalendarGrid({ year, month, startDate, endDate, onSelectDate, onChangeM
           onClick={() => onChangeMonth(1)}
           className="p-1 hover:bg-accent rounded"
         >
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <ChevronRight className="h-4 w-4 text-foreground" />
         </button>
       </div>
 
       <div className="grid grid-cols-7 gap-1 mb-1">
         {diasSemana.map((dia, i) => (
-          <div key={i} className="text-center text-xs text-muted-foreground font-medium py-1">
+          <div key={i} className="text-center text-xs text-foreground font-medium py-1">
             {dia}
           </div>
         ))}
@@ -244,7 +244,7 @@ export function Filters() {
 
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 text-sm text-foreground">
         <Filter className="h-4 w-4" />
         <span>Filtros:</span>
       </div>
@@ -252,8 +252,8 @@ export function Filters() {
       <Popover open={isOpen} onOpenChange={setIsOpen} modal={false}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="h-8 text-sm bg-background gap-2 font-normal">
-            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">Período:</span>
+            <Calendar className="h-3.5 w-3.5 text-foreground" />
+            <span className="text-foreground">Período:</span>
             <span className="font-medium">{displayText}</span>
           </Button>
         </PopoverTrigger>
@@ -326,7 +326,7 @@ export function Filters() {
 
             {/* Footer - full width */}
             <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-foreground">
                 {startDate && endDate ? (
                   <span>{formatDate(startDate)} <span className="text-foreground">até</span> {formatDate(endDate)}</span>
                 ) : startDate ? (
@@ -351,8 +351,8 @@ export function Filters() {
       <Select defaultValue="todos">
         <SelectTrigger className="w-[155px] h-8 text-sm bg-background">
           <div className="flex items-center gap-2">
-            <User className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">Vendedor:</span>
+            <User className="h-3.5 w-3.5 text-foreground" />
+            <span className="text-foreground">Vendedor:</span>
             <SelectValue />
           </div>
         </SelectTrigger>
@@ -367,8 +367,8 @@ export function Filters() {
       <Select defaultValue="todos">
         <SelectTrigger className="w-[145px] h-8 text-sm bg-background">
           <div className="flex items-center gap-2">
-            <Users className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">Parceiro:</span>
+            <Users className="h-3.5 w-3.5 text-foreground" />
+            <span className="text-foreground">Parceiro:</span>
             <SelectValue />
           </div>
         </SelectTrigger>
@@ -382,8 +382,8 @@ export function Filters() {
       <Select defaultValue="matriz">
         <SelectTrigger className="w-[135px] h-8 text-sm bg-background">
           <div className="flex items-center gap-2">
-            <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">Filial:</span>
+            <Building2 className="h-3.5 w-3.5 text-foreground" />
+            <span className="text-foreground">Filial:</span>
             <SelectValue />
           </div>
         </SelectTrigger>
@@ -398,8 +398,8 @@ export function Filters() {
       <Select defaultValue="todas">
         <SelectTrigger className="w-[150px] h-8 text-sm bg-background">
           <div className="flex items-center gap-2">
-            <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">Categoria:</span>
+            <Tag className="h-3.5 w-3.5 text-foreground" />
+            <span className="text-foreground">Categoria:</span>
             <SelectValue />
           </div>
         </SelectTrigger>
@@ -420,3 +420,5 @@ export function Filters() {
     </div>
   )
 }
+
+

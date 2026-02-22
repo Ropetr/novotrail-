@@ -104,7 +104,7 @@ export const InputCNPJ = React.forwardRef<HTMLInputElement, InputCNPJProps>(
       }
 
       if (isValid === false) {
-        return <X className="h-4 w-4 text-red-500" />;
+        return <X className="h-4 w-4 text-primary" />;
       }
 
       return null;
@@ -139,3 +139,5 @@ export const InputCNPJ = React.forwardRef<HTMLInputElement, InputCNPJProps>(
 );
 
 InputCNPJ.displayName = 'InputCNPJ';
+
+

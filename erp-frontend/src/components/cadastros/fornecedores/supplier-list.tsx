@@ -9,12 +9,13 @@ import {
   Edit,
   Trash2,
   Eye,
-  Building2,
   Mail,
   Phone,
   CheckCircle,
   XCircle,
   Clock,
+  ChevronLeft,
+  ChevronRight,
   Loader,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -33,7 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
@@ -57,6 +58,7 @@ interface Supplier {
   name: string
   tradeName: string
   document: string
+  stateRegistration?: string
   email: string
   phone: string
   cellphone?: string
@@ -234,18 +236,7 @@ export function SupplierList() {
       {/* Formulário */}
       {showForm && (
         <Card className="transition-all duration-300 ease-in-out">
-          <CardHeader className="border-b border-border">
-            <div className="flex items-center justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseForm}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Fechar
-              </Button>
-            </div>
-          </CardHeader>
+          
           <CardContent className="pt-6">
             <SupplierForm
               supplier={editingSupplier}
@@ -275,29 +266,29 @@ export function SupplierList() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-border bg-muted/50">
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <tr className="border-b border-border bg-muted/50 h-8">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Fornecedor
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         CNPJ
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Contato
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Categoria
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Prazo Entrega
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Saldo
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <th className="px-4 py-0 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
@@ -323,9 +314,6 @@ export function SupplierList() {
                           >
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                                  <Building2 className="h-5 w-5 text-muted-foreground" />
-                                </div>
                                 <div>
                                   <p className="font-medium text-foreground">{supplier.tradeName || supplier.name}</p>
                                   <p className="text-xs text-muted-foreground">{supplier.code}</p>
@@ -334,6 +322,9 @@ export function SupplierList() {
                             </td>
                             <td className="px-4 py-3">
                               <p className="font-mono text-sm text-foreground">{supplier.document}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {supplier.stateRegistration || "Isento"}
+                              </p>
                             </td>
                             <td className="px-4 py-3">
                               <div className="space-y-1">
@@ -363,7 +354,7 @@ export function SupplierList() {
                               <span
                                 className={cn(
                                   "text-sm font-medium",
-                                  (supplier.balance ?? 0) < 0 ? "text-red-600" : "text-foreground"
+                                  (supplier.balance ?? 0) < 0 ? "text-primary" : "text-foreground"
                                 )}
                               >
                                 {formatCurrency(supplier.balance ?? 0)}
@@ -415,7 +406,7 @@ export function SupplierList() {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+              <div className="flex items-center justify-between border-t border-border px-4 h-8">
                 <p className="text-sm text-muted-foreground">
                   {pagination
                     ? `Mostrando ${suppliers.length} de ${pagination.total} fornecedores`
@@ -423,29 +414,27 @@ export function SupplierList() {
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1 || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Anterior"
                   >
-                    Anterior
+                    <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="bg-primary text-primary-foreground"
-                  >
+                  <span className="min-w-[24px] text-center text-sm font-medium text-primary">
                     {page}
-                  </Button>
+                  </span>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPage((p) => p + 1)}
                     disabled={!pagination || page >= pagination.totalPages || isLoading}
-                    className="bg-transparent"
+                    className="h-8 w-8"
+                    title="Pr�ximo"
                   >
-                    Próximo
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -484,3 +473,10 @@ export function SupplierList() {
     </div>
   )
 }
+
+
+
+
+
+
+

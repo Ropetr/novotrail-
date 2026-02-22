@@ -1,190 +1,68 @@
-# ERP Backend - Cloudflare Workers + Hono
+﻿# ERP Backend - Cloudflare Workers + Hono
 
 Backend do ERP construído com Clean Architecture, Hono e serviços da Cloudflare.
 
-## Arquitetura
+## Stack
+- Cloudflare Workers + Wrangler
+- Hono (HTTP)
+- Drizzle ORM (D1)
+- Zod (validação)
+- JWT + bcryptjs (auth)
 
-Este projeto segue os princípios da Clean Architecture e Domain-Driven Design (DDD):
+## Configuração (local)
 
-### Camadas
+1. Variáveis de ambiente
+- Use `.dev.vars` (já existe) ou copie `.dev.vars.example`.
 
-1. **Domain Layer** (`src/domain/`)
-   - **Entities**: Modelos de negócio puros (Tenant, User)
-   - **Repositories**: Interfaces dos repositórios
-   - **Use Cases**: Lógica de negócio (RegisterUser, LoginUser)
+2. Banco D1 (local)
+O projeto já está configurado para o banco `novotraildesktop-db` no `wrangler.toml`.
 
-2. **Application Layer** (`src/application/`)
-   - **Services**: Serviços de aplicação (AuthService)
-   - **DTOs**: Objetos de transferência de dados
-
-3. **Infrastructure Layer** (`src/infrastructure/`)
-   - **Database**: Schema Drizzle ORM e conexões
-   - **Repositories**: Implementações concretas dos repositórios
-   - **Cloudflare**: Integrações com serviços Cloudflare (D1, KV, Durable Objects)
-
-4. **Presentation Layer** (`src/presentation/`)
-   - **Controllers**: Controladores HTTP
-   - **Routes**: Definições de rotas
-   - **Middlewares**: Middlewares (autenticação, etc.)
-
-## Serviços Cloudflare Utilizados
-
-- **D1**: Banco de dados SQLite distribuído (multi-tenancy)
-- **KV**: Cache de sessões e dados
-- **Durable Objects**: Gerenciamento de sessões em tempo real
-- **Analytics Engine**: Métricas e analytics
-- **R2**: Armazenamento de arquivos
-- **Queues**: Processamento assíncrono de tarefas
-
-## Instalação
-
+Para criar um novo banco (opcional):
 ```bash
-pnpm install
+wrangler d1 create novotraildesktop-db
 ```
+Depois atualize `wrangler.toml` com o `database_id`.
 
-## Configuração
-
-1. Copie `.dev.vars.example` para `.dev.vars`:
-```bash
-cp .dev.vars.example .dev.vars
-```
-
-2. Preencha as variáveis de ambiente no `.dev.vars`
-
-3. Crie o banco de dados D1:
-```bash
-wrangler d1 create erp-db
-```
-
-4. Atualize o `database_id` no `wrangler.toml` com o ID retornado
-
-5. Gere e aplique as migrações:
+3. Migrations
 ```bash
 pnpm db:generate
 pnpm db:migrate
 ```
 
-## Desenvolvimento
+4. Seed
+```bash
+pnpm seed
+```
 
+## Desenvolvimento
 ```bash
 pnpm dev
 ```
+Servidor em `http://localhost:8787`
 
-O servidor estará disponível em `http://localhost:8787`
+## Endpoints principais
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `GET /api/v1/protected/me`
 
-## Endpoints de Autenticação
-
-### POST /api/v1/auth/register
-Registra um novo usuário.
-
-**Body:**
-```json
-{
-  "tenantId": "uuid",
-  "email": "user@example.com",
-  "password": "senha123456",
-  "name": "Nome do Usuário",
-  "role": "user"
-}
+## Estrutura
 ```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "user": {
-      "id": "uuid",
-      "tenantId": "uuid",
-      "email": "user@example.com",
-      "name": "Nome do Usuário",
-      "role": "user",
-      "status": "active"
-    },
-    "token": "jwt-token"
-  }
-}
-```
-
-### POST /api/v1/auth/login
-Faz login de um usuário.
-
-**Body:**
-```json
-{
-  "email": "user@example.com",
-  "password": "senha123456",
-  "tenantId": "uuid"
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "user": { ... },
-    "token": "jwt-token"
-  }
-}
-```
-
-### GET /api/v1/protected/me
-Retorna dados do usuário autenticado (requer token).
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-## Testes
-
-```bash
-pnpm test
+erp-backend/
+├── src/
+│   ├── modules/          # auth, cadastros, comercial, fiscal, produtos, tenant
+│   ├── shared/           # database, services, middlewares, events
+│   └── index.ts
+├── migrations/
+├── wrangler.toml
+└── package.json
 ```
 
 ## Deploy
-
 ```bash
 pnpm deploy
 ```
 
-## Estrutura do Projeto
+## Notas
+- As rotas protegidas exigem `Authorization: Bearer <token>`
+- O tenant deve ser resolvido por subdomínio ou `x-tenant-id`
 
-```
-erp-backend/
-├── src/
-│   ├── domain/              # Regras de negócio
-│   │   ├── entities/
-│   │   ├── repositories/
-│   │   └── use-cases/
-│   ├── application/         # Serviços de aplicação
-│   │   ├── dto/
-│   │   └── services/
-│   ├── infrastructure/      # Implementações técnicas
-│   │   ├── database/
-│   │   ├── repositories/
-│   │   └── cloudflare/
-│   ├── presentation/        # Camada de apresentação
-│   │   ├── controllers/
-│   │   ├── routes/
-│   │   └── middlewares/
-│   └── index.ts            # Entry point
-├── test/                    # Testes
-├── migrations/             # Migrações do banco
-├── wrangler.toml          # Configuração Cloudflare
-├── drizzle.config.ts      # Configuração Drizzle ORM
-└── package.json
-```
-
-## Próximos Passos
-
-- [ ] Implementar CRUD de Tenants
-- [ ] Adicionar refresh tokens
-- [ ] Implementar rate limiting
-- [ ] Adicionar validação de subdomain único
-- [ ] Configurar Analytics Engine para métricas
-- [ ] Implementar upload de arquivos com R2
-- [ ] Criar sistema de filas para tarefas assíncronas
-- [ ] Adicionar testes unitários e de integração
-- [ ] Configurar CI/CD

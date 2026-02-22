@@ -1,4 +1,4 @@
-import { forwardRef, useState, useEffect } from "react"
+import { forwardRef, useState } from "react"
 import { Input } from "./input"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, XCircle, Search, Loader2 } from "lucide-react"
@@ -86,7 +86,6 @@ const InputDocumento = forwardRef<HTMLInputElement, InputDocumentoProps>(
     ...props
   }, ref) => {
     const [displayValue, setDisplayValue] = useState(value)
-    const [docType, setDocType] = useState<"cpf" | "cnpj" | null>(null)
 
     const formatDocument = (value: string) => {
       const numbers = value.replace(/\D/g, "")
@@ -122,7 +121,6 @@ const InputDocumento = forwardRef<HTMLInputElement, InputDocumentoProps>(
 
       const numbersOnly = inputValue.replace(/\D/g, "")
       const type = detectType(numbersOnly)
-      setDocType(type)
 
       onChange?.(numbersOnly, type)
       onTypeDetected?.(type)
@@ -146,7 +144,6 @@ const InputDocumento = forwardRef<HTMLInputElement, InputDocumentoProps>(
       (numbers.length === 11 && validateCPF(displayValue)) ||
       (numbers.length === 14 && validateCNPJ(displayValue))
     )
-    const isInvalid = isComplete && !isValid
     const showSearchButton = numbers.length === 14 && onCNPJSearch
 
     return (
@@ -174,7 +171,7 @@ const InputDocumento = forwardRef<HTMLInputElement, InputDocumentoProps>(
             {isValid ? (
               <CheckCircle2 className="h-4 w-4 text-green-600" />
             ) : (
-              <XCircle className="h-4 w-4 text-red-600" />
+              <XCircle className="h-4 w-4 text-primary" />
             )}
           </div>
         )}
@@ -203,3 +200,6 @@ const InputDocumento = forwardRef<HTMLInputElement, InputDocumentoProps>(
 InputDocumento.displayName = "InputDocumento"
 
 export { InputDocumento, validateCPF, validateCNPJ }
+
+
+

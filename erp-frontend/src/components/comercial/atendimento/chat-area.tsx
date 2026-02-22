@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Send, Paperclip, Smile, MoreVertical, User, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback} from "@/components/ui/avatar"
 import {
   Select,
   SelectContent,
@@ -59,7 +59,7 @@ const statusConfig = {
 }
 
 const priorityConfig = {
-  alta: { label: "Alta", color: "text-red-500" },
+  alta: { label: "Alta", color: "text-primary" },
   media: { label: "Média", color: "text-yellow-500" },
   baixa: { label: "Baixa", color: "text-green-500" },
 }
@@ -264,15 +264,15 @@ export function ChatArea({
           </div>
 
           <div className="flex gap-1">
-            <Button variant="ghost" size="icon" className="h-9 w-9">
+            <Button variant="ghost" size="icon" className="h-8 w-8">
               <Paperclip className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9">
+            <Button variant="ghost" size="icon" className="h-8 w-8">
               <Smile className="h-4 w-4" />
             </Button>
             <Button
               size="icon"
-              className="h-9 w-9"
+              className="h-8 w-8"
               onClick={handleSend}
               disabled={!messageText.trim()}
             >
@@ -288,3 +288,7 @@ export function ChatArea({
     </div>
   )
 }
+
+
+
+

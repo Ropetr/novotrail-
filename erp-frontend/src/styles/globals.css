@@ -28,7 +28,7 @@ body {
     --muted-foreground: 215 16% 47%;
     --accent: 210 40% 96%;
     --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
+    --destructive: 6 78% 57%;
     --destructive-foreground: 0 0% 100%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
@@ -70,7 +70,7 @@ body {
     --muted-foreground: 0 0% 70%;
     --accent: 0 0% 24%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --destructive: 6 78% 57%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 25%;
     --input: 0 0% 25%;
@@ -149,3 +149,4 @@ body {
     scrollbar-color: hsl(var(--muted-foreground) / 0.4) hsl(var(--background));
   }
 }
+

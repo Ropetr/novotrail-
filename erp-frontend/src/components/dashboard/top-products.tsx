@@ -39,13 +39,13 @@ const products = [
 export function TopProducts() {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium flex items-center gap-2">
-          <Package className="h-4 w-4 text-muted-foreground" />
+      <CardHeader className="h-8 px-4 py-0 border-b border-border/60 flex items-center">
+        <CardTitle className="text-base font-medium flex items-center gap-2 h-8 leading-none">
+          <Package className="h-4 w-4 text-foreground" />
           Top Produtos
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-3">
         <div className="space-y-3">
           {products.map((product) => (
             <div key={product.position} className="flex items-start justify-between">
@@ -53,7 +53,7 @@ export function TopProducts() {
                 <span className="text-sm font-bold text-primary">{product.position}.</span>
                 <div>
                   <p className="text-sm font-medium text-foreground">{product.name}</p>
-                  <p className="text-xs text-muted-foreground">{product.units}</p>
+                  <p className="text-xs text-foreground">{product.units}</p>
                 </div>
               </div>
               <span className="text-sm font-semibold text-foreground">{product.value}</span>
@@ -64,3 +64,9 @@ export function TopProducts() {
     </Card>
   )
 }
+
+
+
+
+
+

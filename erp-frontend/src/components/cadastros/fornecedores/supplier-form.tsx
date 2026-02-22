@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Save, Building2, MapPin, CreditCard, FileText, Package, Truck } from "lucide-react"
+import { Save, Building2, MapPin, CreditCard, Package, Truck, X } from "lucide-react"
 import { useCNPJLookup } from "@/hooks/useCNPJLookup"
 import { InputCNPJ } from "@/components/ui/input-cnpj"
 import { Button } from "@/components/ui/button"
@@ -27,6 +27,7 @@ interface SupplierFormProps {
 
 export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFormProps) {
   const [activeTab, setActiveTab] = useState("general")
+  const [isSaving, setIsSaving] = useState(false)
   const isViewOnly = viewMode === "view"
 
   // Estado para o CNPJ
@@ -74,11 +75,22 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
     }
   })
 
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 800))
+      onClose()
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 [&_input]:h-8 [&_button[role='combobox']]:h-8">
       {/* Form Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <div className="flex items-end justify-between gap-3">
+          <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="general" className="gap-2">
             <Building2 className="h-4 w-4" />
             Dados Gerais
@@ -99,16 +111,40 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
             <Truck className="h-4 w-4" />
             Entrega
           </TabsTrigger>
-        </TabsList>
+          </TabsList>
+          <div className="flex items-center gap-2 self-end">
+            {!isViewOnly && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="h-8 w-8 text-primary hover:text-primary/80"
+                title="Salvar"
+              >
+                <Save className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-8 w-8 text-primary hover:text-primary/80"
+              title="Fechar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
 
         {/* General Tab */}
-        <TabsContent value="general" className="space-y-4">
+        <TabsContent value="general" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Identificação</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-4 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-4 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="code">Código</Label>
                   <Input id="code" placeholder="Automático" disabled />
@@ -134,7 +170,7 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="tradeName">Nome Fantasia</Label>
                   <Input
@@ -159,8 +195,8 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
             <CardHeader>
               <CardTitle className="text-lg">Contato</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail *</Label>
                   <Input
@@ -183,7 +219,7 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
                   <Input id="cellphone" placeholder="(00) 00000-0000" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="contactName">Nome do Contato / Representante</Label>
                   <Input id="contactName" placeholder="Nome da pessoa de contato" />
@@ -200,8 +236,8 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
             <CardHeader>
               <CardTitle className="text-lg">Classificação</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="category">Categoria Principal</Label>
                   <Select defaultValue={supplier?.category}>
@@ -258,13 +294,13 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
         </TabsContent>
 
         {/* Address Tab */}
-        <TabsContent value="address" className="space-y-4">
+        <TabsContent value="address" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Endereço</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-4 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-4 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="zipCode">CEP *</Label>
                   <Input id="zipCode" placeholder="00000-000" />
@@ -278,7 +314,7 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
                   <Input id="number" placeholder="Nº" />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="complement">Complemento</Label>
                   <Input id="complement" placeholder="Apto, Sala, etc." />
@@ -292,7 +328,7 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
                   <Input id="reference" placeholder="Ponto de referência" />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2 space-y-2">
                   <Label htmlFor="city">Cidade *</Label>
                   <Input id="city" placeholder="Cidade" defaultValue={supplier?.city} />
@@ -340,13 +376,13 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
         </TabsContent>
 
         {/* Financial Tab */}
-        <TabsContent value="financial" className="space-y-4">
+        <TabsContent value="financial" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Condições Comerciais</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="paymentCondition">Condição de Pagamento Padrão</Label>
                   <Select>
@@ -384,7 +420,7 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
                   <Input id="minimumOrder" placeholder="R$ 0,00" />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="discount">Desconto Padrão (%)</Label>
                   <Input id="discount" placeholder="0,00%" />
@@ -410,8 +446,8 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
             <CardHeader>
               <CardTitle className="text-lg">Dados Bancários do Fornecedor</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-4 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-4 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="bank">Banco</Label>
                   <Select>
@@ -446,7 +482,7 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
         </TabsContent>
 
         {/* Products Tab */}
-        <TabsContent value="products" className="space-y-4">
+        <TabsContent value="products" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Produtos Fornecidos</CardTitle>
@@ -464,13 +500,13 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
         </TabsContent>
 
         {/* Delivery Tab */}
-        <TabsContent value="delivery" className="space-y-4">
+        <TabsContent value="delivery" className="space-y-3">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Configurações de Entrega</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="deliveryDays">Prazo de Entrega (dias)</Label>
                   <Input
@@ -530,19 +566,17 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-        <Button variant="outline" onClick={onClose} className="bg-transparent">
-          {isViewOnly ? "Fechar" : "Cancelar"}
-        </Button>
-        {!isViewOnly && (
-          <Button>
-            <Save className="mr-2 h-4 w-4" />
-            Salvar
-          </Button>
-        )}
-      </div>
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+

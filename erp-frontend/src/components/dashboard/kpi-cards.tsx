@@ -19,23 +19,23 @@ interface KPICardProps {
 function KPICard({ title, value, change, changeValue, goal, progress, icon: Icon }: KPICardProps) {
   return (
     <Card className="bg-card">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+      <CardHeader className="h-8 px-4 py-0 border-b border-border/60 flex items-center justify-between">
+        <CardTitle className="text-sm font-medium text-foreground flex items-center gap-2 h-8 leading-none">
           <Icon className="h-4 w-4" />
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-3">
         <div className="text-2xl font-bold text-foreground">{value}</div>
         <div className="flex items-center gap-2 mt-1">
-          <span className="flex items-center text-xs text-emerald-600">
+          <span className="flex items-center text-xs text-emerald-500">
             <ArrowUp className="h-3 w-3" />
             {change}
           </span>
-          <span className="text-xs text-muted-foreground">vs {changeValue}</span>
+          <span className="text-xs text-foreground">vs {changeValue}</span>
         </div>
         <div className="mt-3">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+          <div className="flex items-center justify-between text-xs text-foreground mb-1">
             <span>Meta: {goal}</span>
             <span>{progress}%</span>
           </div>
@@ -88,3 +88,10 @@ export function KPICards() {
     </div>
   )
 }
+
+
+
+
+
+
+

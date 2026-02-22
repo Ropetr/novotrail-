@@ -64,7 +64,6 @@ const InputCPF = forwardRef<HTMLInputElement, InputCPFProps>(
 
     const numbers = displayValue.replace(/\D/g, "")
     const isValid = numbers.length === 11 && validateCPF(displayValue)
-    const isInvalid = numbers.length === 11 && !validateCPF(displayValue)
 
     return (
       <div className="relative">
@@ -87,7 +86,7 @@ const InputCPF = forwardRef<HTMLInputElement, InputCPFProps>(
             {isValid ? (
               <CheckCircle2 className="h-4 w-4 text-green-600" />
             ) : (
-              <XCircle className="h-4 w-4 text-red-600" />
+              <XCircle className="h-4 w-4 text-primary" />
             )}
           </div>
         )}
@@ -99,3 +98,6 @@ const InputCPF = forwardRef<HTMLInputElement, InputCPFProps>(
 InputCPF.displayName = "InputCPF"
 
 export { InputCPF, validateCPF }
+
+
+

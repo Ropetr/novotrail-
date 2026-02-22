@@ -3,28 +3,32 @@ main = "src/index.ts"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
 
-# D1 Database - Trail System ERP v4
+# ============================================
+# D1 Database — novotraildesktop-db
+# ============================================
 [[d1_databases]]
 binding = "DB"
-database_name = "trailsystem-erp-v4"
-database_id = "c5ead135-b40d-48fc-925b-6c2cf7499055"
+database_name = "novotraildesktop-db"
+database_id = "55379b36-355c-429a-b501-ade60c8c5c8a"
 
-# KV Namespace for cache
+# ============================================
+# KV Namespaces
+# ============================================
 [[kv_namespaces]]
 binding = "CACHE"
-id = "d053dab81a554dc6961884eae41f75f7"
+id = "e478cdb5adf5465db25655cac18eae02"
 
-# KV Namespace for sessions
 [[kv_namespaces]]
 binding = "SESSIONS"
-id = "80c6322699844ba1bb99e841f0c84306"
+id = "54a1ed65d14d40a4b4aeecfa478a77ae"
 
-# KV Namespace for Nuvem Fiscal tokens
 [[kv_namespaces]]
 binding = "NUVEM_FISCAL_CACHE"
-id = "8dc647f3a07c4359b5db4773ad69e9f1"
+id = "879c23b8835b47f4a038031afbda505c"
 
-# Durable Objects for session management
+# ============================================
+# Durable Objects
+# ============================================
 [[durable_objects.bindings]]
 name = "SESSION_MANAGER"
 class_name = "SessionManager"
@@ -34,40 +38,47 @@ script_name = "erp-backend"
 tag = "v1"
 new_classes = ["SessionManager"]
 
-# Analytics Engine for metrics
+# ============================================
+# Analytics Engine
+# ============================================
 [[analytics_engine_datasets]]
 binding = "ANALYTICS"
 
+# ============================================
+# R2 Buckets
+# ============================================
+[[r2_buckets]]
+binding = "STORAGE"
+bucket_name = "novotraildesktop-storage"
+
+[[r2_buckets]]
+binding = "CERTIFICATES"
+bucket_name = "novotraildesktop-certificates"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "novotraildesktop-images"
+
+# ============================================
+# Queues
+# ============================================
+[[queues.producers]]
+binding = "TASK_QUEUE"
+queue = "novotraildesktop-tasks"
+
+[[queues.consumers]]
+queue = "novotraildesktop-tasks"
+max_batch_size = 10
+max_batch_timeout = 30
+
+# ============================================
 # Environment Variables
+# ============================================
 [vars]
 ENVIRONMENT = "development"
 JWT_SECRET = "development-secret-change-in-production"
 
-# Nuvem Fiscal - SANDBOX (development)
 NUVEM_FISCAL_CLIENT_ID = "r1QOKi55XgwNI3oHVoyH"
 NUVEM_FISCAL_CLIENT_SECRET = "9jsQ8Ii9wMdZFZ4KX0YAycKqGryP6ho1ZFJqj9Cu"
 NUVEM_FISCAL_API_URL = "https://api-sandbox.nuvemfiscal.com.br"
 NUVEM_FISCAL_TOKEN_URL = "https://api-sandbox.nuvemfiscal.com.br/oauth/token"
-
-# R2 Buckets for file storage
-[[r2_buckets]]
-binding = "STORAGE"
-bucket_name = "trailsystem-storage"
-
-[[r2_buckets]]
-binding = "CERTIFICATES"
-bucket_name = "trailsystem-certificates"
-
-[[r2_buckets]]
-binding = "IMAGES"
-bucket_name = "trailsystem-images"
-
-# Queues for async processing
-[[queues.producers]]
-binding = "TASK_QUEUE"
-queue = "erp-tasks"
-
-[[queues.consumers]]
-queue = "erp-tasks"
-max_batch_size = 10
-max_batch_timeout = 30

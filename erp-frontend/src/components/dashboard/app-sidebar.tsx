@@ -53,6 +53,7 @@ const menuItems: MenuItem[] = [
       { label: "Produtos", href: "/cadastros/produtos" },
       { label: "Parceiros", href: "/cadastros/parceiros" },
       { label: "Colaboradores", href: "/cadastros/colaboradores" },
+      { label: "Usuarios", href: "/cadastros/usuarios" },
     ],
   },
   {
@@ -154,7 +155,7 @@ export function AppSidebar() {
     const pathParts = href.split("/")
     const type = pathParts[pathParts.length - 1]
 
-    const tabId = addTab({
+    addTab({
       title,
       href,
       closable: href !== "/dashboard", // Dashboard não pode ser fechado
@@ -214,26 +215,16 @@ export function AppSidebar() {
             )}
 
             {item.submenu && openMenus.includes(item.label) && (
-              <div className="relative ml-7 mt-1 space-y-1">
-                {item.submenu.map((subItem, index) => {
+              <div className="relative ml-7 mt-1 space-y-1 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-primary">
+                {item.submenu.map((subItem) => {
                   const isActive = pathname === subItem.href
 
                   return (
                     <div key={subItem.label} className="relative">
-                      {/* Linha em L aparece apenas no item ativo */}
-                      {isActive && (
-                        <>
-                          {/* Linha vertical */}
-                          <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-primary" />
-                          {/* Linha horizontal (curvinha do L) */}
-                          <div className="absolute left-0 top-1/2 w-3 h-[1px] bg-primary" />
-                        </>
-                      )}
-
                       <button
                         onClick={() => handleNavigation(subItem.href, subItem.label)}
                         className={cn(
-                          "block w-full rounded-lg px-3 py-1.5 text-left text-sm transition-colors",
+                          "block w-full rounded-lg px-3 py-1.5 pl-4 text-left text-sm transition-colors",
                           isActive
                             ? "text-primary font-medium"
                             : "text-sidebar-foreground/60 hover:text-primary"
@@ -312,3 +303,5 @@ export function AppSidebar() {
     </aside>
   )
 }
+
+
