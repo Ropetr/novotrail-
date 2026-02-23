@@ -44,7 +44,7 @@ export default function LoginPage() {
       console.error("[Login] Erro:", err)
       if (err?.error === "NETWORK_ERROR") {
         setError(
-          "Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando em http://127.0.0.1:8787"
+          "Não foi possível conectar ao servidor. Tente novamente em alguns instantes."
         )
       } else {
         setError(err.message || "Erro ao fazer login. Verifique suas credenciais.")

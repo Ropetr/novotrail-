@@ -1,7 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
 
 // Base URL do backend
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8787/api/v1"
+const BASE_URL = import.meta.env.VITE_API_URL || "https://novotrail-api.planacacabamentos.workers.dev/api/v1"
 const DEV_TENANT_ID = import.meta.env.VITE_TENANT_ID
 
 // Chave para armazenar o token no localStorage
