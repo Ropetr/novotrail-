@@ -1,0 +1,7 @@
+name = "novotrail-web"
+compatibility_date = "2026-02-01"
+
+# Static assets served from dist/ after Vite build
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"

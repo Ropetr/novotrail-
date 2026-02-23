@@ -58,7 +58,7 @@ app.post('/seed', async (c) => {
     return c.json({ error: 'Not allowed in production' }, 403);
   }
 
-  const db = createDatabaseConnection(c.env.HYPERDRIVE);
+  const db = await createDatabaseConnection(c.env.HYPERDRIVE);
   const { seed } = await import('../scripts/seed');
 
   try {
@@ -82,7 +82,7 @@ app.post('/update-password', async (c) => {
       return c.json({ error: 'Email and passwordHash are required' }, 400);
     }
 
-    const db = createDatabaseConnection(c.env.HYPERDRIVE);
+    const db = await createDatabaseConnection(c.env.HYPERDRIVE);
     const { users } = await import('./shared/database/schema');
     const { eq, and } = await import('drizzle-orm');
 

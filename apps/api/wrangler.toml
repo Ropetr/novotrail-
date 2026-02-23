@@ -1,4 +1,4 @@
-name = "trailsystem-api"
+name = "novotrail-api"
 main = "src/index.ts"
 compatibility_date = "2026-02-01"
 compatibility_flags = ["nodejs_compat"]
@@ -31,7 +31,7 @@ id = "879c23b8835b47f4a038031afbda505c"
 [[durable_objects.bindings]]
 name = "SESSION_MANAGER"
 class_name = "SessionManager"
-script_name = "trailsystem-api"
+script_name = "novotrail-api"
 
 [[migrations]]
 tag = "v1"
@@ -63,10 +63,10 @@ bucket_name = "novotraildesktop-images"
 # ============================================
 [[queues.producers]]
 binding = "TASK_QUEUE"
-queue = "novotraildesktop-tasks"
+queue = "novotrail-tasks"
 
 [[queues.consumers]]
-queue = "novotraildesktop-tasks"
+queue = "novotrail-tasks"
 max_batch_size = 10
 max_batch_timeout = 30
 

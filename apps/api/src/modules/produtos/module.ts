@@ -27,7 +27,7 @@ export function createProdutosModule() {
 
   // DI middleware - create all dependencies per-request from Cloudflare env
   router.use('*', async (c, next) => {
-    const db = createDatabaseConnection(c.env.HYPERDRIVE);
+    const db = await createDatabaseConnection(c.env.HYPERDRIVE);
 
     // Repositories
     const categoryRepository = new CategoryRepository(db);

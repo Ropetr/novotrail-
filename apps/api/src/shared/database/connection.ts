@@ -1,10 +1,13 @@
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { Client } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from './schema';
 
-export function createDatabaseConnection(hyperdrive: Hyperdrive) {
-  const sql = neon(hyperdrive.connectionString);
-  return drizzle(sql, { schema });
+export async function createDatabaseConnection(hyperdrive: Hyperdrive) {
+  const client = new Client({
+    connectionString: hyperdrive.connectionString,
+  });
+  await client.connect();
+  return drizzle(client, { schema });
 }
 
 export type DatabaseConnection = ReturnType<typeof createDatabaseConnection>;
