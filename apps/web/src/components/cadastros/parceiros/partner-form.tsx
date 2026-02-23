@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
+import { useCreateParceiro, useUpdateParceiro } from "@/hooks/use-parceiros"
 
 interface PartnerFormProps {
   partner?: any
@@ -18,12 +20,42 @@ export function PartnerForm({ partner, onClose, viewMode = "new" }: PartnerFormP
   const [commissionRate, setCommissionRate] = useState(partner?.commissionRate || 5)
   const [isSaving, setIsSaving] = useState(false)
   const isViewOnly = viewMode === "view"
+  const isEditing = viewMode === "edit"
+
+  const createParceiro = useCreateParceiro()
+  const updateParceiro = useUpdateParceiro()
 
   const handleSave = async () => {
+    const getVal = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value || ""
+    
+    const payload: Record<string, unknown> = {
+      name: partner?.name || "",
+      tradeName: partner?.tradeName || undefined,
+      type: partner?.type || "pf",
+      document: partner?.document || "",
+      email: partner?.email || "",
+      phone: partner?.phone || "",
+      city: partner?.city || "",
+      state: partner?.state || "",
+      commissionRate: commissionRate,
+      notes: getVal("notes") || undefined,
+    }
+
+    if (!payload.name || !payload.document) {
+      toast.error("Dados do parceiro incompletos")
+      return
+    }
+
     setIsSaving(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800))
+      if (isEditing && partner?.id) {
+        await updateParceiro.mutateAsync({ id: partner.id, data: { commissionRate, notes: getVal("notes") || undefined } })
+      } else {
+        await createParceiro.mutateAsync(payload as any)
+      }
       onClose()
+    } catch (error: any) {
+      console.error("Erro ao salvar parceiro:", error)
     } finally {
       setIsSaving(false)
     }

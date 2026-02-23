@@ -32,6 +32,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+import { useCreateProduto, useUpdateProduto } from "@/hooks/use-produtos"
 
 interface Product {
   id: string
@@ -94,6 +96,10 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
   const [isKit, setIsKit] = useState(false)
   const [kitItems, setKitItems] = useState<KitItem[]>([])
   const [kitSearchTerm, setKitSearchTerm] = useState("")
+  
+  const createProduto = useCreateProduto()
+  const updateProduto = useUpdateProduto()
+  
   const [formData, setFormData] = useState({
     // Dados Gerais
     name: product?.name || "",
@@ -146,10 +152,35 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
   }
 
   const handleSave = async () => {
+    if (!formData.name) { toast.error("Nome do produto é obrigatório"); return }
+    if (!formData.salePrice) { toast.error("Preço de venda é obrigatório"); return }
+
+    const payload: Record<string, unknown> = {
+      name: formData.name,
+      sku: formData.sku || undefined,
+      ean: formData.ean || undefined,
+      category: formData.category || undefined,
+      brand: formData.brand || undefined,
+      price: formData.salePrice,
+      cost: formData.costPrice || undefined,
+      stock: formData.currentStock || 0,
+      status: formData.status,
+    }
+
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined) delete payload[key]
+    })
+
     setIsSaving(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800))
+      if (viewMode === "edit" && product?.id) {
+        await updateProduto.mutateAsync({ id: product.id, data: payload })
+      } else {
+        await createProduto.mutateAsync(payload as any)
+      }
       onClose()
+    } catch (error) {
+      console.error("Erro ao salvar produto:", error)
     } finally {
       setIsSaving(false)
     }

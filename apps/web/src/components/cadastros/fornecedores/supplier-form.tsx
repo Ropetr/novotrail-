@@ -18,6 +18,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
+import { toast } from "sonner"
+import { useCreateFornecedor, useUpdateFornecedor } from "@/hooks/use-fornecedores"
 
 interface SupplierFormProps {
   supplier?: any
@@ -29,6 +31,11 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
   const [activeTab, setActiveTab] = useState("general")
   const [isSaving, setIsSaving] = useState(false)
   const isViewOnly = viewMode === "view"
+  const isEditing = viewMode === "edit"
+
+  // Hooks de mutação (API real)
+  const createFornecedor = useCreateFornecedor()
+  const updateFornecedor = useUpdateFornecedor()
 
   // Estado para o CNPJ
   const [cnpjValue, setCnpjValue] = useState(supplier?.document || "")
@@ -76,10 +83,52 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
   })
 
   const handleSave = async () => {
+    const getVal = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value || ""
+    
+    const name = getVal("name")
+    if (!name) { toast.error("Razão Social é obrigatória"); return }
+    if (!cnpjValue) { toast.error("CNPJ é obrigatório"); return }
+    
+    const email = getVal("email")
+    if (!email) { toast.error("E-mail é obrigatório"); return }
+    
+    const phone = getVal("phone")
+    if (!phone) { toast.error("Telefone é obrigatório"); return }
+
+    const payload: Record<string, unknown> = {
+      name,
+      tradeName: getVal("tradeName") || undefined,
+      type: "pj" as const,
+      document: cnpjValue,
+      stateRegistration: getVal("stateRegistration") || undefined,
+      email,
+      phone,
+      cellphone: getVal("cellphone") || undefined,
+      zipCode: getVal("zipCode") || undefined,
+      address: getVal("street") || undefined,
+      number: getVal("number") || undefined,
+      complement: getVal("complement") || undefined,
+      neighborhood: getVal("neighborhood") || undefined,
+      city: getVal("city") || supplier?.city || "N/A",
+      state: supplier?.state || "XX",
+      paymentTerms: getVal("paymentTerms") || undefined,
+      notes: getVal("notes") || undefined,
+    }
+
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined) delete payload[key]
+    })
+
     setIsSaving(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800))
+      if (isEditing && supplier?.id) {
+        await updateFornecedor.mutateAsync({ id: supplier.id, data: payload })
+      } else {
+        await createFornecedor.mutateAsync(payload as any)
+      }
       onClose()
+    } catch (error: any) {
+      console.error("Erro ao salvar fornecedor:", error)
     } finally {
       setIsSaving(false)
     }

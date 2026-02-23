@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { useCreateCliente, useUpdateCliente } from "@/hooks/use-clientes"
 
 interface ClientFormProps {
   client?: any
@@ -54,11 +55,15 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
   const isEditing = viewMode === "edit"
   const isViewOnly = viewMode === "view"
 
+  // Hooks de mutação (API real)
+  const createCliente = useCreateCliente()
+  const updateCliente = useUpdateCliente()
+
   // Estados para campos com máscara
   const [documentValue, setDocumentValue] = useState(client?.document || "")
   const [documentType, setDocumentType] = useState<"cpf" | "cnpj" | null>(client?.type === "pf" ? "cpf" : client?.type === "pj" ? "cnpj" : null)
   const [phoneValue, setPhoneValue] = useState(client?.phone || "")
-  const [cellphoneValue, setCellphoneValue] = useState("")
+  const [cellphoneValue, setCellphoneValue] = useState(client?.cellphone || "")
   const [emailValue, setEmailValue] = useState(client?.email || "")
   const [emailError, setEmailError] = useState("")
 
@@ -169,18 +174,52 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
       return
     }
 
+    // Coletar dados do formulário
+    const getVal = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value || ""
+    
+    const payload: Record<string, unknown> = {
+      name: getVal("name"),
+      tradeName: getVal("tradeName") || undefined,
+      type: documentType === "cpf" ? "pf" : "pj",
+      document: documentValue,
+      rg: getVal("rg") || undefined,
+      stateRegistration: getVal("stateRegistration") || undefined,
+      email: emailValue,
+      phone: phoneValue,
+      cellphone: cellphoneValue,
+      zipCode: getVal("main-zipCode") || undefined,
+      address: getVal("main-street") || undefined,
+      number: getVal("main-number") || undefined,
+      complement: getVal("main-complement") || undefined,
+      neighborhood: getVal("main-neighborhood") || undefined,
+      city: getVal("main-city") || client?.city || "",
+      state: getVal("main-state") || client?.state || "",
+      creditLimit: parseFloat(getVal("creditLimit")) || 0,
+      notes: getVal("notes") || undefined,
+    }
+
+    // Remover campos undefined para não sobrescrever
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined || payload[key] === "") delete payload[key]
+    })
+
+    // Garantir campos obrigatórios
+    if (!payload.name) { toast.error("Nome/Razão Social é obrigatório"); return }
+    if (!payload.city) { toast.error("Cidade é obrigatória"); return }
+    if (!payload.state) { toast.error("Estado é obrigatório"); return }
+
     setIsSaving(true)
 
     try {
-      // Aqui você faria a chamada para a API para salvar os dados
-      // Simulando um delay de requisição
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      toast.success(isEditing ? "Cliente atualizado com sucesso!" : "Cliente cadastrado com sucesso!")
+      if (isEditing && client?.id) {
+        await updateCliente.mutateAsync({ id: client.id, data: payload })
+      } else {
+        await createCliente.mutateAsync(payload as any)
+      }
       onClose()
-    } catch (error) {
-      toast.error("Erro ao salvar cliente. Tente novamente.")
+    } catch (error: any) {
       console.error("Erro ao salvar cliente:", error)
+      // toast já é disparado pelo hook
     } finally {
       setIsSaving(false)
     }

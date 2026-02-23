@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { InputPhone } from "@/components/ui/input-phone"
 import { toast } from "sonner"
+import { useCreateColaborador, useUpdateColaborador } from "@/hooks/use-colaboradores"
 
 interface EmployeeFormProps {
   employee?: any
@@ -33,17 +34,48 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
   const [phoneValue, setPhoneValue] = useState(employee?.phone || "")
   const [cellphoneValue, setCellphoneValue] = useState(employee?.cellphone || "")
 
+  const createColaborador = useCreateColaborador()
+  const updateColaborador = useUpdateColaborador()
+
   const handleSave = async () => {
+    const getVal = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value || ""
+    
+    const name = getVal("name")
+    if (!name) { toast.error("Nome \xc3\xa9 obrigat\xc3\xb3rio"); return }
+    
+    const cpf = getVal("cpf")
+    if (!cpf) { toast.error("CPF \xc3\xa9 obrigat\xc3\xb3rio"); return }
+    
+    const email = getVal("email")
+    if (!email) { toast.error("E-mail \xc3\xa9 obrigat\xc3\xb3rio"); return }
+    
+    if (!phoneValue) { toast.error("Telefone \xc3\xa9 obrigat\xc3\xb3rio"); return }
+
+    const payload: Record<string, unknown> = {
+      name,
+      document: cpf,
+      email,
+      phone: phoneValue,
+      department: getVal("department") || undefined,
+      position: getVal("position") || undefined,
+      hireDate: getVal("admissionDate") || undefined,
+      notes: getVal("notes") || undefined,
+    }
+
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined) delete payload[key]
+    })
+
     setIsSaving(true)
 
     try {
-      // Aqui você faria a chamada para a API para salvar os dados
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      toast.success(isEditing ? "Colaborador atualizado com sucesso!" : "Colaborador cadastrado com sucesso!")
+      if (isEditing && employee?.id) {
+        await updateColaborador.mutateAsync({ id: employee.id, data: payload })
+      } else {
+        await createColaborador.mutateAsync(payload as any)
+      }
       onClose()
     } catch (error) {
-      toast.error("Erro ao salvar colaborador. Tente novamente.")
       console.error("Erro ao salvar colaborador:", error)
     } finally {
       setIsSaving(false)

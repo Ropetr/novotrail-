@@ -57,13 +57,22 @@ interface Product {
   sku: string
   name: string
   category: string
+  categoryId?: string
   brand: string
   price: number
+  salePrice: number
   cost: number
+  costPrice: number
   stock: number
+  currentStock: number
+  minStock: number
   status: "active" | "inactive" | "out_of_stock"
   ean: string
+  barcode: string
   image?: string
+  code?: string
+  unit?: string
+  description?: string
 }
 
 const statusConfig = {
@@ -328,26 +337,26 @@ export function ProductList() {
                             </td>
                             <td className="px-4 py-3 text-right">
                               <span className="text-sm text-muted-foreground">
-                                {formatCurrency(product.cost ?? 0)}
+                                {formatCurrency(product.costPrice ?? product.cost ?? 0)}
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
                               <span className="text-sm font-medium text-foreground">
-                                {formatCurrency(product.price)}
+                                {formatCurrency(product.salePrice ?? product.price)}
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
                               <span
                                 className={cn(
                                   "text-sm font-medium",
-                                  (product.stock ?? 0) === 0
+                                  (product.currentStock ?? product.stock ?? 0) === 0
                                     ? "text-destructive"
-                                    : (product.stock ?? 0) < 200
+                                    : (product.currentStock ?? product.stock ?? 0) < 200
                                     ? "text-orange-600"
                                     : "text-foreground"
                                 )}
                               >
-                                {(product.stock ?? 0).toLocaleString("pt-BR")}
+                                {(product.currentStock ?? product.stock ?? 0).toLocaleString("pt-BR")}
                               </span>
                             </td>
                             <td className="px-4 py-3">
