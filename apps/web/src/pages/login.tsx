@@ -65,7 +65,7 @@ export default function LoginPage() {
               className="h-40 w-auto object-contain"
             />
           </div>
-          <CardTitle className="text-2xl font-bold">TrailSystem ERP</CardTitle>
+          <CardTitle className="text-2xl font-bold sr-only">TrailSystem ERP</CardTitle>
           <CardDescription>
             Entre com suas credenciais para acessar o sistema
           </CardDescription>
