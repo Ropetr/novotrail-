@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
 
 // Base URL do backend
 const BASE_URL = import.meta.env.VITE_API_URL || "https://novotrail-api.planacacabamentos.workers.dev/api/v1"
-const DEV_TENANT_ID = import.meta.env.VITE_TENANT_ID
+const DEV_TENANT_ID = import.meta.env.VITE_TENANT_ID || "00000000-0000-0000-0000-000000000001"
 
 // Chave para armazenar o token no localStorage
 const TOKEN_KEY = "erp_auth_token"
@@ -63,8 +63,8 @@ api.interceptors.request.use(
       log(`[API] ⚠️ Nenhum token disponível para adicionar`)
     }
 
-    // Dev helper: envia tenant fixo em ambiente de desenvolvimento
-    if (import.meta.env.DEV && DEV_TENANT_ID && config.headers) {
+    // Envia tenant ID em todas as requisições
+    if (DEV_TENANT_ID && config.headers) {
       config.headers["x-tenant-id"] = DEV_TENANT_ID
     }
 
