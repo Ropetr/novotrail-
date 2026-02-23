@@ -60,7 +60,9 @@ const menuItems: MenuItem[] = [
     icon: ShoppingCart,
     label: "Comercial",
     submenu: [
-      { label: "Atendimento", href: "/comercial/atendimento" },
+      { label: "CRM", href: "/comercial/atendimento" },
+      { label: "Leads & Oportunidades", href: "/comercial/leads" },
+      { label: "Pipeline", href: "/comercial/pipeline" },
       { label: "Orçamentos", href: "/comercial/orcamentos" },
       { label: "Vendas", href: "/comercial/vendas" },
       { label: "Devoluções", href: "/comercial/devolucoes" },

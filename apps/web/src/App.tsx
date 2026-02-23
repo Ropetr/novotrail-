@@ -16,6 +16,8 @@ import ParceirosPage from './pages/(app)/cadastros/parceiros/page';
 import ColaboradoresPage from './pages/(app)/cadastros/colaboradores/page';
 import UsuariosPage from './pages/(app)/cadastros/usuarios/page';
 import AtendimentoPage from './pages/(app)/comercial/atendimento/page';
+import LeadsPage from './pages/(app)/comercial/leads/page';
+import PipelinePage from './pages/(app)/comercial/pipeline/page';
 import OrcamentosPage from './pages/(app)/comercial/orcamentos/page';
 import VendasPage from './pages/(app)/comercial/vendas/page';
 import DevolucoesPage from './pages/(app)/comercial/devolucoes/page';
@@ -131,6 +133,26 @@ function App() {
             <PrivateRoute>
               <AppLayout>
                 <AtendimentoPage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/comercial/leads"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <LeadsPage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/comercial/pipeline"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <PipelinePage />
               </AppLayout>
             </PrivateRoute>
           }
