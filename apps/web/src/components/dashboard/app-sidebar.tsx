@@ -170,11 +170,12 @@ export function AppSidebar() {
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-[200px] bg-sidebar text-sidebar-foreground overflow-y-auto border-r border-sidebar-border">
       {/* Logo */}
-      <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <span className="text-lg font-bold text-primary-foreground">T</span>
-        </div>
-        <span className="text-lg font-semibold text-sidebar-foreground">TrailSystem</span>
+      <div className="flex h-14 items-center border-b border-sidebar-border px-3">
+        <img
+          src="/logo-horizontal-sem-slogan.png"
+          alt="TrailSystem"
+          className="h-9 w-auto object-contain"
+        />
       </div>
 
       {/* Navigation */}
