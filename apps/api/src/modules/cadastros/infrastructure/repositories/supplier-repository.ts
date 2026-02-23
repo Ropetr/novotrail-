@@ -35,7 +35,7 @@ export class SupplierRepository implements ISupplierRepository {
     ]);
 
     return {
-      data: data as Supplier[],
+      data: data as unknown as Supplier[],
       total: Number(countResult[0].count),
     };
   }
@@ -47,7 +47,7 @@ export class SupplierRepository implements ISupplierRepository {
       .where(and(eq(suppliers.id, id), eq(suppliers.tenantId, tenantId)))
       .limit(1);
 
-    return (result[0] as Supplier) || null;
+    return (result[0] as unknown as Supplier) || null;
   }
 
   async create(tenantId: string, data: CreateSupplierDTO): Promise<Supplier> {
@@ -84,15 +84,15 @@ export class SupplierRepository implements ISupplierRepository {
       updatedAt: new Date(),
     };
 
-    await this.db.insert(suppliers).values(newRecord);
+    await this.db.insert(suppliers).values(newRecord as any);
 
-    return newRecord as Supplier;
+    return newRecord as unknown as Supplier;
   }
 
   async update(id: string, tenantId: string, data: UpdateSupplierDTO): Promise<Supplier> {
     await this.db
       .update(suppliers)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data, updatedAt: new Date() } as any)
       .where(and(eq(suppliers.id, id), eq(suppliers.tenantId, tenantId)));
 
     const updated = await this.getById(id, tenantId);

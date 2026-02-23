@@ -18,7 +18,7 @@ export class TenantRepository implements ITenantRepository {
       updatedAt: new Date(),
     };
 
-    await this.db.insert(tenants).values(newTenant);
+    await this.db.insert(tenants).values(newTenant as any);
     return newTenant;
   }
 

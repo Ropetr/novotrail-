@@ -35,7 +35,7 @@ export class ClientRepository implements IClientRepository {
     ]);
 
     return {
-      data: data as Client[],
+      data: data as unknown as Client[],
       total: Number(countResult[0].count),
     };
   }
@@ -47,7 +47,7 @@ export class ClientRepository implements IClientRepository {
       .where(and(eq(clients.id, id), eq(clients.tenantId, tenantId)))
       .limit(1);
 
-    return (result[0] as Client) || null;
+    return (result[0] as unknown as Client) || null;
   }
 
   async create(tenantId: string, data: CreateClientDTO): Promise<Client> {
@@ -87,7 +87,7 @@ export class ClientRepository implements IClientRepository {
       updatedAt: new Date(),
     };
 
-    await this.db.insert(clients).values(newRecord);
+    await this.db.insert(clients).values(newRecord as any);
 
     return newRecord as unknown as Client;
   }
@@ -95,7 +95,7 @@ export class ClientRepository implements IClientRepository {
   async update(id: string, tenantId: string, data: UpdateClientDTO): Promise<Client> {
     await this.db
       .update(clients)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data, updatedAt: new Date() } as any)
       .where(and(eq(clients.id, id), eq(clients.tenantId, tenantId)));
 
     const updated = await this.getById(id, tenantId);

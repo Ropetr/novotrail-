@@ -35,7 +35,7 @@ export class ProductRepository implements IProductRepository {
     ]);
 
     return {
-      data: data as Product[],
+      data: data as unknown as Product[],
       total: Number(countResult[0].count),
     };
   }
@@ -47,7 +47,7 @@ export class ProductRepository implements IProductRepository {
       .where(and(eq(products.id, id), eq(products.tenantId, tenantId)))
       .limit(1);
 
-    return (result[0] as Product) || null;
+    return (result[0] as unknown as Product) || null;
   }
 
   async create(tenantId: string, data: CreateProductDTO): Promise<Product> {
@@ -78,15 +78,15 @@ export class ProductRepository implements IProductRepository {
       updatedAt: new Date(),
     };
 
-    await this.db.insert(products).values(newRecord);
+    await this.db.insert(products).values(newRecord as any);
 
-    return newRecord as Product;
+    return newRecord as unknown as Product;
   }
 
   async update(id: string, tenantId: string, data: UpdateProductDTO): Promise<Product> {
     await this.db
       .update(products)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data, updatedAt: new Date() } as any)
       .where(and(eq(products.id, id), eq(products.tenantId, tenantId)));
 
     const updated = await this.getById(id, tenantId);

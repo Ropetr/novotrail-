@@ -1,5 +1,5 @@
 import { Context } from 'hono';
-import type { HonoContext } from '../../../../shared/cloudflare/types';
+import type { HonoContext } from '../../../../../shared/cloudflare/types';
 import type { ISaleRepository } from '../../../domain/repositories';
 import {
   createSaleSchema,

@@ -35,7 +35,7 @@ export class PartnerRepository implements IPartnerRepository {
     ]);
 
     return {
-      data: data as Partner[],
+      data: data as unknown as Partner[],
       total: Number(countResult[0].count),
     };
   }
@@ -47,7 +47,7 @@ export class PartnerRepository implements IPartnerRepository {
       .where(and(eq(partners.id, id), eq(partners.tenantId, tenantId)))
       .limit(1);
 
-    return (result[0] as Partner) || null;
+    return (result[0] as unknown as Partner) || null;
   }
 
   async create(tenantId: string, data: CreatePartnerDTO): Promise<Partner> {
@@ -78,15 +78,15 @@ export class PartnerRepository implements IPartnerRepository {
       updatedAt: new Date(),
     };
 
-    await this.db.insert(partners).values(newRecord);
+    await this.db.insert(partners).values(newRecord as any);
 
-    return newRecord as Partner;
+    return newRecord as unknown as Partner;
   }
 
   async update(id: string, tenantId: string, data: UpdatePartnerDTO): Promise<Partner> {
     await this.db
       .update(partners)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data, updatedAt: new Date() } as any)
       .where(and(eq(partners.id, id), eq(partners.tenantId, tenantId)));
 
     const updated = await this.getById(id, tenantId);

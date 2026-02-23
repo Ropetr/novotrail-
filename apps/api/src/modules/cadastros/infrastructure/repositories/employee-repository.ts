@@ -35,7 +35,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     ]);
 
     return {
-      data: data as Employee[],
+      data: data as unknown as Employee[],
       total: Number(countResult[0].count),
     };
   }
@@ -47,7 +47,7 @@ export class EmployeeRepository implements IEmployeeRepository {
       .where(and(eq(employees.id, id), eq(employees.tenantId, tenantId)))
       .limit(1);
 
-    return (result[0] as Employee) || null;
+    return (result[0] as unknown as Employee) || null;
   }
 
   async create(tenantId: string, data: CreateEmployeeDTO): Promise<Employee> {
@@ -76,15 +76,15 @@ export class EmployeeRepository implements IEmployeeRepository {
       updatedAt: new Date(),
     };
 
-    await this.db.insert(employees).values(newRecord);
+    await this.db.insert(employees).values(newRecord as any);
 
-    return newRecord as Employee;
+    return newRecord as unknown as Employee;
   }
 
   async update(id: string, tenantId: string, data: UpdateEmployeeDTO): Promise<Employee> {
     await this.db
       .update(employees)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data, updatedAt: new Date() } as any)
       .where(and(eq(employees.id, id), eq(employees.tenantId, tenantId)));
 
     const updated = await this.getById(id, tenantId);

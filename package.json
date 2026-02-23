@@ -2,6 +2,7 @@
   "name": "trailsystem",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@10.30.1",
   "type": "module",
   "scripts": {
     "dev:api": "pnpm --filter @trailsystem/api dev",

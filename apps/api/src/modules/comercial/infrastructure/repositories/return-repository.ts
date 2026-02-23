@@ -35,7 +35,7 @@ export class ReturnRepository implements IReturnRepository {
     ]);
 
     return {
-      data: data as Return[],
+      data: data as unknown as Return[],
       total: Number(countResult[0].count),
     };
   }
@@ -55,7 +55,7 @@ export class ReturnRepository implements IReturnRepository {
       .where(eq(returnItems.returnId, id));
 
     return {
-      ...(returnResult[0] as Return),
+      ...(returnResult[0] as unknown as Return),
       items: items as any[],
     };
   }
@@ -83,17 +83,21 @@ export class ReturnRepository implements IReturnRepository {
       number,
       saleId: data.saleId,
       clientId: data.clientId,
-      date: data.date,
+      date: new Date(data.date),
       status: 'pending' as const,
       reason: data.reason ?? null,
+      refundType: data.refundType ?? null,
+      creditGeneratedId: null,
       subtotal,
       total,
       notes: data.notes ?? null,
+      approvedBy: null,
+      approvedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    await this.db.insert(returns).values(newReturn);
+    await this.db.insert(returns).values(newReturn as any);
 
     // Insert items
     const itemRecords = data.items.map((item) => ({
@@ -105,14 +109,15 @@ export class ReturnRepository implements IReturnRepository {
       unitPrice: item.unitPrice,
       total: item.unitPrice * item.quantity,
       reason: item.reason ?? null,
+      productCondition: item.productCondition ?? null,
     }));
 
     if (itemRecords.length > 0) {
-      await this.db.insert(returnItems).values(itemRecords);
+      await this.db.insert(returnItems).values(itemRecords as any);
     }
 
     return {
-      ...(newReturn as Return),
+      ...(newReturn as unknown as Return),
       items: itemRecords as any[],
     };
   }
@@ -149,6 +154,6 @@ export class ReturnRepository implements IReturnRepository {
 
     if (!updated[0]) throw new Error('Return not found after approval');
 
-    return updated[0] as Return;
+    return updated[0] as unknown as Return;
   }
 }

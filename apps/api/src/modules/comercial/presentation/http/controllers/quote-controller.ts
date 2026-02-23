@@ -1,5 +1,5 @@
 import { Context } from 'hono';
-import type { HonoContext } from '../../../../shared/cloudflare/types';
+import type { HonoContext } from '../../../../../shared/cloudflare/types';
 import type { IQuoteRepository } from '../../../domain/repositories';
 import {
   createQuoteSchema,
@@ -138,6 +138,44 @@ export class QuoteController {
       return ok(c, sale, 201);
     } catch (error: any) {
       return fail(c, error.message || 'Failed to convert quote to sale', 400);
+    }
+  }
+
+  async merge(c: Context<HonoContext>) {
+    try {
+      const user = c.get('user')!;
+      const body = await c.req.json();
+
+      if (!body.quoteIds || body.quoteIds.length < 2) {
+        return fail(c, 'At least 2 quotes are required to merge', 400);
+      }
+      if (!body.mainClientId) {
+        return fail(c, 'mainClientId is required', 400);
+      }
+
+      const merged = await this.quoteRepository.merge(user.tenantId, body);
+
+      return ok(c, merged, 201);
+    } catch (error: any) {
+      return fail(c, error.message || 'Failed to merge quotes', 400);
+    }
+  }
+
+  async split(c: Context<HonoContext>) {
+    try {
+      const user = c.get('user')!;
+      const { id } = idParamSchema.parse(c.req.param());
+      const body = await c.req.json();
+
+      if (!body.itemIds || body.itemIds.length === 0) {
+        return fail(c, 'At least 1 item must be selected to split', 400);
+      }
+
+      const results = await this.quoteRepository.split(id, user.tenantId, body);
+
+      return ok(c, results, 201);
+    } catch (error: any) {
+      return fail(c, error.message || 'Failed to split quote', 400);
     }
   }
 }

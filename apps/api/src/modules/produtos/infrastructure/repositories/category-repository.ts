@@ -27,7 +27,7 @@ export class CategoryRepository implements ICategoryRepository {
     ]);
 
     return {
-      data: data as Category[],
+      data: data as unknown as Category[],
       total: Number(countResult[0].count),
     };
   }
@@ -39,7 +39,7 @@ export class CategoryRepository implements ICategoryRepository {
       .where(and(eq(categories.id, id), eq(categories.tenantId, tenantId)))
       .limit(1);
 
-    return (result[0] as Category) || null;
+    return (result[0] as unknown as Category) || null;
   }
 
   async create(tenantId: string, data: CreateCategoryDTO): Promise<Category> {
@@ -53,15 +53,15 @@ export class CategoryRepository implements ICategoryRepository {
       updatedAt: new Date(),
     };
 
-    await this.db.insert(categories).values(newRecord);
+    await this.db.insert(categories).values(newRecord as any);
 
-    return newRecord as Category;
+    return newRecord as unknown as Category;
   }
 
   async update(id: string, tenantId: string, data: UpdateCategoryDTO): Promise<Category> {
     await this.db
       .update(categories)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data, updatedAt: new Date() } as any)
       .where(and(eq(categories.id, id), eq(categories.tenantId, tenantId)));
 
     const updated = await this.getById(id, tenantId);

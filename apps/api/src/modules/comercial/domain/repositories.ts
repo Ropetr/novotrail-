@@ -4,10 +4,19 @@ import type {
   QuoteItem,
   CreateQuoteDTO,
   UpdateQuoteDTO,
+  MergeQuotesDTO,
+  SplitQuoteDTO,
   Sale,
   SaleItem,
   CreateSaleDTO,
   UpdateSaleDTO,
+  SaleDelivery,
+  CreateDeliveryDTO,
+  ClientCredit,
+  ClientCreditMovement,
+  CreateCreditDTO,
+  UseCreditDTO,
+  ClientCreditSummary,
   Return,
   ReturnItem,
   CreateReturnDTO,
@@ -41,6 +50,8 @@ export interface IQuoteRepository {
   approve(id: string, tenantId: string): Promise<Quote>;
   convertToSale(id: string, tenantId: string): Promise<Sale>;
   softDelete(id: string, tenantId: string): Promise<void>;
+  merge(tenantId: string, data: MergeQuotesDTO): Promise<QuoteWithItems>;
+  split(id: string, tenantId: string, data: SplitQuoteDTO): Promise<QuoteWithItems[]>;
 }
 
 // ==================== Sale Repository ====================
@@ -51,6 +62,29 @@ export interface ISaleRepository {
   create(tenantId: string, data: CreateSaleDTO): Promise<SaleWithItems>;
   update(id: string, tenantId: string, data: UpdateSaleDTO): Promise<SaleWithItems>;
   cancel(id: string, tenantId: string): Promise<Sale>;
+}
+
+// ==================== Delivery Repository ====================
+
+export interface IDeliveryRepository {
+  listBySale(saleId: string): Promise<SaleDelivery[]>;
+  getById(id: string): Promise<SaleDelivery | null>;
+  create(tenantId: string, data: CreateDeliveryDTO): Promise<SaleDelivery>;
+  startSeparation(id: string): Promise<SaleDelivery>;
+  confirmSeparation(id: string): Promise<SaleDelivery>;
+  confirmDelivery(id: string, receiverName: string, receiverDocument?: string): Promise<SaleDelivery>;
+  cancel(id: string): Promise<SaleDelivery>;
+}
+
+// ==================== Credit Repository ====================
+
+export interface ICreditRepository {
+  listByClient(clientId: string, tenantId: string): Promise<ClientCredit[]>;
+  getById(id: string, tenantId: string): Promise<ClientCredit | null>;
+  getSummary(clientId: string, tenantId: string): Promise<ClientCreditSummary>;
+  create(tenantId: string, data: CreateCreditDTO): Promise<ClientCredit>;
+  use(id: string, tenantId: string, data: UseCreditDTO): Promise<ClientCredit>;
+  cancel(id: string, tenantId: string): Promise<ClientCredit>;
 }
 
 // ==================== Return Repository ====================

@@ -13,7 +13,7 @@ export function ok<T>(
       data,
       ...(extra || {}),
     },
-    status
+    status as any
   );
 }
 
@@ -24,6 +24,6 @@ export function fail(c: Context<HonoContext>, message: string, status = 400, det
       error: message,
       details,
     },
-    status
+    status as any
   );
 }
