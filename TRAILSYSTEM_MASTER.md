@@ -82,7 +82,7 @@ Code1/
 â”‚       â”œâ”€â”€ hooks/
 â”‚       â””â”€â”€ contexts/
 â”œâ”€â”€ packages/
-â”‚   â””â”€â”€ shared/           â† @erp/shared (tipos e utilitÃ¡rios compartilhados)
+â”‚   â””â”€â”€ shared/           â† @trailsystem/types (tipos e utilitÃ¡rios compartilhados)
 â”œâ”€â”€ package.json          â† Root workspace pnpm
 â””â”€â”€ pnpm-workspace.yaml
 ```

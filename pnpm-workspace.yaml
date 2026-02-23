@@ -1,4 +1,3 @@
 packages:
-  - 'erp-backend'
-  - 'erp-frontend'
+  - 'apps/*'
   - 'packages/*'
