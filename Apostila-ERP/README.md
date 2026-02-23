@@ -66,14 +66,21 @@ Produto SaaS multi-tenant para distribuidoras de materiais de construção.
 | `18-MultiEmpresa/` | Grupo empresarial, filiais, switch, compartilhamento | 360 | 5 | 18 |
 | `19-CICD/` | GitHub Actions + Cloudflare, 5 workflows, rollback | 135 | — | — |
 
+### 🔍 Comparações e Ideias (23/02/2026)
+
+| Documento | Descrição | Parágrafos |
+|-----------|-----------|------------|
+| `analise_comparativa_melhores_praticas.docx` | Monorepo, Cloudflare Workers, Clean Architecture, React 18, SRE, WhatsApp + RAG | 270 |
+| `analise_completa_roadmap.docx` | Auditoria infra real (253 tabelas), comparativo ERPs, 7 vulnerabilidades, roadmap 12 meses, LGPD | 383 |
+
 ---
 
 ## 📊 Números Consolidados
 
 | Métrica | Fase 1 | Fase 2 | Config | Fase 3 | Fase 4 | **Total** |
 |---------|--------|--------|--------|--------|--------|-----------|
-| Documentos .docx | 14 | 4 | 1 | 5 | 3 | **27** |
-| Parágrafos | 8.137 | 2.821 | 1.012 | 1.750 | 860 | **~17.627** |
+| Documentos .docx | 14 | 4 | 1 | 5 | 3 + 2 análises | **29** |
+| Parágrafos | 8.137 | 2.821 | 1.012 | 1.750 | 860 + 653 | **~18.280** |
 | Tabelas D1 | 34 | 27 | 6 | 19 | 15 | **~101** |
 | Endpoints REST | 109 | 94 | 27 | 76 | 32 | **~338** |
 | Regras de negócio | — | 15 | 5 | 18 | 10 | **48** |
@@ -96,6 +103,7 @@ Produto SaaS multi-tenant para distribuidoras de materiais de construção.
 | 23/02/2026 | Configurações reescrito (186 → 1.012 parágrafos) — 15 abas ✅ |
 | 23/02/2026 | Módulos Fase 3: Auditoria, CRM, Comissões, BI, Suporte ✅ |
 | 23/02/2026 | Módulos Fase 4: Billing, Multi-Empresa, CI/CD ✅ |
+| 23/02/2026 | Análise comparativa: melhores práticas + roadmap técnico 12 meses ✅ |
 
 ---
 
