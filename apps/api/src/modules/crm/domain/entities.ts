@@ -1,0 +1,23 @@
+// Re-export CRM types from @trailsystem/types
+export type {
+  PipelineStage,
+  CreatePipelineStageDTO,
+  UpdatePipelineStageDTO,
+  Opportunity,
+  OpportunityStatus,
+  CreateOpportunityDTO,
+  UpdateOpportunityDTO,
+  MoveOpportunityDTO,
+  LoseOpportunityDTO,
+  Activity,
+  ActivityType,
+  ActivityStatus,
+  CreateActivityDTO,
+  UpdateActivityDTO,
+  ScoringRule,
+  ScoringRuleType,
+  CreateScoringRuleDTO,
+  UpdateScoringRuleDTO,
+  PipelineSummary,
+  ClientScore,
+} from '@trailsystem/types';

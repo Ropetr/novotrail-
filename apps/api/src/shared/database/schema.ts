@@ -18,3 +18,6 @@ export { categories, products } from '../../modules/produtos/infrastructure/sche
 
 // Comercial module schema
 export { quotes, quoteItems, sales, saleItems, returns, returnItems } from '../../modules/comercial/infrastructure/schema';
+
+// CRM module schema
+export { crmPipelineStages, crmOpportunities, crmActivities, crmScoringRules } from '../../modules/crm/infrastructure/schema';

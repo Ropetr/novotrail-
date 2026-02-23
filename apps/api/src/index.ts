@@ -14,6 +14,7 @@ import { createFiscalModule } from './modules/fiscal/index';
 import { createCadastrosModule } from './modules/cadastros/index';
 import { createProdutosModule } from './modules/produtos/index';
 import { createComercialModule } from './modules/comercial/index';
+import { createCrmModule } from './modules/crm/index';
 
 const app = new Hono<HonoContext>();
 
@@ -158,6 +159,14 @@ apiV1.use('/comercial/*', async (c, next) => {
   return authMiddleware(c, next);
 });
 apiV1.route('/comercial', createComercialModule());
+
+// CRM module (PROTECTED routes)
+apiV1.use('/crm/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
+  const authMiddleware = createAuthMiddleware(authService);
+  return authMiddleware(c, next);
+});
+apiV1.route('/crm', createCrmModule());
 
 // Mount API v1
 app.route('/api/v1', apiV1);
