@@ -1,53 +1,53 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { pgTable, uuid, varchar, text, timestamp, numeric, integer } from 'drizzle-orm/pg-core';
 import { tenants } from '../../tenant/infrastructure/schema';
 
 // ==================== Categories ====================
-export const categories = sqliteTable('categories', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  tenantId: text('tenant_id')
+export const categories = pgTable('categories', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
     .notNull()
     .references(() => tenants.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  parentId: text('parent_id'),
+  name: varchar('name', { length: 255 }).notNull(),
+  parentId: uuid('parent_id'),
   status: text('status', { enum: ['active', 'inactive', 'blocked'] })
     .notNull()
     .default('active'),
-  createdAt: integer('created_at', { mode: 'timestamp' })
+  createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date())
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });
 
 // ==================== Products ====================
-export const products = sqliteTable('products', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  tenantId: text('tenant_id')
+export const products = pgTable('products', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
     .notNull()
     .references(() => tenants.id, { onDelete: 'cascade' }),
-  code: text('code').notNull(),
-  name: text('name').notNull(),
+  code: varchar('code', { length: 50 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
-  categoryId: text('category_id')
+  categoryId: uuid('category_id')
     .references(() => categories.id, { onDelete: 'set null' }),
-  sku: text('sku'),
-  barcode: text('barcode'),
-  unit: text('unit').notNull().default('UN'),
-  costPrice: real('cost_price').notNull().default(0),
-  salePrice: real('sale_price').notNull().default(0),
+  sku: varchar('sku', { length: 50 }),
+  barcode: varchar('barcode', { length: 50 }),
+  unit: varchar('unit', { length: 10 }).notNull().default('UN'),
+  costPrice: numeric('cost_price', { precision: 12, scale: 2 }).notNull().default('0'),
+  salePrice: numeric('sale_price', { precision: 12, scale: 2 }).notNull().default('0'),
   status: text('status', { enum: ['active', 'inactive', 'blocked'] })
     .notNull()
     .default('active'),
   minStock: integer('min_stock').notNull().default(0),
   currentStock: integer('current_stock').notNull().default(0),
   notes: text('notes'),
-  createdAt: integer('created_at', { mode: 'timestamp' })
+  createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date())
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });

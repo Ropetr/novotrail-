@@ -14,7 +14,7 @@ export async function seed(db: any) {
     .select()
     .from(tenants)
     .where(eq(tenants.id, tenantId))
-    .all();
+    ;
 
   if (existingTenants.length === 0) {
     await db.insert(tenants).values({
@@ -55,7 +55,7 @@ export async function seed(db: any) {
       .select()
       .from(users)
       .where(and(eq(users.email, user.email), eq(users.tenantId, tenantId)))
-      .all();
+      ;
 
     if (existing.length === 0) {
       await db.insert(users).values({
@@ -79,7 +79,7 @@ export async function seed(db: any) {
     .select()
     .from(clients)
     .where(eq(clients.tenantId, tenantId))
-    .all();
+    ;
 
   if (existingClients.length === 0) {
     await db.insert(clients).values([
@@ -97,9 +97,9 @@ export async function seed(db: any) {
         city: 'Maringa',
         state: 'PR',
         status: 'active',
-        creditLimit: 50000,
-        balance: 12000,
-        lastPurchase: '2026-02-10',
+        creditLimit: '50000',
+        balance: '12000',
+        lastPurchase: new Date('2026-02-10'),
       },
       {
         tenantId,
@@ -115,9 +115,9 @@ export async function seed(db: any) {
         city: 'Londrina',
         state: 'PR',
         status: 'active',
-        creditLimit: 75000,
-        balance: 8000,
-        lastPurchase: '2026-02-12',
+        creditLimit: '75000',
+        balance: '8000',
+        lastPurchase: new Date('2026-02-12'),
       },
       {
         tenantId,
@@ -133,9 +133,9 @@ export async function seed(db: any) {
         city: 'Curitiba',
         state: 'PR',
         status: 'active',
-        creditLimit: 40000,
-        balance: 3500,
-        lastPurchase: '2026-02-08',
+        creditLimit: '40000',
+        balance: '3500',
+        lastPurchase: new Date('2026-02-08'),
       },
       {
         tenantId,
@@ -151,9 +151,9 @@ export async function seed(db: any) {
         city: 'Maringa',
         state: 'PR',
         status: 'active',
-        creditLimit: 30000,
-        balance: 0,
-        lastPurchase: '2026-02-05',
+        creditLimit: '30000',
+        balance: '0',
+        lastPurchase: new Date('2026-02-05'),
       },
     ]);
     console.log('Clients seeded');
@@ -166,7 +166,7 @@ export async function seed(db: any) {
     .select()
     .from(suppliers)
     .where(eq(suppliers.tenantId, tenantId))
-    .all();
+    ;
 
   if (existingSuppliers.length === 0) {
     await db.insert(suppliers).values([
@@ -213,7 +213,7 @@ export async function seed(db: any) {
     .select()
     .from(partners)
     .where(eq(partners.tenantId, tenantId))
-    .all();
+    ;
 
   if (existingPartners.length === 0) {
     await db.insert(partners).values([
@@ -230,7 +230,7 @@ export async function seed(db: any) {
         city: 'Maringa',
         state: 'PR',
         status: 'active',
-        commissionRate: 5,
+        commissionRate: '5',
       },
       {
         tenantId,
@@ -245,7 +245,7 @@ export async function seed(db: any) {
         city: 'Londrina',
         state: 'PR',
         status: 'active',
-        commissionRate: 4,
+        commissionRate: '4',
       },
     ]);
     console.log('Partners seeded');
@@ -258,7 +258,7 @@ export async function seed(db: any) {
     .select()
     .from(employees)
     .where(eq(employees.tenantId, tenantId))
-    .all();
+    ;
 
   if (existingEmployees.length === 0) {
     await db.insert(employees).values([
@@ -271,7 +271,7 @@ export async function seed(db: any) {
         phone: '(44) 3333-3333',
         department: 'Vendas',
         position: 'Vendedor',
-        hireDate: '2024-06-10',
+        hireDate: new Date('2024-06-10'),
         status: 'active',
       },
       {
@@ -283,7 +283,7 @@ export async function seed(db: any) {
         phone: '(44) 3333-4444',
         department: 'Comercial',
         position: 'Gerente',
-        hireDate: '2023-02-15',
+        hireDate: new Date('2023-02-15'),
         status: 'active',
       },
     ]);
@@ -297,7 +297,7 @@ export async function seed(db: any) {
     .select()
     .from(categories)
     .where(eq(categories.tenantId, tenantId))
-    .all();
+    ;
 
   if (existingCategories.length === 0) {
     await db.insert(categories).values([
@@ -315,14 +315,14 @@ export async function seed(db: any) {
     .select()
     .from(products)
     .where(eq(products.tenantId, tenantId))
-    .all();
+    ;
 
   if (existingProducts.length === 0) {
     const seededCategories = await db
       .select()
       .from(categories)
       .where(eq(categories.tenantId, tenantId))
-      .all();
+      ;
 
     const drywallId = seededCategories.find((c: any) => c.name === 'Drywall')?.id;
     const steelId = seededCategories.find((c: any) => c.name === 'Steel Frame')?.id;
@@ -338,8 +338,8 @@ export async function seed(db: any) {
         sku: 'DRY-125',
         barcode: '789000000001',
         unit: 'UN',
-        costPrice: 32.5,
-        salePrice: 49.9,
+        costPrice: '32.50',
+        salePrice: '49.90',
         status: 'active',
         minStock: 50,
         currentStock: 420,
@@ -353,8 +353,8 @@ export async function seed(db: any) {
         sku: 'STE-070',
         barcode: '789000000002',
         unit: 'UN',
-        costPrice: 18.0,
-        salePrice: 29.9,
+        costPrice: '18.00',
+        salePrice: '29.90',
         status: 'active',
         minStock: 80,
         currentStock: 300,
@@ -368,8 +368,8 @@ export async function seed(db: any) {
         sku: 'MAS-028',
         barcode: '789000000003',
         unit: 'UN',
-        costPrice: 42.0,
-        salePrice: 69.9,
+        costPrice: '42.00',
+        salePrice: '69.90',
         status: 'active',
         minStock: 40,
         currentStock: 120,
@@ -383,8 +383,8 @@ export async function seed(db: any) {
         sku: 'PAR-025',
         barcode: '789000000004',
         unit: 'CX',
-        costPrice: 9.5,
-        salePrice: 16.9,
+        costPrice: '9.50',
+        salePrice: '16.90',
         status: 'active',
         minStock: 60,
         currentStock: 220,
@@ -398,8 +398,8 @@ export async function seed(db: any) {
         sku: 'FIT-050',
         barcode: '789000000005',
         unit: 'UN',
-        costPrice: 11.0,
-        salePrice: 19.9,
+        costPrice: '11.00',
+        salePrice: '19.90',
         status: 'active',
         minStock: 30,
         currentStock: 90,

@@ -16,6 +16,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^0.10.0",
     "@trailsystem/types": "workspace:*",
     "bcryptjs": "^2.4.3",
     "drizzle-orm": "^0.36.4",

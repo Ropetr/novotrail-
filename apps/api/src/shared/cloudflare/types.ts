@@ -1,9 +1,13 @@
 export interface CloudflareBindings {
-  DB: D1Database;
+  HYPERDRIVE: Hyperdrive;
   CACHE: KVNamespace;
+  SESSIONS: KVNamespace;
+  NUVEM_FISCAL_CACHE: KVNamespace;
   SESSION_MANAGER: DurableObjectNamespace;
   ANALYTICS: AnalyticsEngineDataset;
-  FILES: R2Bucket;
+  STORAGE: R2Bucket;
+  CERTIFICATES: R2Bucket;
+  IMAGES: R2Bucket;
   TASK_QUEUE: Queue;
 }
 
@@ -11,6 +15,10 @@ export interface CloudflareEnv extends CloudflareBindings {
   ENVIRONMENT: string;
   JWT_SECRET: string;
   BASE_DOMAIN?: string;
+  NUVEM_FISCAL_CLIENT_ID: string;
+  NUVEM_FISCAL_CLIENT_SECRET: string;
+  NUVEM_FISCAL_API_URL: string;
+  NUVEM_FISCAL_TOKEN_URL: string;
 }
 
 export interface HonoContext {

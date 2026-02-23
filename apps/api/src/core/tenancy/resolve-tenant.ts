@@ -38,7 +38,7 @@ function extractSubdomain(hostname: string, baseDomain?: string): string | null 
 }
 
 export async function resolveTenant(c: Context<HonoContext>, next: Next) {
-  const db = createDatabaseConnection(c.env.DB);
+  const db = createDatabaseConnection(c.env.HYPERDRIVE);
   const tenantRepository = new TenantRepository(db);
 
   const hostname = getHostname(c);

@@ -14,7 +14,7 @@ export function createTenantModule() {
 
   // DI middleware - initialize dependencies from Cloudflare env
   router.use('*', async (c, next) => {
-    const db = createDatabaseConnection(c.env.DB);
+    const db = createDatabaseConnection(c.env.HYPERDRIVE);
     const tenantRepository = new TenantRepository(db);
     c.set('tenantRepository' as any, tenantRepository);
     await next();

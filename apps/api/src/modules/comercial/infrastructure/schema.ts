@@ -1,145 +1,145 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { pgTable, uuid, varchar, text, timestamp, numeric, integer } from 'drizzle-orm/pg-core';
 import { tenants } from '../../tenant/infrastructure/schema';
 import { clients } from '../../cadastros/infrastructure/schema';
 import { employees } from '../../cadastros/infrastructure/schema';
 import { products } from '../../produtos/infrastructure/schema';
 
 // ==================== Quotes (Orçamentos) ====================
-export const quotes = sqliteTable('quotes', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  tenantId: text('tenant_id')
+export const quotes = pgTable('quotes', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
     .notNull()
     .references(() => tenants.id, { onDelete: 'cascade' }),
-  number: text('number').notNull(),
-  clientId: text('client_id')
+  number: varchar('number', { length: 50 }).notNull(),
+  clientId: uuid('client_id')
     .notNull()
     .references(() => clients.id),
-  sellerId: text('seller_id')
+  sellerId: uuid('seller_id')
     .references(() => employees.id),
-  date: text('date').notNull(),
-  validUntil: text('valid_until'),
+  date: timestamp('date', { withTimezone: true }).notNull(),
+  validUntil: timestamp('valid_until', { withTimezone: true }),
   status: text('status', { enum: ['draft', 'sent', 'approved', 'rejected', 'expired'] })
     .notNull()
     .default('draft'),
-  subtotal: real('subtotal').notNull().default(0),
-  discount: real('discount').notNull().default(0),
-  total: real('total').notNull().default(0),
+  subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
+  discount: numeric('discount', { precision: 12, scale: 2 }).notNull().default('0'),
+  total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
   notes: text('notes'),
-  createdAt: integer('created_at', { mode: 'timestamp' })
+  createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date())
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });
 
 // ==================== Quote Items ====================
-export const quoteItems = sqliteTable('quote_items', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  quoteId: text('quote_id')
+export const quoteItems = pgTable('quote_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  quoteId: uuid('quote_id')
     .notNull()
     .references(() => quotes.id, { onDelete: 'cascade' }),
-  productId: text('product_id')
+  productId: uuid('product_id')
     .notNull()
     .references(() => products.id),
   quantity: integer('quantity').notNull(),
-  unitPrice: real('unit_price').notNull(),
-  discount: real('discount').notNull().default(0),
-  total: real('total').notNull(),
+  unitPrice: numeric('unit_price', { precision: 12, scale: 2 }).notNull(),
+  discount: numeric('discount', { precision: 12, scale: 2 }).notNull().default('0'),
+  total: numeric('total', { precision: 12, scale: 2 }).notNull(),
   notes: text('notes'),
 });
 
 // ==================== Sales (Vendas) ====================
-export const sales = sqliteTable('sales', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  tenantId: text('tenant_id')
+export const sales = pgTable('sales', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
     .notNull()
     .references(() => tenants.id, { onDelete: 'cascade' }),
-  number: text('number').notNull(),
-  quoteId: text('quote_id')
+  number: varchar('number', { length: 50 }).notNull(),
+  quoteId: uuid('quote_id')
     .references(() => quotes.id),
-  clientId: text('client_id')
+  clientId: uuid('client_id')
     .notNull()
     .references(() => clients.id),
-  sellerId: text('seller_id')
+  sellerId: uuid('seller_id')
     .references(() => employees.id),
-  date: text('date').notNull(),
+  date: timestamp('date', { withTimezone: true }).notNull(),
   status: text('status', { enum: ['pending', 'confirmed', 'invoiced', 'cancelled'] })
     .notNull()
     .default('pending'),
-  subtotal: real('subtotal').notNull().default(0),
-  discount: real('discount').notNull().default(0),
-  total: real('total').notNull().default(0),
-  paymentMethod: text('payment_method'),
+  subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
+  discount: numeric('discount', { precision: 12, scale: 2 }).notNull().default('0'),
+  total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
+  paymentMethod: varchar('payment_method', { length: 50 }),
   notes: text('notes'),
-  createdAt: integer('created_at', { mode: 'timestamp' })
+  createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date())
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });
 
 // ==================== Sale Items ====================
-export const saleItems = sqliteTable('sale_items', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  saleId: text('sale_id')
+export const saleItems = pgTable('sale_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  saleId: uuid('sale_id')
     .notNull()
     .references(() => sales.id, { onDelete: 'cascade' }),
-  productId: text('product_id')
+  productId: uuid('product_id')
     .notNull()
     .references(() => products.id),
   quantity: integer('quantity').notNull(),
-  unitPrice: real('unit_price').notNull(),
-  discount: real('discount').notNull().default(0),
-  total: real('total').notNull(),
+  unitPrice: numeric('unit_price', { precision: 12, scale: 2 }).notNull(),
+  discount: numeric('discount', { precision: 12, scale: 2 }).notNull().default('0'),
+  total: numeric('total', { precision: 12, scale: 2 }).notNull(),
 });
 
 // ==================== Returns (Devoluções) ====================
-export const returns = sqliteTable('returns', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  tenantId: text('tenant_id')
+export const returns = pgTable('returns', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
     .notNull()
     .references(() => tenants.id, { onDelete: 'cascade' }),
-  number: text('number').notNull(),
-  saleId: text('sale_id')
+  number: varchar('number', { length: 50 }).notNull(),
+  saleId: uuid('sale_id')
     .notNull()
     .references(() => sales.id),
-  clientId: text('client_id')
+  clientId: uuid('client_id')
     .notNull()
     .references(() => clients.id),
-  date: text('date').notNull(),
+  date: timestamp('date', { withTimezone: true }).notNull(),
   status: text('status', { enum: ['pending', 'approved', 'rejected', 'completed'] })
     .notNull()
     .default('pending'),
   reason: text('reason'),
-  subtotal: real('subtotal').notNull().default(0),
-  total: real('total').notNull().default(0),
+  subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
+  total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
   notes: text('notes'),
-  createdAt: integer('created_at', { mode: 'timestamp' })
+  createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date())
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });
 
 // ==================== Return Items ====================
-export const returnItems = sqliteTable('return_items', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  returnId: text('return_id')
+export const returnItems = pgTable('return_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  returnId: uuid('return_id')
     .notNull()
     .references(() => returns.id, { onDelete: 'cascade' }),
-  saleItemId: text('sale_item_id')
+  saleItemId: uuid('sale_item_id')
     .references(() => saleItems.id),
-  productId: text('product_id')
+  productId: uuid('product_id')
     .notNull()
     .references(() => products.id),
   quantity: integer('quantity').notNull(),
-  unitPrice: real('unit_price').notNull(),
-  total: real('total').notNull(),
+  unitPrice: numeric('unit_price', { precision: 12, scale: 2 }).notNull(),
+  total: numeric('total', { precision: 12, scale: 2 }).notNull(),
   reason: text('reason'),
 });

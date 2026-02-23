@@ -1,30 +1,31 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
+import { pgTable, uuid, varchar, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 import { tenants } from '../../tenant/infrastructure/schema';
 
 // Users table
-export const users = sqliteTable('users', {
-  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  tenantId: text('tenant_id')
+export const users = pgTable('users', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
     .notNull()
     .references(() => tenants.id, { onDelete: 'cascade' }),
-  email: text('email').notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
   passwordHash: text('password_hash').notNull(),
-  name: text('name').notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
   role: text('role', { enum: ['admin', 'manager', 'user'] })
     .notNull()
     .default('user'),
   status: text('status', { enum: ['active', 'inactive'] })
     .notNull()
     .default('active'),
-  createdAt: integer('created_at', { mode: 'timestamp' })
+  createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
-    .$defaultFn(() => new Date())
+    .defaultNow()
     .$onUpdate(() => new Date()),
-});
+}, (table) => [
+  uniqueIndex('idx_users_email_tenant').on(table.email, table.tenantId),
+]);
 
-// Create unique index on email + tenant_id
-export const uniqueEmailPerTenant = sql`CREATE UNIQUE INDEX idx_users_email_tenant ON users(email, tenant_id)`;
+// Backward compat export (was raw SQL, now proper index above)
+export const uniqueEmailPerTenant = null;
