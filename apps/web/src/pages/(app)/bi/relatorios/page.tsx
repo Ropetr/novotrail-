@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="BI - Relatorios"
-      description="Relatorios gerenciais."
-    />
-  )
-}
-
+import { ReportList } from "@/components/bi/relatorios/report-list"
+export default function Page() { return <ReportList /> }

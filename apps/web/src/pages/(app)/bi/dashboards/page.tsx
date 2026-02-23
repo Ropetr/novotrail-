@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="BI - Dashboards"
-      description="Indicadores e analises avancadas."
-    />
-  )
-}
-
+import { BiDashboards } from "@/components/bi/dashboards/bi-dashboards"
+export default function Page() { return <BiDashboards /> }

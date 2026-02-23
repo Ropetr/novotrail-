@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Impostos"
-      description="Apuracao e controle fiscal."
-    />
-  )
-}
-
+import { TaxDashboard } from "@/components/fiscal/impostos/tax-dashboard"
+export default function Page() { return <TaxDashboard /> }

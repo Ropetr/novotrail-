@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Contas a Receber"
-      description="Recebiveis e conciliacao."
-    />
-  )
-}
-
+import { ReceivableList } from "@/components/financeiro/receber/receivable-list"
+export default function Page() { return <ReceivableList /> }

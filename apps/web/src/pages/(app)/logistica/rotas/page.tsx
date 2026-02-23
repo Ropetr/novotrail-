@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Rotas"
-      description="Planejamento e otimizacao."
-    />
-  )
-}
-
+import { RouteList } from "@/components/logistica/rotas/route-list"
+export default function Page() { return <RouteList /> }

@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Pedidos de Compra"
-      description="Fluxo de pedidos e aprovacoes."
-    />
-  )
-}
-
+import { PurchaseOrderList } from "@/components/compras/pedidos/purchase-order-list"
+export default function Page() { return <PurchaseOrderList /> }

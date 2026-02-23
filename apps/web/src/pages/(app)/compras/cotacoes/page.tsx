@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Cotacoes"
-      description="Comparacao e selecao de fornecedores."
-    />
-  )
-}
-
+import { QuotationList } from "@/components/compras/cotacoes/quotation-list"
+export default function Page() { return <QuotationList /> }

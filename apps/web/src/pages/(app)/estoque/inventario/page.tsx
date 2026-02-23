@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Inventario"
-      description="Contagem e ajustes de estoque."
-    />
-  )
-}
-
+import { InventoryList } from "@/components/estoque/inventario/inventory-list"
+export default function Page() { return <InventoryList /> }

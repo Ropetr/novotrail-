@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Configuracoes"
-      description="Preferencias e parametros do sistema."
-    />
-  )
-}
-
+import { ConfiguracoesPage as SettingsPage } from "@/components/configuracoes/settings-page"
+export default function Page() { return <SettingsPage /> }

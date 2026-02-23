@@ -1,11 +1,2 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page"
-
-export default function Page() {
-  return (
-    <PlaceholderPage
-      title="Base de Conhecimento"
-      description="Documentos e artigos internos."
-    />
-  )
-}
-
+import { KnowledgeBase } from "@/components/suporte/base/knowledge-base"
+export default function Page() { return <KnowledgeBase /> }
