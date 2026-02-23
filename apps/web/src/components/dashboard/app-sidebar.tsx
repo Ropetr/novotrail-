@@ -300,7 +300,7 @@ export function AppSidebar() {
         
         {/* Versão */}
         <div className="px-3 py-2 border-t border-sidebar-border">
-          <span className="text-xs text-sidebar-foreground/40">TrailSystem ERP v3.0</span>
+          <span className="text-xs text-sidebar-foreground/40">v3.0</span>
         </div>
       </div>
     </aside>
