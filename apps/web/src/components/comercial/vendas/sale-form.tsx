@@ -26,6 +26,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { useClientes } from "@/hooks/use-clientes"
+import { useColaboradores } from "@/hooks/use-colaboradores"
+import { useProdutos } from "@/hooks/use-produtos"
+import { useCreateVenda, useUpdateVenda } from "@/hooks/use-vendas"
 
 interface Sale {
   id: string
@@ -59,31 +63,7 @@ const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
   { id: "entrega", label: "Entrega e Observações", icon: Truck },
 ]
 
-// Mock de clientes disponíveis
-const availableClients = [
-  { id: "1", name: "João Silva Construções", document: "12.345.678/0001-90" },
-  { id: "2", name: "Maria Santos Engenharia", document: "98.765.432/0001-10" },
-  { id: "3", name: "Carlos Oliveira Obras", document: "45.678.901/0001-23" },
-  { id: "4", name: "Ana Costa Empreendimentos", document: "78.901.234/0001-45" },
-]
-
-// Mock de vendedores
-const availableSellers = [
-  { id: "1", name: "Roberto Almeida" },
-  { id: "2", name: "Patricia Souza" },
-  { id: "3", name: "Fernando Lima" },
-]
-
-// Mock de produtos disponíveis
-const availableProducts = [
-  { id: "1", sku: "DRY-001", name: "Placa Drywall ST 12.5mm", price: 45.90, unit: "UN", stock: 500 },
-  { id: "2", sku: "DRY-002", name: "Placa Drywall RU 12.5mm", price: 52.90, unit: "UN", stock: 300 },
-  { id: "3", sku: "PER-001", name: "Perfil Montante 48mm", price: 18.50, unit: "UN", stock: 800 },
-  { id: "4", sku: "PER-002", name: "Perfil Guia 48mm", price: 15.90, unit: "UN", stock: 750 },
-  { id: "5", sku: "PAR-001", name: "Parafuso Cabeça Trombeta", price: 0.15, unit: "UN", stock: 5000 },
-  { id: "6", sku: "FIT-001", name: "Fita de Papel Microperfurada", price: 28.90, unit: "RL", stock: 200 },
-  { id: "7", sku: "MAS-001", name: "Massa para Juntas 25kg", price: 89.90, unit: "UN", stock: 150 },
-]
+// Dados carregados da API (substituem arrays mock antigos)
 
 interface SaleItem {
   id: string
@@ -102,6 +82,33 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
   const [isSaving, setIsSaving] = useState(false)
   const isViewOnly = viewMode === "view"
   const isEditing = viewMode === "edit"
+
+  // Dados da API
+  const { data: clientesData } = useClientes({ limit: 200 })
+  const { data: colaboradoresData } = useColaboradores({ limit: 200 })
+  const { data: produtosData } = useProdutos({ limit: 200 })
+  const createMutation = useCreateVenda()
+  const updateMutation = useUpdateVenda()
+
+  const availableClients = (clientesData?.data || []).map((c: any) => ({
+    id: c.id,
+    name: c.name || c.tradeName || "Sem nome",
+    document: c.document || "",
+  }))
+
+  const availableSellers = (colaboradoresData?.data || []).map((e: any) => ({
+    id: e.id,
+    name: e.name || "Sem nome",
+  }))
+
+  const availableProducts = (produtosData?.data || []).map((p: any) => ({
+    id: p.id,
+    sku: p.sku || p.code || "",
+    name: p.name || "Sem nome",
+    price: Number(p.salePrice || p.price || 0),
+    unit: p.unit || "UN",
+    stock: Number(p.currentStock || p.stock || 0),
+  }))
 
   const [items, setItems] = useState<SaleItem[]>([])
   const [productSearchTerm, setProductSearchTerm] = useState("")
@@ -304,10 +311,26 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
         return
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      toast.success(
-        isEditing ? "Venda atualizada com sucesso!" : "Venda registrada com sucesso!"
-      )
+      const payload = {
+        clientId: formData.clientId,
+        sellerId: formData.sellerId || undefined,
+        date: formData.date,
+        discount: formData.discountPercent,
+        paymentMethod: formData.paymentMethod || undefined,
+        notes: formData.notes || undefined,
+        items: items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount,
+        })),
+      }
+
+      if (isEditing && sale?.id) {
+        await updateMutation.mutateAsync({ id: sale.id, data: payload })
+      } else {
+        await createMutation.mutateAsync(payload)
+      }
       onClose()
     } catch (error) {
       toast.error("Erro ao salvar venda. Tente novamente.")

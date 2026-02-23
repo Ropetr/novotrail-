@@ -25,6 +25,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { useVendas } from "@/hooks/use-vendas"
+import { useCreateDevolucao, useUpdateDevolucao } from "@/hooks/use-devolucoes"
 
 interface Return {
   id: string
@@ -56,34 +58,7 @@ const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
   { id: "reembolso", label: "Reembolso", icon: DollarSign },
 ]
 
-// Mock de vendas disponíveis para devolução
-const availableSales = [
-  {
-    id: "1",
-    number: "VND-2024-001",
-    date: "2024-01-20",
-    clientName: "Construtora Horizonte Ltda",
-    clientDocument: "12.345.678/0001-90",
-    totalValue: 43595.50,
-    items: [
-      { id: "1", name: "Placa Drywall ST 12.5mm", quantity: 50, unitPrice: 45.90, returned: 0 },
-      { id: "2", name: "Perfil Montante 48mm", quantity: 100, unitPrice: 18.50, returned: 0 },
-      { id: "3", name: "Massa para Juntas 25kg", quantity: 20, unitPrice: 89.90, returned: 0 },
-    ],
-  },
-  {
-    id: "2",
-    number: "VND-2024-002",
-    date: "2024-01-22",
-    clientName: "MegaObras Construções",
-    clientDocument: "23.456.789/0001-01",
-    totalValue: 89450.00,
-    items: [
-      { id: "4", name: "Placa Drywall RU 12.5mm", quantity: 80, unitPrice: 52.90, returned: 0 },
-      { id: "5", name: "Perfil Guia 48mm", quantity: 150, unitPrice: 15.90, returned: 0 },
-    ],
-  },
-]
+// Dados carregados da API (substituem arrays mock antigos)
 
 // Motivos de devolução
 const returnReasons = [
@@ -109,6 +84,29 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
   const [isSaving, setIsSaving] = useState(false)
   const isViewOnly = viewMode === "view"
   const isEditing = viewMode === "edit"
+
+  // Dados da API
+  const { data: vendasData } = useVendas({ limit: 200 })
+  const createMutation = useCreateDevolucao()
+  const updateMutation = useUpdateDevolucao()
+
+  const availableSales = (vendasData?.data || []).map((v: any) => ({
+    id: v.id,
+    number: v.number || "",
+    date: v.date ? v.date.split("T")[0] : "",
+    clientName: v.clientName || "Cliente",
+    clientDocument: v.clientDocument || "",
+    clientId: v.clientId || "",
+    totalValue: Number(v.total || 0),
+    items: (v.items || []).map((i: any) => ({
+      id: i.id,
+      productId: i.productId,
+      name: i.productName || "Produto",
+      quantity: Number(i.quantity || 0),
+      unitPrice: Number(i.unitPrice || 0),
+      returned: 0,
+    })),
+  }))
 
   const [saleSearchTerm, setSaleSearchTerm] = useState("")
   const [selectedSale, setSelectedSale] = useState<typeof availableSales[0] | null>(null)
@@ -205,10 +203,26 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
         return
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      toast.success(
-        isEditing ? "Devolução atualizada com sucesso!" : "Devolução registrada com sucesso!"
-      )
+      const payload = {
+        saleId: selectedSale.id,
+        clientId: (selectedSale as any).clientId || "",
+        date: formData.date,
+        reason: formData.reason || undefined,
+        refundType: (formData as any).refundMethod === "credit" ? "credit" as const : "money" as const,
+        notes: formData.notes || undefined,
+        items: returnItems.map((item) => ({
+          productId: (item as any).productId || item.itemId,
+          quantity: item.returnQuantity,
+          unitPrice: item.unitPrice,
+          reason: formData.reason || undefined,
+        })),
+      }
+
+      if (isEditing && returnData?.id) {
+        await updateMutation.mutateAsync({ id: returnData.id, data: payload })
+      } else {
+        await createMutation.mutateAsync(payload)
+      }
       onClose()
     } catch (error) {
       toast.error("Erro ao salvar devolução. Tente novamente.")
@@ -457,7 +471,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
                     <div className="space-y-2">
                       <Label>Itens da Venda {selectedSale.number}</Label>
                       <div className="border border-border rounded-md">
-                        {selectedSale.items.map((item) => {
+                        {selectedSale.items.map((item: any) => {
                           const isSelected = returnItems.some((ri) => ri.itemId === item.id)
                           const returnItem = returnItems.find((ri) => ri.itemId === item.id)
 

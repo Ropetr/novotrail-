@@ -4,20 +4,26 @@ import type { ListParams, ApiListResponse, ApiSingleResponse } from '../cadastro
 export interface CreateVendaInput {
   clientId: string
   sellerId?: string
-  orcamentoId?: string
+  quoteId?: string
+  date: string
+  discount?: number
+  paymentMethod?: string
+  financialType?: 'integral' | 'parent_receivable' | 'per_delivery' | 'define_later'
+  creditUsed?: number
+  creditReservedForDeliveries?: boolean
+  notes?: string
+  internalNotes?: string
   items: Array<{
     productId: string
     quantity: number
-    price: number
+    unitPrice: number
     discount?: number
   }>
-  discount?: number
-  paymentMethod?: string
-  notes?: string
-  [key: string]: unknown
 }
 
-export type UpdateVendaInput = Partial<CreateVendaInput>
+export type UpdateVendaInput = Partial<CreateVendaInput> & {
+  status?: string
+}
 
 export const vendasService = {
   list: (params?: ListParams) =>

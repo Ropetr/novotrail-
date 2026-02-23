@@ -2,18 +2,25 @@ import api from '../api'
 import type { ListParams, ApiListResponse, ApiSingleResponse } from '../cadastros/clientes'
 
 export interface CreateDevolucaoInput {
-  vendaId: string
+  saleId: string
+  clientId: string
+  date: string
+  reason?: string
+  refundType?: 'money' | 'credit' | 'decide_later'
+  notes?: string
   items: Array<{
+    saleItemId?: string
     productId: string
     quantity: number
+    unitPrice: number
     reason?: string
+    productCondition?: 'new' | 'good' | 'damaged' | 'defective'
   }>
-  reason: string
-  notes?: string
-  [key: string]: unknown
 }
 
-export type UpdateDevolucaoInput = Partial<CreateDevolucaoInput>
+export type UpdateDevolucaoInput = Partial<CreateDevolucaoInput> & {
+  status?: string
+}
 
 export const devolucoesService = {
   list: (params?: ListParams) =>
