@@ -46,7 +46,7 @@ Produto SaaS multi-tenant para distribuidoras de materiais de construção.
 
 | Pasta | Módulo | Parágrafos | Tabelas |
 |-------|--------|------------|---------|
-| `11-Configuracoes/` | tenant_settings — parâmetros por distribuidora | 186 | 1 |
+| `11-Configuracoes/` | Painel com 15 abas — parametrização completa do ERP | 1.012 | 6 |
 
 ---
 
@@ -54,9 +54,9 @@ Produto SaaS multi-tenant para distribuidoras de materiais de construção.
 
 | Métrica | Fase 1 | Fase 2 | Total |
 |---------|--------|--------|-------|
-| Documentos .docx | 14 | 4 + 1 config | **21** |
-| Parágrafos | 8.137 | 3.007 | **~13.100** |
-| Tabelas D1 especificadas | 14 | 27 | **41** |
+| Documentos .docx | 14 | 4 + 1 config (reescrito) | **21** |
+| Parágrafos | 8.137 | 4.833 | **~14.926** |
+| Tabelas D1 especificadas | 14 | 47 | **41** |
 | Endpoints REST | 60+ | 94 | **154+** |
 | Regras de negócio | — | 15 | **15** |
 | User Stories | 25+ | 14 | **39+** |
