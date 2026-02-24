@@ -1,0 +1,53 @@
+name: "🚀 Nova Funcionalidade"
+description: Solicitar uma nova funcionalidade para o ERP
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: O que precisa fazer?
+      description: Descreva em linguagem simples o que o sistema deve fazer.
+      placeholder: "Ex: Quero que o módulo de atendimento mostre as conversas de WhatsApp em tempo real"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Qual módulo?
+      options:
+        - Auth / Login
+        - Cadastros
+        - Produtos
+        - Comercial
+        - Omnichannel / Atendimento
+        - Fiscal
+        - Dashboard
+        - Estoque
+        - Financeiro
+        - Compras
+        - Logística
+        - CRM
+        - Configurações
+        - Outro
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridade
+      options:
+        - Alta (preciso logo)
+        - Média (pode ser essa semana)
+        - Baixa (quando der)
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Como vou saber que está pronto?
+      description: Descreva o resultado esperado.
+      placeholder: "Ex: Abro a tela de atendimento e vejo a lista de conversas com o nome do cliente e última mensagem"

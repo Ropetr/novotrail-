@@ -1,0 +1,57 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy para Produção
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm turbo build
+
+      - name: Aplicar migrations no Neon
+        run: cd apps/api && pnpm db:migrate:neon
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Deploy API Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/api
+          command: deploy
+
+      - name: Deploy Frontend
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/web
+          command: pages deploy dist --project-name=novotrail-web

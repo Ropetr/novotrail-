@@ -1,62 +1,66 @@
-# TrailSystem ERP
+# 🏗️ TrailSystem ERP — NovoTrail
 
-ERP SaaS multi-tenant para distribuidoras. Monorepo com Turborepo + pnpm.
+ERP SaaS multi-tenant para distribuidoras de materiais de construção.
 
-## Stack
+**Stack:** Cloudflare Workers (Hono) + Neon PostgreSQL (Hyperdrive) + React 18 + Vite
 
-| Camada | Tecnologia |
-|--------|-----------|
-| API | Cloudflare Workers + Hono + Drizzle ORM |
-| Banco | Neon PostgreSQL (via Hyperdrive) |
-| Frontend | React 18 + Vite + Tailwind CSS + shadcn/ui |
-| Cache/Sessions | Cloudflare KV |
-| Storage | Cloudflare R2 |
-| Queues | Cloudflare Queues |
-| Monorepo | pnpm workspaces + Turborepo |
+---
 
-## Estrutura
+## 🚀 Quick Start
 
-```
-trailsystem/
-├── apps/
-│   ├── api/              # Cloudflare Worker (Hono + Drizzle)
-│   └── web/              # React 18 SPA (Vite + shadcn/ui)
-├── packages/
-│   └── types/            # Zod schemas + TypeScript types
-├── Apostila-ERP/         # Documentação dos 24 módulos
-├── turbo.json
-└── pnpm-workspace.yaml
+```bash
+pnpm install       # Instalar dependências
+pnpm dev           # API (8787) + Frontend (5173)
 ```
 
-## Início Rápido
+## 📦 Estrutura
 
-```powershell
-# Instalar dependências
-pnpm install
-
-# Dev (API + Web em paralelo)
-pnpm dev
-
-# Ou separadamente:
-pnpm dev:api
-pnpm dev:web
+```
+apps/api/            → Backend Hono (Cloudflare Workers)
+apps/web/            → Frontend React 18 + Vite + shadcn/ui
+packages/types/      → Tipos TypeScript compartilhados
+Apostila-ERP/        → Documentação de negócio (24 módulos)
+docs/decisions/      → ADRs (decisões técnicas)
+docs/status.md       → Status atual do projeto
+.github/workflows/   → CI/CD (GitHub Actions)
 ```
 
-## Acesso
+## 🗃️ Banco de Dados
 
-- Frontend: `http://localhost:5173`
-- API: `http://localhost:8787/api/v1`
+**Neon PostgreSQL** (sa-east-1) conectado via **Cloudflare Hyperdrive**.
 
-## Scripts
-
-```powershell
-pnpm dev          # Inicia API + Web
-pnpm build        # Build de todos os pacotes
-pnpm test         # Testes
-pnpm type-check   # Verificação de tipos
-pnpm test:e2e     # Testes E2E (Playwright)
+```bash
+pnpm db:generate     # Gerar migration após alterar schema
+pnpm db:push         # Aplicar schema no Neon (dev)
 ```
 
-## Documentação
+## 🔧 Comandos
 
-A especificação completa dos 24 módulos está em `Apostila-ERP/`.
+| Comando | O que faz |
+|---------|-----------|
+| `pnpm dev` | Inicia API + Frontend |
+| `pnpm build` | Build de produção |
+| `pnpm typecheck` | Verifica tipos TypeScript |
+| `pnpm lint` | Verifica padrões de código |
+| `pnpm test` | Roda testes |
+| `pnpm deploy:api` | Deploy da API no Cloudflare |
+| `pnpm deploy:web` | Deploy do Frontend no Cloudflare |
+
+## 📋 Módulos (41 tabelas)
+
+| Módulo | Backend | Frontend | Status |
+|--------|---------|----------|--------|
+| Auth | ✅ | ✅ | Funcional |
+| Cadastros | ✅ | ✅ parcial | Funcional |
+| Produtos | ✅ | ⬜ | Backend pronto |
+| Comercial | ✅ | ✅ parcial | Funcional |
+| Fiscal | ✅ | ⬜ | Backend pronto |
+| CRM | ✅ | ⬜ | Backend pronto |
+| Omnichannel | 🔨 | ⬜ | Em desenvolvimento |
+
+## 🔒 Regras
+
+- Commits: Conventional Commits (`feat:`, `fix:`, `docs:`)
+- Schema: via Drizzle ORM (nunca alterar banco direto)
+- Documentação: `Apostila-ERP/` é referência obrigatória
+- Decisões: registrar em `docs/decisions/`

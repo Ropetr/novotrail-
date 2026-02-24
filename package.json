@@ -5,23 +5,43 @@
   "packageManager": "pnpm@10.30.1",
   "type": "module",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky",
     "dev:api": "pnpm --filter @trailsystem/api dev",
     "dev:web": "pnpm --filter @trailsystem/web dev",
     "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",
-    "type-check": "turbo type-check",
-    "test:e2e": "playwright test",
+    "typecheck": "turbo typecheck",
     "lint": "turbo lint",
-    "clean": "turbo clean"
+    "clean": "turbo clean",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md,yaml,yml}\"",
+    "format:check": "prettier --check .",
+    "deploy:api": "pnpm --filter @trailsystem/api deploy",
+    "deploy:web": "pnpm --filter @trailsystem/web deploy",
+    "db:generate": "pnpm --filter @trailsystem/api db:generate",
+    "db:push": "pnpm --filter @trailsystem/api db:push"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
     "@playwright/test": "^1.58.2",
     "esbuild": "^0.27.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.0",
     "miniflare": "^4.20260219.0",
     "playwright": "^1.58.2",
+    "prettier": "^3.4.0",
     "turbo": "^2.4.0",
     "typescript": "^5.7.3",
     "wrangler": "^4.65.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.{json,md,yaml,yml,css}": [
+      "prettier --write"
+    ]
   }
 }

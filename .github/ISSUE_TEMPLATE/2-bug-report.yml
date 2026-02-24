@@ -1,0 +1,41 @@
+name: "🐛 Reportar Problema"
+description: Algo não está funcionando como deveria
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: O que aconteceu?
+      description: Descreva o problema.
+      placeholder: "Ex: Quando tento salvar um cliente, aparece erro na tela"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: O que deveria acontecer?
+      placeholder: "Ex: O cliente deveria ser salvo e aparecer na lista"
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Qual módulo?
+      options:
+        - Auth / Login
+        - Cadastros
+        - Produtos
+        - Comercial
+        - Omnichannel / Atendimento
+        - Fiscal
+        - Dashboard
+        - Outro
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Print da tela (se tiver)
+      description: Cole aqui uma imagem do erro.

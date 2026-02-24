@@ -3,6 +3,8 @@ dist
 .wrangler
 .dev.vars
 .env
+.env.local
+.env.*.local
 *.log
 .DS_Store
 .idea
@@ -31,3 +33,6 @@ credentials/
 *.pem
 *.p12
 *.pfx
+
+# Husky
+.husky/_
