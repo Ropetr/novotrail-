@@ -1,6 +1,7 @@
 import { Context } from 'hono';
 import type { HonoContext } from '../../../../../shared/cloudflare/types';
 import type { ISaleRepository } from '../../../domain/repositories';
+import type { PaymentRepository } from '../../../infrastructure/repositories/payment-repository';
 import {
   createSaleSchema,
   updateSaleSchema,
@@ -10,7 +11,10 @@ import {
 import { ok, fail } from '../../../../../shared/http/response';
 
 export class SaleController {
-  constructor(private saleRepository: ISaleRepository) {}
+  constructor(
+    private saleRepository: ISaleRepository,
+    private paymentRepository: PaymentRepository,
+  ) {}
 
   async list(c: Context<HonoContext>) {
     try {
@@ -43,9 +47,25 @@ export class SaleController {
         return fail(c, 'Sale not found', 404);
       }
 
-      return ok(c, sale);
+      // Include payments
+      const payments = await this.paymentRepository.listBySale(id, user.tenantId);
+
+      return ok(c, { ...sale, payments });
     } catch (error: any) {
       return fail(c, error.message || 'Failed to get sale', 400);
+    }
+  }
+
+  async listPayments(c: Context<HonoContext>) {
+    try {
+      const user = c.get('user')!;
+      const { id } = idParamSchema.parse(c.req.param());
+
+      const payments = await this.paymentRepository.listBySale(id, user.tenantId);
+
+      return ok(c, payments);
+    } catch (error: any) {
+      return fail(c, error.message || 'Failed to list payments', 400);
     }
   }
 
@@ -57,7 +77,16 @@ export class SaleController {
 
       const sale = await this.saleRepository.create(user.tenantId, data);
 
-      return ok(c, sale, 201);
+      // Save payments if provided
+      let payments: any[] = [];
+      if (data.payments && data.payments.length > 0) {
+        payments = await this.paymentRepository.createMany(
+          user.tenantId,
+          data.payments.map((p) => ({ ...p, saleId: sale.id }))
+        );
+      }
+
+      return ok(c, { ...sale, payments }, 201);
     } catch (error: any) {
       return fail(c, error.message || 'Failed to create sale', 400);
     }

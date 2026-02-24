@@ -13,7 +13,11 @@ export interface Quote {
   status: QuoteStatus;
   subtotal: number;
   discount: number;
+  freight: number;
+  surcharge: number;
   total: number;
+  paymentTerms?: string;
+  deliveryTerms?: string;
   notes?: string;
   // Mesclar/Desmembrar
   parentQuoteId?: string;
@@ -28,10 +32,12 @@ export interface QuoteItem {
   id: string;
   quoteId: string;
   productId: string;
+  itemType: 'product' | 'service';
   sequence: number;
   quantity: number;
   unitPrice: number;
   discount: number;
+  surcharge: number;
   total: number;
   notes?: string;
 }
@@ -42,6 +48,10 @@ export interface CreateQuoteDTO {
   date: string;
   validUntil?: string;
   discount?: number;
+  freight?: number;
+  surcharge?: number;
+  paymentTerms?: string;
+  deliveryTerms?: string;
   notes?: string;
   internalNotes?: string;
   items: CreateQuoteItemDTO[];
@@ -49,9 +59,11 @@ export interface CreateQuoteDTO {
 
 export interface CreateQuoteItemDTO {
   productId: string;
+  itemType?: 'product' | 'service';
   quantity: number;
   unitPrice: number;
   discount?: number;
+  surcharge?: number;
   notes?: string;
 }
 
@@ -89,6 +101,8 @@ export interface Sale {
   status: SaleStatus;
   subtotal: number;
   discount: number;
+  freight: number;
+  surcharge: number;
   total: number;
   paymentMethod?: string;
   notes?: string;
@@ -113,12 +127,14 @@ export interface SaleItem {
   id: string;
   saleId: string;
   productId: string;
+  itemType: 'product' | 'service';
   sequence: number;
   quantity: number;
   quantityInvoiced: number;
   quantityDelivered: number;
   unitPrice: number;
   discount: number;
+  surcharge: number;
   total: number;
 }
 
@@ -128,6 +144,8 @@ export interface CreateSaleDTO {
   sellerId?: string;
   date: string;
   discount?: number;
+  freight?: number;
+  surcharge?: number;
   paymentMethod?: string;
   financialType?: FinancialType;
   creditUsed?: number;
@@ -135,17 +153,53 @@ export interface CreateSaleDTO {
   notes?: string;
   internalNotes?: string;
   items: CreateSaleItemDTO[];
+  payments?: CreateSalePaymentDTO[];
 }
 
 export interface CreateSaleItemDTO {
   productId: string;
+  itemType?: 'product' | 'service';
   quantity: number;
   unitPrice: number;
   discount?: number;
+  surcharge?: number;
 }
 
-export interface UpdateSaleDTO extends Partial<Omit<CreateSaleDTO, 'items'>> {
+export interface UpdateSaleDTO extends Partial<Omit<CreateSaleDTO, 'items' | 'payments'>> {
   status?: SaleStatus;
+}
+
+// ==================== Pagamentos (Mix Livre) ====================
+
+export type PaymentMethodType = 'dinheiro' | 'pix' | 'boleto' | 'cheque' | 'cartao_credito' | 'cartao_debito' | 'transferencia' | 'credito_cliente';
+export type PaymentStatus = 'pending' | 'paid' | 'overdue' | 'cancelled';
+
+export interface SalePayment {
+  id: string;
+  tenantId: string;
+  saleId?: string;
+  quoteId?: string;
+  paymentMethod: PaymentMethodType;
+  installmentNumber: number;
+  totalInstallments: number;
+  documentNumber?: string;
+  dueDate?: string;
+  amount: number;
+  status: PaymentStatus;
+  paidAt?: string;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateSalePaymentDTO {
+  paymentMethod: PaymentMethodType;
+  installmentNumber?: number;
+  totalInstallments?: number;
+  documentNumber?: string;
+  dueDate?: string;
+  amount: number;
+  notes?: string;
 }
 
 // ==================== Entregas Fracionadas ====================

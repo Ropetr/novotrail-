@@ -73,11 +73,13 @@ export class QuoteRepository implements IQuoteRepository {
 
     // Calculate totals from items
     const subtotal = data.items.reduce(
-      (sum, item) => sum + item.unitPrice * item.quantity - (item.discount || 0),
+      (sum, item) => sum + item.unitPrice * item.quantity - (item.discount || 0) + (item.surcharge || 0),
       0
     );
     const discount = data.discount || 0;
-    const total = subtotal - discount;
+    const freight = data.freight || 0;
+    const surcharge = data.surcharge || 0;
+    const total = subtotal - discount + freight + surcharge;
 
     const quoteId = crypto.randomUUID();
 
@@ -92,7 +94,11 @@ export class QuoteRepository implements IQuoteRepository {
       status: 'draft' as const,
       subtotal,
       discount,
+      freight,
+      surcharge,
       total,
+      paymentTerms: data.paymentTerms ?? null,
+      deliveryTerms: data.deliveryTerms ?? null,
       notes: data.notes ?? null,
       parentQuoteId: null,
       mergedFrom: null,
@@ -109,11 +115,13 @@ export class QuoteRepository implements IQuoteRepository {
       id: crypto.randomUUID(),
       quoteId,
       productId: item.productId,
+      itemType: item.itemType || 'product',
       sequence: idx + 1,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       discount: item.discount || 0,
-      total: item.unitPrice * item.quantity - (item.discount || 0),
+      surcharge: item.surcharge || 0,
+      total: item.unitPrice * item.quantity - (item.discount || 0) + (item.surcharge || 0),
       notes: item.notes ?? null,
     }));
 
@@ -136,17 +144,25 @@ export class QuoteRepository implements IQuoteRepository {
     if (data.validUntil !== undefined) updateData.validUntil = data.validUntil ? new Date(data.validUntil) : null;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.notes !== undefined) updateData.notes = data.notes;
+    if (data.freight !== undefined) updateData.freight = data.freight;
+    if (data.surcharge !== undefined) updateData.surcharge = data.surcharge;
+    if (data.paymentTerms !== undefined) updateData.paymentTerms = data.paymentTerms;
+    if (data.deliveryTerms !== undefined) updateData.deliveryTerms = data.deliveryTerms;
 
     // Recalculate totals if items provided
     if (data.items) {
       const subtotal = data.items.reduce(
-        (sum, item) => sum + item.unitPrice * item.quantity - (item.discount || 0),
+        (sum, item) => sum + item.unitPrice * item.quantity - (item.discount || 0) + (item.surcharge || 0),
         0
       );
       const discount = data.discount !== undefined ? data.discount : 0;
+      const freight = data.freight !== undefined ? data.freight : 0;
+      const surcharge = data.surcharge !== undefined ? data.surcharge : 0;
       updateData.subtotal = subtotal;
       updateData.discount = discount;
-      updateData.total = subtotal - discount;
+      updateData.freight = freight;
+      updateData.surcharge = surcharge;
+      updateData.total = subtotal - discount + freight + surcharge;
 
       // Replace items
       await this.db.delete(quoteItems).where(eq(quoteItems.quoteId, id));
@@ -155,11 +171,13 @@ export class QuoteRepository implements IQuoteRepository {
         id: crypto.randomUUID(),
         quoteId: id,
         productId: item.productId,
+        itemType: item.itemType || 'product',
         sequence: idx + 1,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         discount: item.discount || 0,
-        total: item.unitPrice * item.quantity - (item.discount || 0),
+        surcharge: item.surcharge || 0,
+        total: item.unitPrice * item.quantity - (item.discount || 0) + (item.surcharge || 0),
         notes: item.notes ?? null,
       }));
 
@@ -222,6 +240,8 @@ export class QuoteRepository implements IQuoteRepository {
       status: 'pending' as const,
       subtotal: quote.subtotal,
       discount: quote.discount,
+      freight: quote.freight || 0,
+      surcharge: quote.surcharge || 0,
       total: quote.total,
       paymentMethod: null,
       notes: quote.notes ?? null,
@@ -245,12 +265,14 @@ export class QuoteRepository implements IQuoteRepository {
       id: crypto.randomUUID(),
       saleId,
       productId: item.productId,
+      itemType: item.itemType || 'product',
       sequence: idx + 1,
       quantity: item.quantity,
       quantityInvoiced: 0,
       quantityDelivered: 0,
       unitPrice: item.unitPrice,
       discount: item.discount || 0,
+      surcharge: item.surcharge || 0,
       total: item.total,
     }));
 

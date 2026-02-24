@@ -31,6 +31,7 @@ export function createComercialRoutes() {
   router.get('/vendas/:id', (c) => getSaleCtrl(c).getById(c));
   router.put('/vendas/:id', (c) => getSaleCtrl(c).update(c));
   router.post('/vendas/:id/cancelar', (c) => getSaleCtrl(c).cancel(c));
+  router.get('/vendas/:id/pagamentos', (c) => getSaleCtrl(c).listPayments(c));
 
   // Entregas Fracionadas (Deliveries)
   router.get('/vendas/:saleId/entregas', (c) => getDeliveryCtrl(c).listBySale(c));

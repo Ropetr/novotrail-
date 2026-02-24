@@ -8,6 +8,7 @@ import { SaleRepository } from './infrastructure/repositories/sale-repository';
 import { ReturnRepository } from './infrastructure/repositories/return-repository';
 import { DeliveryRepository } from './infrastructure/repositories/delivery-repository';
 import { CreditRepository } from './infrastructure/repositories/credit-repository';
+import { PaymentRepository } from './infrastructure/repositories/payment-repository';
 
 // Controllers
 import { QuoteController } from './presentation/http/controllers/quote-controller';
@@ -43,10 +44,11 @@ export function createComercialModule() {
     const returnRepository = new ReturnRepository(db);
     const deliveryRepository = new DeliveryRepository(db);
     const creditRepository = new CreditRepository(db);
+    const paymentRepository = new PaymentRepository(db);
 
     // Controllers
     const quoteController = new QuoteController(quoteRepository);
-    const saleController = new SaleController(saleRepository);
+    const saleController = new SaleController(saleRepository, paymentRepository);
     const returnController = new ReturnController(returnRepository);
     const deliveryController = new DeliveryController(deliveryRepository);
     const creditController = new CreditController(creditRepository);

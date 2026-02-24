@@ -11,11 +11,13 @@ export { SaleRepository } from './infrastructure/repositories/sale-repository';
 export { ReturnRepository } from './infrastructure/repositories/return-repository';
 export { DeliveryRepository } from './infrastructure/repositories/delivery-repository';
 export { CreditRepository } from './infrastructure/repositories/credit-repository';
+export { PaymentRepository } from './infrastructure/repositories/payment-repository';
 export {
   quotes,
   quoteItems,
   sales,
   saleItems,
+  salePayments,
   saleDeliveries,
   saleDeliveryItems,
   clientCredits,

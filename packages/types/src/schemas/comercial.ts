@@ -4,9 +4,11 @@ import { z } from 'zod';
 
 const quoteItemSchema = z.object({
   productId: z.string().uuid('ID do produto inválido'),
+  itemType: z.enum(['product', 'service']).default('product'),
   quantity: z.number().int().min(1, 'Quantidade mínima é 1'),
   unitPrice: z.number().min(0, 'Preço unitário inválido'),
   discount: z.number().min(0).default(0),
+  surcharge: z.number().min(0).default(0),
   notes: z.string().optional(),
 });
 
@@ -16,6 +18,10 @@ export const createQuoteSchema = z.object({
   date: z.string(),
   validUntil: z.string().optional(),
   discount: z.number().min(0).default(0),
+  freight: z.number().min(0).default(0),
+  surcharge: z.number().min(0).default(0),
+  paymentTerms: z.string().optional(),
+  deliveryTerms: z.string().optional(),
   notes: z.string().optional(),
   items: z.array(quoteItemSchema).min(1, 'Orçamento deve ter pelo menos 1 item'),
 });
@@ -26,6 +32,10 @@ export const updateQuoteSchema = z.object({
   date: z.string().optional(),
   validUntil: z.string().optional(),
   discount: z.number().min(0).optional(),
+  freight: z.number().min(0).optional(),
+  surcharge: z.number().min(0).optional(),
+  paymentTerms: z.string().optional(),
+  deliveryTerms: z.string().optional(),
   notes: z.string().optional(),
   status: z.enum(['draft', 'sent', 'approved', 'rejected', 'expired']).optional(),
   items: z.array(quoteItemSchema).optional(),
@@ -35,9 +45,21 @@ export const updateQuoteSchema = z.object({
 
 const saleItemSchema = z.object({
   productId: z.string().uuid('ID do produto inválido'),
+  itemType: z.enum(['product', 'service']).default('product'),
   quantity: z.number().int().min(1, 'Quantidade mínima é 1'),
   unitPrice: z.number().min(0, 'Preço unitário inválido'),
   discount: z.number().min(0).default(0),
+  surcharge: z.number().min(0).default(0),
+});
+
+const paymentSchema = z.object({
+  paymentMethod: z.string().min(1, 'Forma de pagamento obrigatória'),
+  installmentNumber: z.number().int().min(1).default(1),
+  totalInstallments: z.number().int().min(1).default(1),
+  documentNumber: z.string().optional(),
+  dueDate: z.string().optional(),
+  amount: z.number().min(0.01, 'Valor mínimo é R$ 0,01'),
+  notes: z.string().optional(),
 });
 
 export const createSaleSchema = z.object({
@@ -46,9 +68,12 @@ export const createSaleSchema = z.object({
   sellerId: z.string().uuid().optional(),
   date: z.string(),
   discount: z.number().min(0).default(0),
+  freight: z.number().min(0).default(0),
+  surcharge: z.number().min(0).default(0),
   paymentMethod: z.string().optional(),
   notes: z.string().optional(),
   items: z.array(saleItemSchema).min(1, 'Venda deve ter pelo menos 1 item'),
+  payments: z.array(paymentSchema).optional(),
 });
 
 export const updateSaleSchema = z.object({
@@ -56,6 +81,8 @@ export const updateSaleSchema = z.object({
   sellerId: z.string().uuid().optional(),
   date: z.string().optional(),
   discount: z.number().min(0).optional(),
+  freight: z.number().min(0).optional(),
+  surcharge: z.number().min(0).optional(),
   paymentMethod: z.string().optional(),
   notes: z.string().optional(),
   status: z.enum(['pending', 'confirmed', 'invoiced', 'cancelled']).optional(),

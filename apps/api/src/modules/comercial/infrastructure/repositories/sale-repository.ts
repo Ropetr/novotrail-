@@ -70,11 +70,13 @@ export class SaleRepository implements ISaleRepository {
 
     // Calculate totals from items
     const subtotal = data.items.reduce(
-      (sum, item) => sum + item.unitPrice * item.quantity - (item.discount || 0),
+      (sum, item) => sum + item.unitPrice * item.quantity - (item.discount || 0) + (item.surcharge || 0),
       0
     );
     const discount = data.discount || 0;
-    const total = subtotal - discount;
+    const freight = data.freight || 0;
+    const surcharge = data.surcharge || 0;
+    const total = subtotal - discount + freight + surcharge;
 
     const saleId = crypto.randomUUID();
 
@@ -89,6 +91,8 @@ export class SaleRepository implements ISaleRepository {
       status: 'pending' as const,
       subtotal,
       discount,
+      freight,
+      surcharge,
       total,
       paymentMethod: data.paymentMethod ?? null,
       notes: data.notes ?? null,
@@ -112,13 +116,15 @@ export class SaleRepository implements ISaleRepository {
       id: crypto.randomUUID(),
       saleId,
       productId: item.productId,
+      itemType: item.itemType || 'product',
       sequence: idx + 1,
       quantity: item.quantity,
       quantityInvoiced: 0,
       quantityDelivered: 0,
       unitPrice: item.unitPrice,
       discount: item.discount || 0,
-      total: item.unitPrice * item.quantity - (item.discount || 0),
+      surcharge: item.surcharge || 0,
+      total: item.unitPrice * item.quantity - (item.discount || 0) + (item.surcharge || 0),
     }));
 
     if (itemRecords.length > 0) {
@@ -138,6 +144,8 @@ export class SaleRepository implements ISaleRepository {
     if (data.sellerId !== undefined) updateData.sellerId = data.sellerId;
     if (data.date !== undefined) updateData.date = new Date(data.date);
     if (data.discount !== undefined) updateData.discount = data.discount;
+    if (data.freight !== undefined) updateData.freight = data.freight;
+    if (data.surcharge !== undefined) updateData.surcharge = data.surcharge;
     if (data.paymentMethod !== undefined) updateData.paymentMethod = data.paymentMethod;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.notes !== undefined) updateData.notes = data.notes;
