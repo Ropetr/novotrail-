@@ -21,3 +21,13 @@ export { quotes, quoteItems, sales, saleItems, returns, returnItems } from '../.
 
 // CRM module schema
 export { crmPipelineStages, crmOpportunities, crmActivities, crmScoringRules } from '../../modules/crm/infrastructure/schema';
+
+// Omnichannel module schema
+export {
+  channels, businessHours,
+  contacts, tags, contactTags,
+  conversations, messages, conversationTags, conversationAssignments, attachments,
+  queues, queueMembers, slaRules,
+  aiConfig, aiPrompts, aiKnowledgeItems, aiFeedback,
+  csatResponses, auditLog,
+} from '../../modules/omnichannel/infrastructure/schema';
