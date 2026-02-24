@@ -160,6 +160,13 @@ apiV1.use('/comercial/*', async (c, next) => {
   return authMiddleware(c, next);
 });
 apiV1.route('/comercial', createComercialModule());
+
+// Configuracoes module (PROTECTED routes)
+apiV1.use('/configuracoes/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
+  const authMiddleware = createAuthMiddleware(authService);
+  return authMiddleware(c, next);
+});
 apiV1.route('/configuracoes', createConfiguracoesModule());
 
 // User Management (PROTECTED routes) — uses auth module's UserRepository
