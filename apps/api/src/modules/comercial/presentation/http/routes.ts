@@ -6,6 +6,8 @@ import type { ReturnController } from './controllers/return-controller';
 import type { DeliveryController } from './controllers/delivery-controller';
 import type { CreditController } from './controllers/credit-controller';
 
+import type { PdfController } from './controllers/pdf-controller';
+
 export function createComercialRoutes() {
   const router = new Hono<HonoContext>();
   const getQuoteCtrl = (c: any) => c.get('quoteController') as QuoteController;
@@ -13,6 +15,7 @@ export function createComercialRoutes() {
   const getReturnCtrl = (c: any) => c.get('returnController') as ReturnController;
   const getDeliveryCtrl = (c: any) => c.get('deliveryController') as DeliveryController;
   const getCreditCtrl = (c: any) => c.get('creditController') as CreditController;
+  const getPdfCtrl = (c: any) => c.get('pdfController') as PdfController;
 
   // Orçamentos (Quotes)
   router.get('/orcamentos', (c) => getQuoteCtrl(c).list(c));
@@ -24,6 +27,7 @@ export function createComercialRoutes() {
   router.post('/orcamentos/:id/venda', (c) => getQuoteCtrl(c).convertToSale(c));
   router.post('/orcamentos/mesclar', (c) => getQuoteCtrl(c).merge(c));
   router.post('/orcamentos/:id/desmembrar', (c) => getQuoteCtrl(c).split(c));
+  router.get('/orcamentos/:id/pdf', (c) => getPdfCtrl(c).generateQuotePdf(c));
 
   // Vendas (Sales)
   router.get('/vendas', (c) => getSaleCtrl(c).list(c));
@@ -32,6 +36,7 @@ export function createComercialRoutes() {
   router.put('/vendas/:id', (c) => getSaleCtrl(c).update(c));
   router.post('/vendas/:id/cancelar', (c) => getSaleCtrl(c).cancel(c));
   router.get('/vendas/:id/pagamentos', (c) => getSaleCtrl(c).listPayments(c));
+  router.get('/vendas/:id/pdf', (c) => getPdfCtrl(c).generateSalePdf(c));
 
   // Entregas Fracionadas (Deliveries)
   router.get('/vendas/:saleId/entregas', (c) => getDeliveryCtrl(c).listBySale(c));

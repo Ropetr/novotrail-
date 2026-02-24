@@ -16,6 +16,7 @@ import { SaleController } from './presentation/http/controllers/sale-controller'
 import { ReturnController } from './presentation/http/controllers/return-controller';
 import { DeliveryController } from './presentation/http/controllers/delivery-controller';
 import { CreditController } from './presentation/http/controllers/credit-controller';
+import { PdfController } from './presentation/http/controllers/pdf-controller';
 import { createComercialRoutes } from './presentation/http/routes';
 
 /**
@@ -52,12 +53,14 @@ export function createComercialModule() {
     const returnController = new ReturnController(returnRepository);
     const deliveryController = new DeliveryController(deliveryRepository);
     const creditController = new CreditController(creditRepository);
+    const pdfController = new PdfController(quoteRepository, saleRepository, paymentRepository, db);
 
     c.set('quoteController' as any, quoteController);
     c.set('saleController' as any, saleController);
     c.set('returnController' as any, returnController);
     c.set('deliveryController' as any, deliveryController);
     c.set('creditController' as any, creditController);
+    c.set('pdfController' as any, pdfController);
 
     await next();
   });
