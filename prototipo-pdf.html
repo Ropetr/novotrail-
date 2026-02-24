@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Protótipo — Modelo Impressão TrailSystem</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Condensed:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #e0e0e0;
+    font-family: 'Roboto', Arial, sans-serif;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+  h2.page-title {
+    font-family: 'Roboto Condensed', sans-serif;
+    color: #333;
+    margin-top: 10px;
+  }
+
+  /* ================ A4 PAGE ================ */
+  .a4-page {
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    /* ABNT: 3cm sup/esq, 2cm inf/dir */
+    padding: 30mm 20mm 20mm 30mm;
+    position: relative;
+    font-size: 9pt;
+    color: #1a1a1a;
+    line-height: 1.4;
+  }
+
+  /* ================ BLOCO 1: CABEÇALHO ================ */
+  .header {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 0;
+  }
+
+  .header-logo {
+    width: 70px;
+    height: 70px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7pt;
+    color: #999;
+    background: #fafafa;
+  }
+
+  .header-company {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+  }
+
+  .header-company .razao-social {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 11pt;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .header-company .detail {
+    font-size: 7.5pt;
+    color: #444;
+    line-height: 1.3;
+  }
+
+  .header-doc {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 140px;
+  }
+
+  .header-doc .doc-title {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13pt;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+  }
+
+  .header-doc .doc-detail {
+    font-size: 7.5pt;
+    color: #444;
+  }
+  .header-doc .doc-detail strong {
+    color: #1a1a1a;
+  }
+
+  /* ================ SEÇÕES ================ */
+  .section {
+    margin-top: 8px;
+  }
+
+  .section-title {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #fff;
+    background: #2c2c2c;
+    padding: 3px 8px;
+    margin-bottom: 0;
+  }
+
+  /* ================ BLOCO 2: DESTINATÁRIO ================ */
+  .dest-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid #999;
+    border-top: none;
+    font-size: 7.5pt;
+  }
+
+  .dest-grid .dest-cell {
+    padding: 3px 8px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    gap: 4px;
+  }
+
+  .dest-grid .dest-cell:nth-child(odd) {
+    border-right: 1px solid #ddd;
+  }
+
+  .dest-grid .dest-cell.full-width {
+    grid-column: 1 / -1;
+    border-right: none;
+  }
+
+  .dest-label {
+    color: #666;
+    font-size: 6.5pt;
+    text-transform: uppercase;
+    white-space: nowrap;
+    min-width: 60px;
+  }
+
+  .dest-value {
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  /* ================ BLOCO 3/4: TABELA DE ITENS ================ */
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.5pt;
+    border: 1px solid #999;
+    border-top: none;
+  }
+
+  .items-table thead th {
+    background: #e8e8e8;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 6.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #333;
+    padding: 4px 5px;
+    border-bottom: 1px solid #999;
+    border-right: 1px solid #ddd;
+    text-align: center;
+  }
+
+  .items-table thead th:last-child { border-right: none; }
+
+  .items-table tbody td {
+    padding: 3px 5px;
+    border-bottom: 1px solid #e0e0e0;
+    border-right: 1px solid #e8e8e8;
+    vertical-align: middle;
+  }
+  .items-table tbody td:last-child { border-right: none; }
+
+  .items-table tbody tr:nth-child(even) {
+    background: #f8f8f8;
+  }
+
+  .items-table .col-code { width: 85px; text-align: left; }
+  .items-table .col-desc { text-align: left; }
+  .items-table .col-unit { width: 32px; text-align: center; }
+  .items-table .col-qty { width: 48px; text-align: right; }
+  .items-table .col-price { width: 58px; text-align: right; }
+  .items-table .col-disc-pct { width: 40px; text-align: right; }
+  .items-table .col-disc-val { width: 50px; text-align: right; }
+  .items-table .col-surcharge { width: 50px; text-align: right; }
+  .items-table .col-subtotal { width: 62px; text-align: right; font-weight: 700; }
+
+  /* Totalizador da seção */
+  .section-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    border: 1px solid #999;
+    border-top: none;
+    background: #f0f0f0;
+    font-size: 8pt;
+  }
+
+  .section-total .total-info {
+    color: #555;
+    font-size: 7pt;
+  }
+
+  .section-total .total-value {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 9pt;
+    color: #1a1a1a;
+  }
+
+  /* ================ BLOCO 5: TOTAIS ================ */
+  .totais-box {
+    border: 1px solid #999;
+    border-top: none;
+  }
+
+  .totais-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 7.5pt;
+  }
+
+  .totais-left {
+    padding: 6px 8px;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .totais-right {
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .totais-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 1px 0;
+  }
+
+  .totais-row .t-label { color: #555; }
+  .totais-row .t-value { font-weight: 500; }
+
+  .totais-row.total-geral {
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 2px solid #1a1a1a;
+  }
+
+  .totais-row.total-geral .t-label {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 10pt;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .totais-row.total-geral .t-value {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 11pt;
+    color: #1a1a1a;
+  }
+
+  /* ================ BLOCO 6: PAGAMENTO ================ */
+  .pay-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.5pt;
+    border: 1px solid #999;
+    border-top: none;
+  }
+
+  .pay-table thead th {
+    background: #e8e8e8;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 6.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #333;
+    padding: 4px 6px;
+    border-bottom: 1px solid #999;
+    border-right: 1px solid #ddd;
+    text-align: center;
+  }
+  .pay-table thead th:last-child { border-right: none; }
+
+  .pay-table tbody td {
+    padding: 3px 6px;
+    border-bottom: 1px solid #e0e0e0;
+    border-right: 1px solid #e8e8e8;
+  }
+  .pay-table tbody td:last-child { border-right: none; }
+
+  .pay-total {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 20px;
+    padding: 4px 8px;
+    border: 1px solid #999;
+    border-top: none;
+    background: #f0f0f0;
+    font-size: 8pt;
+  }
+
+  .pay-total .total-label {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 7.5pt;
+  }
+
+  .pay-total .total-value {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 9pt;
+    color: #1a1a1a;
+  }
+
+  /* ================ BLOCO 7: OBSERVAÇÕES + RODAPÉ ================ */
+  .obs-box {
+    border: 1px solid #999;
+    border-top: none;
+    padding: 6px 8px;
+    font-size: 7.5pt;
+    color: #444;
+    line-height: 1.5;
+    min-height: 40px;
+  }
+
+  .assinatura {
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .assinatura .sig-line {
+    width: 240px;
+    border-top: 1px solid #1a1a1a;
+    margin: 0 auto 4px auto;
+  }
+
+  .assinatura .sig-name {
+    font-weight: 700;
+    font-size: 8pt;
+    text-transform: uppercase;
+  }
+
+  .assinatura .sig-doc {
+    font-size: 7pt;
+    color: #666;
+  }
+
+  .rodape-msg {
+    margin-top: 20px;
+    text-align: center;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #1a1a1a;
+  }
+
+  /* Paginação */
+  .paginacao {
+    position: absolute;
+    bottom: 20mm;
+    right: 20mm;
+    font-size: 7pt;
+    color: #999;
+  }
+
+  /* ================ PRINT ================ */
+  @media print {
+    body { background: white; padding: 0; }
+    .a4-page { box-shadow: none; margin: 0; }
+    h2.page-title, .nav-bar { display: none; }
+  }
+
+  /* Toolbar */
+  .nav-bar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 11px;
+  }
+  .nav-bar button {
+    background: #555;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+  }
+  .nav-bar button:hover { background: #777; }
+  .nav-bar button.active { background: #1a73e8; }
+</style>
+</head>
+<body>
+
+<div class="nav-bar">
+  <span>📄 Protótipo TrailSystem — Modelo de Impressão</span>
+  <button class="active" onclick="toggleType('orcamento')">Orçamento</button>
+  <button onclick="toggleType('venda')">Venda</button>
+  <button onclick="window.print()">🖨️ Imprimir</button>
+</div>
+
+<!-- ======================= ORÇAMENTO ======================= -->
+<h2 class="page-title" id="title-label">ORÇAMENTO — Modelo Planac (ABNT)</h2>
+
+<div class="a4-page" id="page1">
+
+  <!-- BLOCO 1: CABEÇALHO -->
+  <div class="header">
+    <div class="header-logo">
+      LOGO<br>70×70
+    </div>
+    <div class="header-company">
+      <div class="razao-social">RODRIGO AZEVEDO PETRI - ME</div>
+      <div class="detail">Av. Chepli Tanus Daher, 255 — Jardim Acapulco</div>
+      <div class="detail">Londrina/PR — CEP 86065-395</div>
+      <div class="detail">CNPJ: 13.263.698/0001-80 &nbsp;|&nbsp; IE: 9054904190</div>
+      <div class="detail">Tel: (43) 3028-5316 &nbsp;|&nbsp; vendas1@planacdivisorias.com.br</div>
+    </div>
+    <div class="header-doc">
+      <div class="doc-title" id="doc-type-title">ORÇAMENTO</div>
+      <div class="doc-detail">Nº <strong>ORC-0007</strong></div>
+      <div class="doc-detail">Vendedor: <strong>ORLANDINO DOS SANTOS</strong></div>
+      <div class="doc-detail">Data: <strong>24/02/2026</strong></div>
+      <div class="doc-detail" id="validity-row">Validade: <strong>11/03/2026</strong></div>
+      <div class="doc-detail">Página <strong>1</strong> de <strong>1</strong></div>
+    </div>
+  </div>
+
+  <!-- BLOCO 2: DESTINATÁRIO -->
+  <div class="section">
+    <div class="section-title">DESTINATÁRIO</div>
+    <div class="dest-grid">
+      <div class="dest-cell full-width">
+        <span class="dest-label">Nome/Razão Social:</span>
+        <span class="dest-value">SEFA - CRE 8ª DRE</span>
+      </div>
+      <div class="dest-cell">
+        <span class="dest-label">CNPJ/CPF:</span>
+        <span class="dest-value">78.393.592/0001-46</span>
+      </div>
+      <div class="dest-cell">
+        <span class="dest-label">Telefone:</span>
+        <span class="dest-value">(43) 3372-2202</span>
+      </div>
+      <div class="dest-cell full-width">
+        <span class="dest-label">E-mail:</span>
+        <span class="dest-value">elainecastelli@sefa.pr.gov.br</span>
+      </div>
+      <div class="dest-cell full-width">
+        <span class="dest-label">Endereço:</span>
+        <span class="dest-value">Rua Pará, 473 — Centro — CEP 86010-450 — Londrina/PR</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO 3: DADOS DO PRODUTO -->
+  <div class="section">
+    <div class="section-title">DADOS DO PRODUTO</div>
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th class="col-code">Código</th>
+          <th class="col-desc">Descrição dos Produtos</th>
+          <th class="col-unit">Unid</th>
+          <th class="col-qty">Qtde</th>
+          <th class="col-price">V. Unitário</th>
+          <th class="col-disc-pct">Desc (%)</th>
+          <th class="col-disc-val">Desc (R$)</th>
+          <th class="col-surcharge">Acrésc (R$)</th>
+          <th class="col-subtotal">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-code">2003SS3204603</td>
+          <td class="col-desc">PAINEL REQ DE T-HDF MSO DP 35X1200X2110</td>
+          <td class="col-unit">PC</td>
+          <td class="col-qty">19,000</td>
+          <td class="col-price">100,81</td>
+          <td class="col-disc-pct">0,00</td>
+          <td class="col-disc-val">0,00</td>
+          <td class="col-surcharge">0,00</td>
+          <td class="col-subtotal">1.915,46</td>
+        </tr>
+        <tr>
+          <td class="col-code">3001FC1120001</td>
+          <td class="col-desc">FECHADURA INTERNA CROMADA STAM 40MM REF 823/08</td>
+          <td class="col-unit">PC</td>
+          <td class="col-qty">19,000</td>
+          <td class="col-price">18,13</td>
+          <td class="col-disc-pct">0,00</td>
+          <td class="col-disc-val">0,00</td>
+          <td class="col-surcharge">0,00</td>
+          <td class="col-subtotal">344,47</td>
+        </tr>
+        <tr>
+          <td class="col-code">3001DC2070001</td>
+          <td class="col-desc">DOBRADIÇA CROMADA 3X2.5 C/ ANEL - PAR</td>
+          <td class="col-unit">PR</td>
+          <td class="col-qty">57,000</td>
+          <td class="col-price">5,47</td>
+          <td class="col-disc-pct">0,00</td>
+          <td class="col-disc-val">0,00</td>
+          <td class="col-surcharge">0,00</td>
+          <td class="col-subtotal">311,79</td>
+        </tr>
+        <tr>
+          <td class="col-code">2003ME7804601</td>
+          <td class="col-desc">MARCO ENVOLVENTE 78MM MSO 0,70X2,15 E=14MM</td>
+          <td class="col-unit">JG</td>
+          <td class="col-qty">19,000</td>
+          <td class="col-price">43,10</td>
+          <td class="col-disc-pct">0,00</td>
+          <td class="col-disc-val">0,00</td>
+          <td class="col-surcharge">0,00</td>
+          <td class="col-subtotal">818,90</td>
+        </tr>
+        <tr>
+          <td class="col-code">2003VA3004600</td>
+          <td class="col-desc">VISOR ALUMÍNIO 30X80 CM MSO</td>
+          <td class="col-unit">UN</td>
+          <td class="col-qty">4,000</td>
+          <td class="col-price">31,42</td>
+          <td class="col-disc-pct">0,00</td>
+          <td class="col-disc-val">0,00</td>
+          <td class="col-surcharge">0,00</td>
+          <td class="col-subtotal">125,68</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="section-total">
+      <span class="total-info">Itens: 5 &nbsp;|&nbsp; Qtd total: 118,000</span>
+      <span><span style="color:#666;font-size:7pt;margin-right:6px;">TOTAL DE MERCADORIAS:</span><span class="total-value">R$ 3.516,30</span></span>
+    </div>
+  </div>
+
+  <!-- BLOCO 4: DADOS DO SERVIÇO -->
+  <div class="section">
+    <div class="section-title">DADOS DO SERVIÇO</div>
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th class="col-code">Código</th>
+          <th class="col-desc">Descrição dos Serviços</th>
+          <th class="col-unit">Unid</th>
+          <th class="col-qty">Qtde</th>
+          <th class="col-price">V. Unitário</th>
+          <th class="col-disc-pct">Desc (%)</th>
+          <th class="col-disc-val">Desc (R$)</th>
+          <th class="col-surcharge">Acrésc (R$)</th>
+          <th class="col-subtotal">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-code">SRV-INST-001</td>
+          <td class="col-desc">MÃO DE OBRA INSTALAÇÃO DIVISÓRIA — 19 PAINÉIS</td>
+          <td class="col-unit">SV</td>
+          <td class="col-qty">1,000</td>
+          <td class="col-price">500,00</td>
+          <td class="col-disc-pct">0,00</td>
+          <td class="col-disc-val">0,00</td>
+          <td class="col-surcharge">30,00</td>
+          <td class="col-subtotal">530,00</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="section-total">
+      <span class="total-info">Itens: 1 &nbsp;|&nbsp; Qtd total: 1,000</span>
+      <span><span style="color:#666;font-size:7pt;margin-right:6px;">TOTAL DE SERVIÇOS:</span><span class="total-value">R$ 530,00</span></span>
+    </div>
+  </div>
+
+  <!-- BLOCO 5: TOTAIS -->
+  <div class="section">
+    <div class="section-title">TOTAIS</div>
+    <div class="totais-box">
+      <div class="totais-grid">
+        <div class="totais-left">
+          <div class="totais-row">
+            <span class="t-label">Total de Mercadorias</span>
+            <span class="t-value">R$ 3.516,30</span>
+          </div>
+          <div class="totais-row">
+            <span class="t-label">Total de Serviços</span>
+            <span class="t-value">R$ 530,00</span>
+          </div>
+          <div class="totais-row">
+            <span class="t-label">(-) Desconto na Venda (R$)</span>
+            <span class="t-value">R$ 100,00</span>
+          </div>
+        </div>
+        <div class="totais-right">
+          <div class="totais-row">
+            <span class="t-label">(-) Desconto na Venda (%)</span>
+            <span class="t-value">2,47%</span>
+          </div>
+          <div class="totais-row">
+            <span class="t-label">(+) Acréscimo (R$)</span>
+            <span class="t-value">R$ 50,00</span>
+          </div>
+          <div class="totais-row">
+            <span class="t-label">(+) Valor Frete (R$)</span>
+            <span class="t-value">R$ 250,00</span>
+          </div>
+          <div class="totais-row total-geral">
+            <span class="t-label">Total</span>
+            <span class="t-value">R$ 4.246,30</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO 6: PAGAMENTO -->
+  <div class="section">
+    <div class="section-title">PAGAMENTO</div>
+    <table class="pay-table">
+      <thead>
+        <tr>
+          <th style="width:140px;text-align:left;">Forma de Pagamento</th>
+          <th style="width:60px;">Nº Parcela</th>
+          <th style="width:90px;">Nº Documento</th>
+          <th style="width:90px;">Data Vencimento</th>
+          <th style="width:90px;text-align:right;">Valor (R$)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>PIX</td>
+          <td style="text-align:center;">1/1</td>
+          <td style="text-align:center;">—</td>
+          <td style="text-align:center;">24/02/2026</td>
+          <td style="text-align:right;font-weight:700;">1.246,30</td>
+        </tr>
+        <tr>
+          <td>BOLETO BANCÁRIO</td>
+          <td style="text-align:center;">1/2</td>
+          <td style="text-align:center;">—</td>
+          <td style="text-align:center;">24/03/2026</td>
+          <td style="text-align:right;font-weight:700;">1.500,00</td>
+        </tr>
+        <tr>
+          <td>BOLETO BANCÁRIO</td>
+          <td style="text-align:center;">2/2</td>
+          <td style="text-align:center;">—</td>
+          <td style="text-align:center;">24/04/2026</td>
+          <td style="text-align:right;font-weight:700;">1.500,00</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pay-total">
+      <span class="total-label">Total das Parcelas:</span>
+      <span class="total-value">R$ 4.246,30</span>
+    </div>
+  </div>
+
+  <!-- BLOCO 7: OBSERVAÇÕES + RODAPÉ -->
+  <div class="section">
+    <div class="section-title">OBSERVAÇÕES</div>
+    <div class="obs-box">
+      Orçamento válido por 15 dias. Preços sujeitos a alteração sem aviso prévio.<br>
+      Condições de pagamento: 30/60/90 dias via boleto.<br>
+      Prazo de entrega: até 5 dias úteis após aprovação.
+    </div>
+  </div>
+
+  <!-- Assinatura -->
+  <div class="assinatura">
+    <div class="sig-line"></div>
+    <div class="sig-name">SEFA - CRE 8ª DRE</div>
+    <div class="sig-doc">CNPJ: 78.393.592/0001-46</div>
+  </div>
+
+  <!-- Mensagem rodapé -->
+  <div class="rodape-msg">
+    OBRIGADO E VOLTE SEMPRE!
+  </div>
+
+  <!-- Paginação -->
+  <div class="paginacao">Página 1 de 1</div>
+</div>
+
+<script>
+function toggleType(type) {
+  const btns = document.querySelectorAll('.nav-bar button');
+  btns.forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const title = document.getElementById('doc-type-title');
+  const label = document.getElementById('title-label');
+  const validity = document.getElementById('validity-row');
+
+  if (type === 'venda') {
+    title.textContent = 'VENDA';
+    label.textContent = 'VENDA — Modelo Planac (ABNT)';
+    validity.style.display = 'none';
+  } else {
+    title.textContent = 'ORÇAMENTO';
+    label.textContent = 'ORÇAMENTO — Modelo Planac (ABNT)';
+    validity.style.display = '';
+  }
+}
+</script>
+
+</body>
+</html>
