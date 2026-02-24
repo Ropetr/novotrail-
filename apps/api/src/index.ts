@@ -160,6 +160,30 @@ apiV1.use('/comercial/*', async (c, next) => {
 });
 apiV1.route('/comercial', createComercialModule());
 
+// User Management (PROTECTED routes) — uses auth module's UserRepository
+import { UserRepository } from './modules/auth/infrastructure/user-repository';
+import { UserManagementController } from './modules/auth/presentation/http/user-management-controller';
+
+apiV1.use('/usuarios/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
+  const authMiddleware = createAuthMiddleware(authService);
+  return authMiddleware(c, next);
+});
+
+const userMgmtRouter = new Hono<HonoContext>();
+userMgmtRouter.use('*', async (c, next) => {
+  const db = await createDatabaseConnection(c.env.HYPERDRIVE);
+  const userRepo = new UserRepository(db);
+  const ctrl = new UserManagementController(userRepo);
+  c.set('userMgmtCtrl' as any, ctrl);
+  await next();
+});
+userMgmtRouter.get('/', (c) => (c.get('userMgmtCtrl' as any) as UserManagementController).list(c));
+userMgmtRouter.get('/:id', (c) => (c.get('userMgmtCtrl' as any) as UserManagementController).getById(c));
+userMgmtRouter.put('/:id', (c) => (c.get('userMgmtCtrl' as any) as UserManagementController).update(c));
+userMgmtRouter.delete('/:id', (c) => (c.get('userMgmtCtrl' as any) as UserManagementController).remove(c));
+apiV1.route('/usuarios', userMgmtRouter);
+
 // CRM module (PROTECTED routes)
 apiV1.use('/crm/*', async (c, next) => {
   const authService = new AuthService(c.env.JWT_SECRET);

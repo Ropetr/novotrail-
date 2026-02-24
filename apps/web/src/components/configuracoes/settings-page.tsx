@@ -15,12 +15,13 @@ import { toast } from "sonner"
 
 const tabs = [
   { id: "empresa", label: "Empresa", icon: Building2 },
+  { id: "cadastros", label: "Cadastros", icon: Users },
   { id: "fiscal", label: "Fiscal", icon: FileText },
   { id: "financeiro", label: "Financeiro", icon: CreditCard },
   { id: "estoque", label: "Estoque", icon: Warehouse },
   { id: "comercial", label: "Comercial", icon: BarChart3 },
   { id: "logistica", label: "Logística", icon: Truck },
-  { id: "usuarios", label: "Usuários", icon: Users },
+  { id: "usuarios", label: "Usuários", icon: Shield },
   { id: "notificacoes", label: "Notificações", icon: Bell },
   { id: "seguranca", label: "Segurança", icon: Shield },
   { id: "aparencia", label: "Aparência", icon: Palette },
@@ -90,6 +91,77 @@ export function ConfiguracoesPage() {
             </Card>
           )}
 
+          {activeTab === "cadastros" && (
+            <>
+            <Card><CardHeader className="border-b border-border/60 py-3 px-4"><CardTitle className="text-base">Clientes</CardTitle></CardHeader>
+              <CardContent className="space-y-4 p-4 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2"><Label>Prefixo Código do Cliente</Label><Input defaultValue="CLI-" /></div>
+                  <div className="space-y-2"><Label>Próximo Código</Label><Input defaultValue="007" /></div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>CNPJ/CPF obrigatório</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Validar duplicidade de CNPJ/CPF</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Consulta automática via CNPJ (Nuvem Fiscal)</Label></div>
+                  <div className="flex items-center gap-3"><Switch /><Label>Exigir aprovação para novos clientes</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Classificação ABC automática</Label></div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2"><Label>Limite de Crédito Padrão (R$)</Label><Input defaultValue="10000" /></div>
+                  <div className="space-y-2"><Label>Prazo Padrão (dias)</Label><Input defaultValue="30" /></div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card><CardHeader className="border-b border-border/60 py-3 px-4"><CardTitle className="text-base">Fornecedores</CardTitle></CardHeader>
+              <CardContent className="space-y-4 p-4 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2"><Label>Prefixo Código do Fornecedor</Label><Input defaultValue="FOR-" /></div>
+                  <div className="space-y-2"><Label>Próximo Código</Label><Input defaultValue="004" /></div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>CNPJ obrigatório</Label></div>
+                  <div className="flex items-center gap-3"><Switch /><Label>Exigir aprovação para novos fornecedores</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Controlar prazo de entrega médio</Label></div>
+                  <div className="flex items-center gap-3"><Switch /><Label>Avaliação periódica obrigatória</Label></div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card><CardHeader className="border-b border-border/60 py-3 px-4"><CardTitle className="text-base">Colaboradores</CardTitle></CardHeader>
+              <CardContent className="space-y-4 p-4 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2"><Label>Prefixo Código do Colaborador</Label><Input defaultValue="COL-" /></div>
+                  <div className="space-y-2"><Label>Próximo Código</Label><Input defaultValue="004" /></div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>CPF obrigatório</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Vincular colaborador a usuário automaticamente</Label></div>
+                  <div className="flex items-center gap-3"><Switch /><Label>Exigir foto do colaborador</Label></div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card><CardHeader className="border-b border-border/60 py-3 px-4"><CardTitle className="text-base">Produtos</CardTitle></CardHeader>
+              <CardContent className="space-y-4 p-4 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2"><Label>Prefixo SKU</Label><Input defaultValue="PROD-" /></div>
+                  <div className="space-y-2"><Label>Próximo SKU</Label><Input defaultValue="001" /></div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>SKU único obrigatório</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Calcular margem automaticamente</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Alertar estoque mínimo</Label></div>
+                  <div className="flex items-center gap-3"><Switch /><Label>Exigir foto do produto</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>NCM obrigatório</Label></div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-2"><Label>Margem Padrão (%)</Label><Input defaultValue="30" /></div>
+                  <div className="space-y-2"><Label>Estoque Mínimo Padrão</Label><Input defaultValue="5" /></div>
+                  <div className="space-y-2"><Label>Unidade Padrão</Label><Select defaultValue="UN"><SelectTrigger className="h-8"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="UN">Unidade</SelectItem><SelectItem value="M2">Metro²</SelectItem><SelectItem value="ML">Metro Linear</SelectItem><SelectItem value="KG">Quilograma</SelectItem><SelectItem value="CX">Caixa</SelectItem><SelectItem value="PC">Peça</SelectItem></SelectContent></Select></div>
+                </div>
+              </CardContent>
+            </Card>
+            </>
+          )}
+
           {activeTab === "fiscal" && (
             <Card><CardHeader className="border-b border-border/60 py-3 px-4"><CardTitle className="text-base">Configurações Fiscais</CardTitle></CardHeader>
               <CardContent className="space-y-4 p-4 [&_input]:h-8 [&_button[role='combobox']]:h-8">
@@ -149,6 +221,7 @@ export function ConfiguracoesPage() {
           )}
 
           {activeTab === "comercial" && (
+            <>
             <Card><CardHeader className="border-b border-border/60 py-3 px-4"><CardTitle className="text-base">Configurações Comerciais</CardTitle></CardHeader>
               <CardContent className="space-y-4 p-4 [&_input]:h-8 [&_button[role='combobox']]:h-8">
                 <div className="grid grid-cols-2 gap-3">
@@ -159,6 +232,8 @@ export function ConfiguracoesPage() {
                   <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Exigir aprovação para descontos acima do limite</Label></div>
                   <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Calcular comissão automaticamente</Label></div>
                   <div className="flex items-center gap-3"><Switch /><Label>Permitir venda sem estoque</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Converter orçamento aprovado em venda automaticamente</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Gerar devolução com crédito automático ao cliente</Label></div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2"><Label>Comissão Padrão (%)</Label><Input defaultValue="5.00" /></div>
@@ -166,6 +241,38 @@ export function ConfiguracoesPage() {
                 </div>
               </CardContent>
             </Card>
+            <Card><CardHeader className="border-b border-border/60 py-3 px-4"><CardTitle className="text-base">CRM — Pipeline de Vendas</CardTitle></CardHeader>
+              <CardContent className="space-y-4 p-4 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Pipeline Kanban ativo</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Alertar oportunidades paradas há mais de 7 dias (RN-03)</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Criar atividade automática ao mover estágio (RN-02)</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Scoring de clientes ativo (RN-04)</Label></div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2"><Label>Dias para Alerta Follow-up</Label><Input defaultValue="7" /></div>
+                  <div className="space-y-2"><Label>Dias Inatividade para Scoring Negativo</Label><Input defaultValue="90" /></div>
+                </div>
+                <div className="rounded-lg border p-3 bg-muted/30">
+                  <p className="text-xs text-muted-foreground">Os estágios do pipeline (Prospecção, Contato, Proposta, Negociação, Fechamento, Ganho, Perdido) podem ser gerenciados em Comercial → Pipeline.</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card><CardHeader className="border-b border-border/60 py-3 px-4"><CardTitle className="text-base">Devoluções</CardTitle></CardHeader>
+              <CardContent className="space-y-4 p-4 [&_input]:h-8 [&_button[role='combobox']]:h-8">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Exigir motivo da devolução</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Gerar crédito automaticamente</Label></div>
+                  <div className="flex items-center gap-3"><Switch /><Label>Exigir aprovação gerencial para devoluções</Label></div>
+                  <div className="flex items-center gap-3"><Switch defaultChecked /><Label>Retornar itens ao estoque automaticamente</Label></div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2"><Label>Prazo Máximo para Devolução (dias)</Label><Input defaultValue="30" /></div>
+                  <div className="space-y-2"><Label>Validade Crédito (dias)</Label><Input defaultValue="365" /></div>
+                </div>
+              </CardContent>
+            </Card>
+            </>
           )}
 
           {activeTab === "logistica" && (
