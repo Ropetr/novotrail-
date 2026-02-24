@@ -33,7 +33,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { useCreateProduto, useUpdateProduto } from "@/hooks/use-produtos"
+import { useCreateProduto, useUpdateProduto, useProdutos } from "@/hooks/use-produtos"
 
 interface Product {
   id: string
@@ -67,16 +67,7 @@ const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
   { id: "imagens", label: "Imagens", icon: ImageIcon },
 ]
 
-// Mock de produtos disponíveis para composição do kit
-const availableProducts = [
-  { id: "1", sku: "DRY-001", name: "Placa Drywall ST 12.5mm", price: 45.90, unit: "UN" },
-  { id: "2", sku: "DRY-002", name: "Placa Drywall RU 12.5mm", price: 52.90, unit: "UN" },
-  { id: "3", sku: "PER-001", name: "Perfil Montante 48mm", price: 18.50, unit: "UN" },
-  { id: "4", sku: "PER-002", name: "Perfil Guia 48mm", price: 15.90, unit: "UN" },
-  { id: "5", sku: "PAR-001", name: "Parafuso Cabeça Trombeta", price: 0.15, unit: "UN" },
-  { id: "6", sku: "FIT-001", name: "Fita de Papel Microperfurada", price: 28.90, unit: "RL" },
-  { id: "7", sku: "MAS-001", name: "Massa para Juntas 25kg", price: 89.90, unit: "UN" },
-]
+// Produtos para composição do kit são carregados da API (ver useProdutos dentro do componente)
 
 interface KitItem {
   id: string
@@ -99,6 +90,16 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
   
   const createProduto = useCreateProduto()
   const updateProduto = useUpdateProduto()
+
+  // Carrega produtos da API para composição de kits
+  const { data: produtosData } = useProdutos({ limit: 200 })
+  const availableProducts = (produtosData?.data || []).map((p: any) => ({
+    id: p.id,
+    sku: p.sku || p.code || "",
+    name: p.name || "Sem nome",
+    price: Number(p.salePrice || p.price || 0),
+    unit: p.unit || "UN",
+  }))
   
   const [formData, setFormData] = useState({
     // Dados Gerais
@@ -187,7 +188,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
   }
 
   // Funções para gerenciar itens do kit
-  const addKitItem = (product: typeof availableProducts[0]) => {
+  const addKitItem = (product: { id: string; sku: string; name: string; price: number; unit: string }) => {
     const existingItem = kitItems.find((item) => item.productId === product.id)
     if (existingItem) {
       updateKitItemQuantity(existingItem.id, existingItem.quantity + 1)
