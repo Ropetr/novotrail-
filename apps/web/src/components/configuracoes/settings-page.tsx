@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { EmpresaSettings } from "./empresa-settings"
 
 const tabs = [
   { id: "empresa", label: "Empresa", icon: Building2 },
@@ -33,20 +34,11 @@ const tabs = [
 
 export function ConfiguracoesPage() {
   const [activeTab, setActiveTab] = useState("empresa")
-  const [isSaving, setIsSaving] = useState(false)
-
-  const handleSave = async () => {
-    setIsSaving(true)
-    await new Promise(r => setTimeout(r, 1000))
-    toast.success("Configurações salvas com sucesso!")
-    setIsSaving(false)
-  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-foreground">Configurações</h1>
-        <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? "Salvando..." : "Salvar Alterações"}</Button>
       </div>
 
       <div className="flex gap-4">
@@ -65,31 +57,7 @@ export function ConfiguracoesPage() {
 
         {/* Content Area */}
         <div className="flex-1 space-y-4">
-          {activeTab === "empresa" && (
-            <Card><CardHeader className="border-b border-border/60 py-3 px-4"><CardTitle className="text-base">Dados da Empresa</CardTitle></CardHeader>
-              <CardContent className="space-y-4 p-4 [&_input]:h-8 [&_button[role='combobox']]:h-8">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2"><Label>Razão Social</Label><Input defaultValue="Planac Acabamentos LTDA" /></div>
-                  <div className="space-y-2"><Label>Nome Fantasia</Label><Input defaultValue="Planac Acabamentos" /></div>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-2"><Label>CNPJ</Label><Input defaultValue="12.345.678/0001-90" /></div>
-                  <div className="space-y-2"><Label>Inscrição Estadual</Label><Input defaultValue="123.456.789" /></div>
-                  <div className="space-y-2"><Label>Inscrição Municipal</Label><Input defaultValue="987654" /></div>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-2"><Label>Telefone</Label><Input defaultValue="(41) 3333-4444" /></div>
-                  <div className="space-y-2"><Label>E-mail</Label><Input defaultValue="contato@planacacabamentos.com.br" /></div>
-                  <div className="space-y-2"><Label>Site</Label><Input defaultValue="www.planacacabamentos.com.br" /></div>
-                </div>
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="space-y-2"><Label>CEP</Label><Input defaultValue="80000-000" /></div>
-                  <div className="col-span-2 space-y-2"><Label>Endereço</Label><Input defaultValue="Rua das Indústrias, 500" /></div>
-                  <div className="space-y-2"><Label>Cidade/UF</Label><Input defaultValue="Curitiba/PR" /></div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {activeTab === "empresa" && <EmpresaSettings />}
 
           {activeTab === "cadastros" && (
             <>
