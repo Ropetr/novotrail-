@@ -17,7 +17,10 @@ export { clients, suppliers, partners, employees } from '../../modules/cadastros
 export { categories, products } from '../../modules/produtos/infrastructure/schema';
 
 // Comercial module schema
-export { quotes, quoteItems, sales, saleItems, returns, returnItems } from '../../modules/comercial/infrastructure/schema';
+export { quotes, quoteItems, sales, saleItems, salePayments, returns, returnItems } from '../../modules/comercial/infrastructure/schema';
+
+// Configuracoes module schema
+export { tenantSettings } from '../../modules/configuracoes/infrastructure/schema';
 
 // CRM module schema
 export { crmPipelineStages, crmOpportunities, crmActivities, crmScoringRules } from '../../modules/crm/infrastructure/schema';

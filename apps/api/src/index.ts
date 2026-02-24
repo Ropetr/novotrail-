@@ -15,6 +15,7 @@ import { createCadastrosModule } from './modules/cadastros/index';
 import { createProdutosModule } from './modules/produtos/index';
 import { createComercialModule } from './modules/comercial/index';
 import { createCrmModule } from './modules/crm/index';
+import { createConfiguracoesModule } from './modules/configuracoes/index';
 
 const app = new Hono<HonoContext>();
 
@@ -159,6 +160,7 @@ apiV1.use('/comercial/*', async (c, next) => {
   return authMiddleware(c, next);
 });
 apiV1.route('/comercial', createComercialModule());
+apiV1.route('/configuracoes', createConfiguracoesModule());
 
 // User Management (PROTECTED routes) — uses auth module's UserRepository
 import { UserRepository } from './modules/auth/infrastructure/user-repository';

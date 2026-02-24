@@ -24,6 +24,10 @@ export const quotes = pgTable('quotes', {
   subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
   discount: numeric('discount', { precision: 12, scale: 2 }).notNull().default('0'),
   total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
+  freight: numeric('freight', { precision: 12, scale: 2 }).notNull().default('0'),
+  surcharge: numeric('surcharge', { precision: 12, scale: 2 }).notNull().default('0'),
+  paymentTerms: text('payment_terms'),
+  deliveryTerms: text('delivery_terms'),
   notes: text('notes'),
   // --- Mesclar/Desmembrar (TrailSystem COM-06 a COM-10) ---
   parentQuoteId: uuid('parent_quote_id'),
@@ -48,10 +52,12 @@ export const quoteItems = pgTable('quote_items', {
   productId: uuid('product_id')
     .notNull()
     .references(() => products.id),
+  itemType: text('item_type', { enum: ['product', 'service'] }).notNull().default('product'),
   sequence: integer('sequence').notNull().default(1),
   quantity: integer('quantity').notNull(),
   unitPrice: numeric('unit_price', { precision: 12, scale: 2 }).notNull(),
   discount: numeric('discount', { precision: 12, scale: 2 }).notNull().default('0'),
+  surcharge: numeric('surcharge', { precision: 12, scale: 2 }).notNull().default('0'),
   total: numeric('total', { precision: 12, scale: 2 }).notNull(),
   notes: text('notes'),
 });
@@ -77,6 +83,8 @@ export const sales = pgTable('sales', {
   subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
   discount: numeric('discount', { precision: 12, scale: 2 }).notNull().default('0'),
   total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
+  freight: numeric('freight', { precision: 12, scale: 2 }).notNull().default('0'),
+  surcharge: numeric('surcharge', { precision: 12, scale: 2 }).notNull().default('0'),
   paymentMethod: varchar('payment_method', { length: 50 }),
   notes: text('notes'),
   // --- Desmembrar (TrailSystem COM-20) ---
@@ -112,12 +120,14 @@ export const saleItems = pgTable('sale_items', {
   productId: uuid('product_id')
     .notNull()
     .references(() => products.id),
+  itemType: text('item_type', { enum: ['product', 'service'] }).notNull().default('product'),
   sequence: integer('sequence').notNull().default(1),
   quantity: integer('quantity').notNull(),
   quantityInvoiced: integer('quantity_invoiced').notNull().default(0),
   quantityDelivered: integer('quantity_delivered').notNull().default(0),
   unitPrice: numeric('unit_price', { precision: 12, scale: 2 }).notNull(),
   discount: numeric('discount', { precision: 12, scale: 2 }).notNull().default('0'),
+  surcharge: numeric('surcharge', { precision: 12, scale: 2 }).notNull().default('0'),
   total: numeric('total', { precision: 12, scale: 2 }).notNull(),
 });
 
@@ -247,6 +257,32 @@ export const returns = pgTable('returns', {
   updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
     .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+// ==================== Sale Payments (Pagamentos Mix Livre - COM-Payments) ====================
+export const salePayments = pgTable('sale_payments', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  saleId: uuid('sale_id')
+    .references(() => sales.id, { onDelete: 'cascade' }),
+  quoteId: uuid('quote_id')
+    .references(() => quotes.id, { onDelete: 'cascade' }),
+  paymentMethod: varchar('payment_method', { length: 50 }).notNull(),
+  installmentNumber: integer('installment_number').notNull().default(1),
+  totalInstallments: integer('total_installments').notNull().default(1),
+  documentNumber: varchar('document_number', { length: 50 }),
+  dueDate: timestamp('due_date', { withTimezone: true }),
+  amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
+  status: text('status', { enum: ['pending', 'paid', 'overdue', 'cancelled'] })
+    .notNull()
+    .default('pending'),
+  paidAt: timestamp('paid_at', { withTimezone: true }),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
     .$onUpdate(() => new Date()),
 });
 
