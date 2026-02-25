@@ -13,6 +13,8 @@ export function createAuthRoutes() {
 
   router.post('/register', (c) => getController(c).register(c));
   router.post('/login', (c) => getController(c).login(c));
+  router.post('/refresh', (c) => getController(c).refresh(c));
+  router.post('/logout', (c) => getController(c).logout(c));
 
   return router;
 }

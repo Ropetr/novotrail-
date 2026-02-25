@@ -71,13 +71,22 @@ max_batch_size = 10
 max_batch_timeout = 30
 
 # ============================================
-# Environment Variables
+# Environment Variables (não-sensíveis)
 # ============================================
 [vars]
 ENVIRONMENT = "development"
-JWT_SECRET = "development-secret-change-in-production"
-
-NUVEM_FISCAL_CLIENT_ID = "r1QOKi55XgwNI3oHVoyH"
-NUVEM_FISCAL_CLIENT_SECRET = "9jsQ8Ii9wMdZFZ4KX0YAycKqGryP6ho1ZFJqj9Cu"
 NUVEM_FISCAL_API_URL = "https://api-sandbox.nuvemfiscal.com.br"
 NUVEM_FISCAL_TOKEN_URL = "https://api-sandbox.nuvemfiscal.com.br/oauth/token"
+
+# ============================================
+# SECRETS (configurar via CLI, NUNCA no código)
+# ============================================
+# Execute os comandos abaixo para configurar os secrets:
+#   wrangler secret put JWT_SECRET
+#   wrangler secret put NUVEM_FISCAL_CLIENT_ID
+#   wrangler secret put NUVEM_FISCAL_CLIENT_SECRET
+#
+# Para desenvolvimento local, use o arquivo .dev.vars:
+#   JWT_SECRET=seu-secret-aqui
+#   NUVEM_FISCAL_CLIENT_ID=seu-id-aqui
+#   NUVEM_FISCAL_CLIENT_SECRET=seu-secret-aqui

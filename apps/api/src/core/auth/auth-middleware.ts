@@ -1,22 +1,25 @@
 import { Context, Next } from 'hono';
 import type { HonoContext } from '../../shared/cloudflare/types';
 import { AuthService } from './AuthService';
+import { getAccessToken } from './cookie-helper';
 
+/**
+ * Middleware de autenticação.
+ * Suporta httpOnly cookies (prioridade) e Bearer token (fallback/compatibilidade).
+ */
 export function createAuthMiddleware(authService: AuthService) {
   return async (c: Context<HonoContext>, next: Next) => {
-    const authHeader = c.req.header('Authorization');
+    const token = getAccessToken(c);
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       return c.json(
         {
           success: false,
-          error: 'Missing or invalid authorization header',
+          error: 'Missing or invalid authorization',
         },
         401
       );
     }
-
-    const token = authHeader.substring(7);
 
     try {
       const decoded = authService.verifyToken(token);

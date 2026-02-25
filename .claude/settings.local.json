@@ -16,7 +16,6 @@
       "Bash(wrangler whoami:*)",
       "Bash(wrangler d1 execute:*)",
       "Bash(wrangler d1 list:*)",
-      "Bash(export CLOUDFLARE_API_TOKEN=\"fevwOGy0f_0RFP80L7EUZgxvVttRQpMST1IkJp7T\")",
       "Bash(wrangler kv:namespace:*)",
       "Bash(wrangler r2 bucket:*)",
       "Bash(git remote add:*)",

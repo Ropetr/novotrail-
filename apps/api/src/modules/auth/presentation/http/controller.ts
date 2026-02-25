@@ -3,6 +3,7 @@ import type { HonoContext } from '../../../../shared/cloudflare/types';
 import { RegisterUserUseCase } from '../../application/use-cases/register-user';
 import { LoginUserUseCase } from '../../application/use-cases/login-user';
 import { AuthService } from '../../../../core/auth/AuthService';
+import { setAuthCookies, getRefreshToken, clearAuthCookies } from '../../../../core/auth/cookie-helper';
 import { z } from 'zod';
 import { ok, fail } from '../../../../shared/http/response';
 
@@ -43,13 +44,16 @@ export class AuthController {
       // Don't return password hash
       const { passwordHash, ...userWithoutPassword } = user;
 
-      const token = this.authService.generateToken(user);
+      const { accessToken, refreshToken } = this.authService.generateTokenPair(user);
+
+      // Definir cookies httpOnly
+      setAuthCookies(c, accessToken, refreshToken);
 
       return ok(
         c,
         {
           user: userWithoutPassword,
-          token,
+          token: accessToken, // Mantido para compatibilidade com frontend atual
         },
         201
       );
@@ -83,17 +87,57 @@ export class AuthController {
         return fail(c, 'Invalid credentials', 401);
       }
 
-      const token = this.authService.generateToken(user);
+      const { accessToken, refreshToken } = this.authService.generateTokenPair(user);
+
+      // Definir cookies httpOnly
+      setAuthCookies(c, accessToken, refreshToken);
 
       // Don't return password hash
       const { passwordHash, ...userWithoutPassword } = user;
 
       return ok(c, {
         user: userWithoutPassword,
-        token,
+        token: accessToken, // Mantido para compatibilidade com frontend atual
       });
     } catch (error: any) {
       return fail(c, error.message || 'Login failed', 401);
     }
+  }
+
+  /**
+   * Renova o access token usando o refresh token.
+   * POST /auth/refresh
+   */
+  async refresh(c: Context<HonoContext>) {
+    try {
+      const refreshTokenValue = getRefreshToken(c);
+
+      if (!refreshTokenValue) {
+        return fail(c, 'Refresh token not found', 401);
+      }
+
+      const decoded = this.authService.verifyRefreshToken(refreshTokenValue);
+
+      // Gerar novo par de tokens
+      const newTokens = this.authService.generateTokenPair(decoded as any);
+      setAuthCookies(c, newTokens.accessToken, newTokens.refreshToken);
+
+      return ok(c, {
+        token: newTokens.accessToken,
+        message: 'Token refreshed successfully',
+      });
+    } catch (error: any) {
+      clearAuthCookies(c);
+      return fail(c, 'Invalid refresh token', 401);
+    }
+  }
+
+  /**
+   * Logout — limpa os cookies de autenticação.
+   * POST /auth/logout
+   */
+  async logout(c: Context<HonoContext>) {
+    clearAuthCookies(c);
+    return ok(c, { message: 'Logged out successfully' });
   }
 }
