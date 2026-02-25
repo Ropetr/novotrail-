@@ -56,6 +56,15 @@ export class InventoryCountController {
       const body = await c.req.json();
       const data = createInventoryCountSchema.parse(body);
       const count = await this.inventoryCountRepository.create(user.tenantId, user.id, data);
+
+      // Aplicar blind count: esconder systemQuantity dos itens pendentes
+      if (count.blindCount && count.items) {
+        count.items = count.items.map((item: InventoryCountItem) => ({
+          ...item,
+          systemQuantity: item.status === 'pending' ? undefined : item.systemQuantity,
+        })) as InventoryCountItem[];
+      }
+
       return ok(c, count, 201);
     } catch (error: any) {
       return fail(c, error.message || 'Failed to create inventory count', 400);
