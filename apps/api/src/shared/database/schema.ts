@@ -25,6 +25,14 @@ export { tenantSettings } from '../../modules/configuracoes/infrastructure/schem
 // CRM module schema
 export { crmPipelineStages, crmOpportunities, crmActivities, crmScoringRules } from '../../modules/crm/infrastructure/schema';
 
+// Estoque module schema
+export {
+  warehouses, stockLevels, stockMovements,
+  stockTransfers, stockTransferItems,
+  inventoryCounts, inventoryCountItems,
+  stockSettings,
+} from '../../modules/estoque/infrastructure/schema';
+
 // Omnichannel module schema
 export {
   channels, businessHours,

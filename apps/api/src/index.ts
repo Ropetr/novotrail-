@@ -16,6 +16,7 @@ import { createProdutosModule } from './modules/produtos/index';
 import { createComercialModule } from './modules/comercial/index';
 import { createCrmModule } from './modules/crm/index';
 import { createConfiguracoesModule } from './modules/configuracoes/index';
+import { createEstoqueModule } from './modules/estoque/index';
 
 const app = new Hono<HonoContext>();
 
@@ -36,7 +37,7 @@ app.use(
     ],
     credentials: true,
     allowHeaders: ['Content-Type', 'Authorization', 'x-tenant-id'],
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   })
 );
 
@@ -200,6 +201,14 @@ apiV1.use('/crm/*', async (c, next) => {
   return authMiddleware(c, next);
 });
 apiV1.route('/crm', createCrmModule());
+
+// Estoque module (PROTECTED routes)
+apiV1.use('/estoque/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
+  const authMiddleware = createAuthMiddleware(authService);
+  return authMiddleware(c, next);
+});
+apiV1.route('/estoque', createEstoqueModule());
 
 // Mount API v1
 app.route('/api/v1', apiV1);

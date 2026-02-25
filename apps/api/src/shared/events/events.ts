@@ -13,7 +13,13 @@ export type DomainEventType =
   | 'client.created'
   | 'client.updated'
   | 'supplier.created'
-  | 'product.stock_low';
+  | 'product.stock_low'
+  // Estoque events
+  | 'stock.movement_created'
+  | 'stock.transfer_shipped'
+  | 'stock.transfer_received'
+  | 'stock.inventory_approved'
+  | 'stock.low_alert';
 
 export interface DomainEvent<T = unknown> {
   type: DomainEventType;
@@ -70,4 +76,49 @@ export interface StockLowPayload {
   productName: string;
   currentStock: number;
   minStock: number;
+}
+
+// ==================== Stock Event Payloads ====================
+
+export interface StockMovementCreatedPayload {
+  movementId: string;
+  productId: string;
+  warehouseId: string;
+  type: string;
+  quantity: number;
+  referenceType?: string;
+  referenceId?: string;
+}
+
+export interface StockTransferShippedPayload {
+  transferId: string;
+  transferNumber: string;
+  fromWarehouseId: string;
+  toWarehouseId: string;
+  items: Array<{ productId: string; quantity: number }>;
+}
+
+export interface StockTransferReceivedPayload {
+  transferId: string;
+  transferNumber: string;
+  fromWarehouseId: string;
+  toWarehouseId: string;
+  items: Array<{ productId: string; quantity: number }>;
+}
+
+export interface StockInventoryApprovedPayload {
+  inventoryCountId: string;
+  inventoryNumber: string;
+  warehouseId: string;
+  adjustments: number;
+}
+
+export interface StockLowAlertPayload {
+  productId: string;
+  productName: string;
+  productCode: string;
+  currentQuantity: number;
+  minStock: number;
+  warehouseId: string;
+  warehouseName: string;
 }
