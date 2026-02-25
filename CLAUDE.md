@@ -36,24 +36,32 @@ docs/status.md       → Status atual do sprint/projeto
 | R2 CERTIFICATES | novotraildesktop-certificates | Certificados A1 |
 | Queue | novotrail-tasks | Processamento assíncrono |
 
-## Banco Neon — 41 tabelas
+## Banco Neon — 43 tabelas
 - Auth (2): tenants, users
-- Cadastros (6): clients, suppliers, partners, employees, client_credits, client_credit_movements
+- Cadastros (4): clients, suppliers, partners, employees
 - Produtos (2): categories, products
-- Comercial (8): quotes, quote_items, sales, sale_items, returns, return_items, sale_deliveries, sale_delivery_items
+- Comercial (11): quotes, quote_items, sales, sale_items, sale_deliveries, sale_delivery_items, sale_payments, returns, return_items, client_credits, client_credit_movements
+- Configurações (1): tenant_settings
 - CRM (4): crm_pipeline_stages, crm_opportunities, crm_activities, crm_scoring_rules
 - Omnichannel (19): todas as tabelas omni_*
 
 ## Módulos — Status
-| Módulo | Backend | Frontend | Schema |
-|--------|---------|----------|--------|
-| Auth | ✅ | ✅ | ✅ |
-| Cadastros | ✅ | ✅ parcial | ✅ |
-| Produtos | ✅ | ⬜ | ✅ |
-| Comercial | ✅ | ✅ parcial | ✅ |
-| Fiscal | ✅ | ⬜ | — |
-| CRM | ✅ | ⬜ | ✅ |
-| Omnichannel | ⬜ pendente | ⬜ mock | ✅ |
+| Módulo | Backend | Frontend | Schema | Notas |
+|--------|---------|----------|--------|-------|
+| Auth | ✅ | ✅ | ✅ | httpOnly cookies + refresh tokens |
+| Cadastros | ✅ | ✅ | ✅ | Clientes, fornecedores, parceiros, colaboradores, usuários |
+| Produtos | ✅ | ✅ | ✅ | Categorias + produtos com form/list |
+| Comercial | ✅ | ✅ parcial | ✅ | Orçamentos, vendas, devoluções, entregas, créditos, PDF |
+| Configurações | ✅ | ✅ parcial | ✅ | Apenas configurações de empresa/tenant |
+| Fiscal | ✅ parcial | ⬜ placeholder | — | Apenas integração Nuvem Fiscal (sem tabelas locais) |
+| CRM | ✅ | ✅ parcial | ✅ | Pipeline, oportunidades, atividades, scoring |
+| Omnichannel | ⬜ schema only | ⬜ placeholder | ✅ | 19 tabelas criadas, sem rotas/controllers |
+| **Estoque** | ⬜ | ⬜ placeholder | ⬜ | **PRÓXIMO: Sprint 1** |
+| **Financeiro** | ⬜ | ⬜ placeholder | ⬜ | Planejado: Sprint 2-3 |
+| **Compras** | ⬜ | ⬜ placeholder | ⬜ | Planejado: Sprint 4-5 |
+| **Logística** | ⬜ | ⬜ placeholder | ⬜ | Planejado: Sprint 6-7 |
+| **BI & Relatórios** | ⬜ | ⬜ placeholder | ⬜ | Planejado: Sprint 6-7 |
+| **Suporte** | ⬜ | ⬜ placeholder | ⬜ | Planejado: Sprint 10-12 |
 
 ## Comandos
 ```bash
@@ -69,15 +77,23 @@ cd apps/api && pnpm deploy       # Deploy API
 cd apps/web && pnpm deploy       # Deploy Frontend
 ```
 
+## Segurança
+- Secrets gerenciados via `wrangler secret put` (NUNCA no código)
+- JWT via httpOnly cookies (trail_access, trail_refresh)
+- Bearer token mantido como fallback para compatibilidade
+- Variáveis locais em `.dev.vars` (nunca commitado)
+
 ## Regras Obrigatórias
 1. Sempre responder em português brasileiro
 2. Nunca alterar código sem autorização do Rodrigo
-3. Commits: Conventional Commits (feat:, fix:, docs:, refactor:)
+3. Commits: Conventional Commits (feat:, fix:, docs:, refactor:, security:)
 4. Schema: editar em apps/api/src/modules/*/infrastructure/schema.ts
 5. Nunca alterar banco diretamente — sempre via Drizzle
 6. Consultar Apostila-ERP/ antes de implementar qualquer módulo
 7. Documentar decisões em docs/decisions/
 8. CRM flat no Comercial (sem 3º nível no sidebar)
+9. NUNCA expor secrets em arquivos de configuração
+10. Todo código novo deve ter testes automatizados
 
 ## API em Produção
 - URL: https://novotrail-api.planacacabamentos.workers.dev
