@@ -47,3 +47,22 @@ export {
   aiConfig, aiPrompts, aiKnowledgeItems, aiFeedback,
   csatResponses, auditLog,
 } from '../../modules/omnichannel/infrastructure/schema';
+
+// Fiscal module schemas
+export {
+  fiscalSettings,
+  digitalCertificates,
+  trustedSuppliers,
+  fiscalAuditLogs,
+  dfeInboxDocuments,
+  dfeInboxItems,
+  supplierProductMapping,
+  dfeManifestations,
+  dfeProcessingQueue,
+  dfeEmitidos,
+  dfeEmitidoItems,
+  dfeEmitidoEvents,
+  gnreGuias,
+  adrcstArquivos,
+  adrcstProdutos,
+} from '../../modules/fiscal/infrastructure/schemas';
