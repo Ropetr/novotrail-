@@ -3,7 +3,6 @@ import type { HonoContext } from '../../../../../shared/cloudflare/types';
 import type { IStockMovementRepository, IStockSettingsRepository } from '../../../domain/repositories';
 import { movementListSchema, createMovementSchema, idParamSchema } from '../validators';
 import { ok, fail } from '../../../../../shared/http/response';
-import { stockLevels } from '../../../infrastructure/schema';
 
 export class StockMovementController {
   constructor(
@@ -47,24 +46,15 @@ export class StockMovementController {
       const body = await c.req.json();
       const data = createMovementSchema.parse(body);
 
-      // Verificar estoque negativo em saídas
-      const isExit = ['sale_exit', 'transfer_out', 'adjustment_out', 'return_out'].includes(data.type);
-      if (isExit) {
-        const settings = await this.settingsRepository.get(user.tenantId);
-        if (!settings.allowNegativeStock) {
-          // Verificação será feita dentro do repository ao calcular newQuantity
-          // Aqui criamos o movimento e verificamos o resultado
-        }
-      }
+      // Buscar configuração de estoque negativo
+      const settings = await this.settingsRepository.get(user.tenantId);
 
-      const movement = await this.movementRepository.create(user.tenantId, user.id, data);
-
-      // Verificar se ficou negativo após o movimento
-      if (isExit && Number(movement.newQuantity) < 0) {
-        // O movimento já foi criado — em produção seria transacional
-        // Por ora, apenas alertar
-        return ok(c, movement, 201, { warning: 'Stock went negative' });
-      }
+      const movement = await this.movementRepository.create(
+        user.tenantId,
+        user.id,
+        data,
+        { allowNegativeStock: settings.allowNegativeStock },
+      );
 
       return ok(c, movement, 201);
     } catch (error: any) {

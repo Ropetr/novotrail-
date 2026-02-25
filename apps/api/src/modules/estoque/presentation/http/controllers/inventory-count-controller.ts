@@ -115,7 +115,7 @@ export class InventoryCountController {
           referenceId: count.id,
           referenceNumber: count.number,
           reason: `Inventory count adjustment: system=${item.systemQuantity}, counted=${item.countedQuantity}`,
-        });
+        }, { allowNegativeStock: true }); // Ajustes de inventário são correções — sempre permitidos
       }
 
       const approved = await this.inventoryCountRepository.approve(id, user.tenantId, user.id);

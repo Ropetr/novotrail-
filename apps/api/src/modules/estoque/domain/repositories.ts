@@ -50,7 +50,7 @@ export interface IStockMovementRepository {
     endDate?: string;
   }): Promise<ListResult<StockMovement>>;
   getById(id: string, tenantId: string): Promise<StockMovement | null>;
-  create(tenantId: string, userId: string, data: CreateMovementDTO): Promise<StockMovement>;
+  create(tenantId: string, userId: string, data: CreateMovementDTO, options?: { allowNegativeStock?: boolean }): Promise<StockMovement>;
 }
 
 // ==================== Stock Transfer Repository ====================

@@ -45,7 +45,7 @@ export class StockMovementRepository implements IStockMovementRepository {
     return (result[0] as unknown as StockMovement) || null;
   }
 
-  async create(tenantId: string, userId: string, data: CreateMovementDTO): Promise<StockMovement> {
+  async create(tenantId: string, userId: string, data: CreateMovementDTO, options?: { allowNegativeStock?: boolean }): Promise<StockMovement> {
     // Determinar se é entrada ou saída
     const isEntry = ['purchase_entry', 'transfer_in', 'adjustment_in', 'return_in', 'production'].includes(data.type);
 
@@ -77,6 +77,16 @@ export class StockMovementRepository implements IStockMovementRepository {
     const movementQty = data.quantity;
     const unitCost = data.unitCost ?? 0;
     const totalCost = movementQty * unitCost;
+
+    // VERIFICAÇÃO PRÉ-MOVIMENTO: estoque negativo
+    if (!isEntry && !options?.allowNegativeStock) {
+      const projectedQuantity = previousQuantity - movementQty;
+      if (projectedQuantity < 0) {
+        throw new Error(
+          `Insufficient stock: available=${previousQuantity}, requested=${movementQty}, product=${data.productId}, warehouse=${data.warehouseId}`
+        );
+      }
+    }
 
     let newQuantity: number;
     let newAverageCost: number;
