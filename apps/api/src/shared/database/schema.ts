@@ -42,3 +42,10 @@ export {
   aiConfig, aiPrompts, aiKnowledgeItems, aiFeedback,
   csatResponses, auditLog,
 } from '../../modules/omnichannel/infrastructure/schema';
+
+// Financeiro module schema
+export {
+  chartOfAccounts, bankAccounts, costCenters,
+  financialTitles, financialSettlements,
+  financialTransactions, financialLogs,
+} from '../../modules/financeiro/infrastructure/schema';

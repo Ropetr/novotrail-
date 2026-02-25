@@ -17,6 +17,7 @@ import { createComercialModule } from './modules/comercial/index';
 import { createCrmModule } from './modules/crm/index';
 import { createConfiguracoesModule } from './modules/configuracoes/index';
 import { createEstoqueModule } from './modules/estoque/index';
+import { createFinanceiroModule } from './modules/financeiro/index';
 
 const app = new Hono<HonoContext>();
 
@@ -209,6 +210,14 @@ apiV1.use('/estoque/*', async (c, next) => {
   return authMiddleware(c, next);
 });
 apiV1.route('/estoque', createEstoqueModule());
+
+// Financeiro module (PROTECTED routes)
+apiV1.use('/financeiro/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
+  const authMiddleware = createAuthMiddleware(authService);
+  return authMiddleware(c, next);
+});
+apiV1.route('/financeiro', createFinanceiroModule());
 
 // Mount API v1
 app.route('/api/v1', apiV1);

@@ -19,7 +19,13 @@ export type DomainEventType =
   | 'stock.transfer_shipped'
   | 'stock.transfer_received'
   | 'stock.inventory_approved'
-  | 'stock.low_alert';
+  | 'stock.low_alert'
+  // Financial events
+  | 'financial.title_created'
+  | 'financial.title_settled'
+  | 'financial.title_cancelled'
+  | 'financial.transaction_created'
+  | 'financial.transfer_completed';
 
 export interface DomainEvent<T = unknown> {
   type: DomainEventType;
@@ -121,4 +127,38 @@ export interface StockLowAlertPayload {
   minStock: number;
   warehouseId: string;
   warehouseName: string;
+}
+
+// Financial event payloads
+export interface FinancialTitleCreatedPayload {
+  titleId: string;
+  type: 'payable' | 'receivable';
+  personId: string;
+  value: number;
+  dueDate: string;
+}
+
+export interface FinancialTitleSettledPayload {
+  titleId: string;
+  settlementId: string;
+  value: number;
+  remainingBalance: number;
+}
+
+export interface FinancialTitleCancelledPayload {
+  titleId: string;
+  reason?: string;
+}
+
+export interface FinancialTransactionCreatedPayload {
+  transactionId: string;
+  bankAccountId: string;
+  type: string;
+  value: number;
+}
+
+export interface FinancialTransferCompletedPayload {
+  fromAccountId: string;
+  toAccountId: string;
+  value: number;
 }
