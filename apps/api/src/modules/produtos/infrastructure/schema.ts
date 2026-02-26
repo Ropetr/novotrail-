@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, numeric, integer } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, numeric, integer, boolean } from 'drizzle-orm/pg-core';
 import { tenants } from '../../tenant/infrastructure/schema';
 
 // ==================== Categories ====================
@@ -42,6 +42,9 @@ export const products = pgTable('products', {
     .default('active'),
   minStock: integer('min_stock').notNull().default(0),
   currentStock: integer('current_stock').notNull().default(0),
+  isKit: boolean('is_kit').notNull().default(false),
+  controlsBatch: boolean('controls_batch').notNull().default(false),
+  controlsSerial: boolean('controls_serial').notNull().default(false),
   notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()

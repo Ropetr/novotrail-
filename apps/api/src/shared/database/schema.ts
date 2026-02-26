@@ -31,6 +31,8 @@ export {
   stockTransfers, stockTransferItems,
   inventoryCounts, inventoryCountItems,
   stockSettings,
+  productKits, productionOrders, productionOrderItems,
+  stockBatches, stockSerials, stockReservations, inventoryScans,
 } from '../../modules/estoque/infrastructure/schema';
 
 // Omnichannel module schema

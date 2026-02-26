@@ -6,6 +6,12 @@ import type {
   InventoryCount, CreateInventoryCountDTO, RegisterCountItemDTO,
   StockSettings, UpdateStockSettingsDTO,
   StockDashboard,
+  ProductKit, CreateKitDTO, UpdateKitDTO,
+  ProductionOrder, CreateProductionOrderDTO, ProductionStatus,
+  StockBatch, CreateBatchDTO,
+  StockSerial, CreateSerialDTO, SerialStatus,
+  StockReservation, CreateReservationDTO, ReservationStatus,
+  InventoryScan, CreateScanDTO,
 } from './entities';
 
 export interface ListResult<T> {
@@ -79,4 +85,55 @@ export interface IInventoryCountRepository {
 export interface IStockSettingsRepository {
   get(tenantId: string): Promise<StockSettings>;
   update(tenantId: string, data: UpdateStockSettingsDTO): Promise<StockSettings>;
+}
+
+// ==================== Kit Repository ====================
+export interface IKitRepository {
+  listKits(tenantId: string): Promise<Array<{ kitProductId: string; kitName: string; kitCode: string; components: ProductKit[] }>>;
+  getKit(kitProductId: string, tenantId: string): Promise<{ kitProductId: string; kitName: string; components: ProductKit[] } | null>;
+  createKit(tenantId: string, data: CreateKitDTO): Promise<ProductKit[]>;
+  updateKit(kitProductId: string, tenantId: string, data: UpdateKitDTO): Promise<ProductKit[]>;
+  deleteKit(kitProductId: string, tenantId: string): Promise<void>;
+  getComponents(kitProductId: string, tenantId: string): Promise<ProductKit[]>;
+}
+
+// ==================== Production Order Repository ====================
+export interface IProductionOrderRepository {
+  list(tenantId: string, params: PaginationInput & { status?: string }): Promise<ListResult<ProductionOrder>>;
+  getById(id: string, tenantId: string): Promise<ProductionOrder | null>;
+  create(tenantId: string, userId: string, data: CreateProductionOrderDTO): Promise<ProductionOrder>;
+  updateStatus(id: string, tenantId: string, status: ProductionStatus, userId: string): Promise<ProductionOrder>;
+}
+
+// ==================== Batch Repository ====================
+export interface IBatchRepository {
+  list(tenantId: string, params: PaginationInput & { productId?: string; warehouseId?: string; expiredOnly?: boolean }): Promise<ListResult<StockBatch>>;
+  getById(id: string, tenantId: string): Promise<StockBatch | null>;
+  create(tenantId: string, data: CreateBatchDTO): Promise<StockBatch>;
+  updateQuantity(id: string, tenantId: string, quantityDelta: number): Promise<StockBatch>;
+  getFifo(productId: string, warehouseId: string, tenantId: string): Promise<StockBatch[]>;
+}
+
+// ==================== Serial Repository ====================
+export interface ISerialRepository {
+  list(tenantId: string, params: PaginationInput & { productId?: string; warehouseId?: string; status?: SerialStatus }): Promise<ListResult<StockSerial>>;
+  getById(id: string, tenantId: string): Promise<StockSerial | null>;
+  create(tenantId: string, data: CreateSerialDTO): Promise<StockSerial>;
+  updateStatus(id: string, tenantId: string, status: SerialStatus, movementId?: string): Promise<StockSerial>;
+  getBySerialNumber(serialNumber: string, tenantId: string): Promise<StockSerial | null>;
+}
+
+// ==================== Reservation Repository ====================
+export interface IReservationRepository {
+  list(tenantId: string, params: PaginationInput & { productId?: string; status?: string; orderId?: string }): Promise<ListResult<StockReservation>>;
+  getById(id: string, tenantId: string): Promise<StockReservation | null>;
+  create(tenantId: string, userId: string, data: CreateReservationDTO): Promise<StockReservation>;
+  updateStatus(id: string, tenantId: string, status: ReservationStatus): Promise<StockReservation>;
+  getByOrder(orderId: string, tenantId: string): Promise<StockReservation[]>;
+}
+
+// ==================== Inventory Scan Repository ====================
+export interface IScanRepository {
+  listByInventory(inventoryCountId: string, tenantId: string): Promise<InventoryScan[]>;
+  create(tenantId: string, userId: string, inventoryCountId: string, data: CreateScanDTO): Promise<InventoryScan>;
 }

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, numeric, boolean, integer } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, numeric, boolean, integer, date } from 'drizzle-orm/pg-core';
 import { tenants } from '../../tenant/infrastructure/schema';
 import { products } from '../../produtos/infrastructure/schema';
 
@@ -79,6 +79,8 @@ export const stockMovements = pgTable('stock_movements', {
   referenceId: uuid('reference_id'),
   referenceNumber: varchar('reference_number', { length: 50 }),
   reason: text('reason'),
+  batchId: uuid('batch_id'),
+  serialId: uuid('serial_id'),
   userId: uuid('user_id').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
@@ -195,4 +197,157 @@ export const stockSettings = pgTable('stock_settings', {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
+});
+
+// ==================== Product Kits / BOM (Composição de Kits) ====================
+export const productKits = pgTable('product_kits', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  kitProductId: uuid('kit_product_id')
+    .notNull()
+    .references(() => products.id),
+  componentProductId: uuid('component_product_id')
+    .notNull()
+    .references(() => products.id),
+  quantity: numeric('quantity', { precision: 15, scale: 4 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ==================== Production Orders (Ordens de Produção) ====================
+export const productionOrders = pgTable('production_orders', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  code: varchar('code', { length: 30 }).notNull(),
+  status: text('status', { enum: ['draft', 'in_progress', 'finished', 'cancelled'] })
+    .notNull()
+    .default('draft'),
+  productId: uuid('product_id')
+    .notNull()
+    .references(() => products.id),
+  quantity: numeric('quantity', { precision: 15, scale: 4 }).notNull(),
+  warehouseId: uuid('warehouse_id')
+    .notNull()
+    .references(() => warehouses.id),
+  notes: text('notes'),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  finishedAt: timestamp('finished_at', { withTimezone: true }),
+  userId: uuid('user_id').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+// ==================== Production Order Items (Insumos da OP) ====================
+export const productionOrderItems = pgTable('production_order_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  productionOrderId: uuid('production_order_id')
+    .notNull()
+    .references(() => productionOrders.id, { onDelete: 'cascade' }),
+  productId: uuid('product_id')
+    .notNull()
+    .references(() => products.id),
+  quantityRequired: numeric('quantity_required', { precision: 15, scale: 4 }).notNull(),
+  quantityConsumed: numeric('quantity_consumed', { precision: 15, scale: 4 }).notNull().default('0'),
+});
+
+// ==================== Stock Batches (Lotes com validade) ====================
+export const stockBatches = pgTable('stock_batches', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  productId: uuid('product_id')
+    .notNull()
+    .references(() => products.id),
+  warehouseId: uuid('warehouse_id')
+    .notNull()
+    .references(() => warehouses.id),
+  batchCode: varchar('batch_code', { length: 50 }).notNull(),
+  expirationDate: date('expiration_date'),
+  quantity: numeric('quantity', { precision: 15, scale: 4 }).notNull().default('0'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ==================== Stock Serials (Números de Série) ====================
+export const stockSerials = pgTable('stock_serials', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  productId: uuid('product_id')
+    .notNull()
+    .references(() => products.id),
+  warehouseId: uuid('warehouse_id')
+    .notNull()
+    .references(() => warehouses.id),
+  serialNumber: varchar('serial_number', { length: 100 }).notNull(),
+  status: text('status', { enum: ['available', 'reserved', 'sold', 'returned'] })
+    .notNull()
+    .default('available'),
+  movementId: uuid('movement_id'),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ==================== Stock Reservations (Reserva de Estoque) ====================
+export const stockReservations = pgTable('stock_reservations', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  orderId: uuid('order_id'),
+  orderType: varchar('order_type', { length: 30 }),
+  productId: uuid('product_id')
+    .notNull()
+    .references(() => products.id),
+  warehouseId: uuid('warehouse_id')
+    .notNull()
+    .references(() => warehouses.id),
+  quantity: numeric('quantity', { precision: 15, scale: 4 }).notNull(),
+  status: text('status', { enum: ['reserved', 'consumed', 'released', 'cancelled', 'expired'] })
+    .notNull()
+    .default('reserved'),
+  expiresAt: timestamp('expires_at', { withTimezone: true }),
+  userId: uuid('user_id').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+// ==================== Inventory Scans (Bipagem de Inventário) ====================
+export const inventoryScans = pgTable('inventory_scans', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  inventoryCountId: uuid('inventory_count_id')
+    .notNull()
+    .references(() => inventoryCounts.id, { onDelete: 'cascade' }),
+  productId: uuid('product_id')
+    .notNull()
+    .references(() => products.id),
+  barcode: varchar('barcode', { length: 50 }),
+  quantity: numeric('quantity', { precision: 15, scale: 4 }).notNull().default('1'),
+  userId: uuid('user_id').notNull(),
+  scannedAt: timestamp('scanned_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });

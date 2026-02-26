@@ -71,6 +71,8 @@ export interface StockMovement {
   referenceId?: string | null;
   referenceNumber?: string | null;
   reason?: string | null;
+  batchId?: string | null;
+  serialId?: string | null;
   userId: string;
   createdAt: Date;
 }
@@ -85,6 +87,8 @@ export interface CreateMovementDTO {
   referenceId?: string;
   referenceNumber?: string;
   reason?: string;
+  batchId?: string;
+  serialId?: string;
 }
 
 // ==================== Stock Transfer ====================
@@ -203,4 +207,176 @@ export interface StockDashboard {
     warehouseName: string;
   }>;
   recentMovements: StockMovement[];
+}
+
+// ==================== Product Kit / BOM ====================
+export interface ProductKit {
+  id: string;
+  tenantId: string;
+  kitProductId: string;
+  componentProductId: string;
+  quantity: string;
+  createdAt: Date;
+  componentName?: string;
+  componentCode?: string;
+  componentUnit?: string;
+}
+
+export interface CreateKitDTO {
+  kitProductId: string;
+  components: Array<{
+    componentProductId: string;
+    quantity: number;
+  }>;
+}
+
+export interface UpdateKitDTO {
+  components: Array<{
+    componentProductId: string;
+    quantity: number;
+  }>;
+}
+
+// ==================== Production Order ====================
+export type ProductionStatus = 'draft' | 'in_progress' | 'finished' | 'cancelled';
+
+export interface ProductionOrder {
+  id: string;
+  tenantId: string;
+  code: string;
+  status: ProductionStatus;
+  productId: string;
+  quantity: string;
+  warehouseId: string;
+  notes?: string | null;
+  startedAt?: Date | null;
+  finishedAt?: Date | null;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  items?: ProductionOrderItem[];
+  productName?: string;
+  warehouseName?: string;
+}
+
+export interface ProductionOrderItem {
+  id: string;
+  productionOrderId: string;
+  productId: string;
+  quantityRequired: string;
+  quantityConsumed: string;
+  productName?: string;
+  productCode?: string;
+}
+
+export interface CreateProductionOrderDTO {
+  productId: string;
+  quantity: number;
+  warehouseId: string;
+  notes?: string;
+}
+
+// ==================== Stock Batch (Lote) ====================
+export interface StockBatch {
+  id: string;
+  tenantId: string;
+  productId: string;
+  warehouseId: string;
+  batchCode: string;
+  expirationDate?: string | null;
+  quantity: string;
+  notes?: string | null;
+  createdAt: Date;
+  productName?: string;
+  warehouseName?: string;
+  isExpired?: boolean;
+}
+
+export interface CreateBatchDTO {
+  productId: string;
+  warehouseId: string;
+  batchCode: string;
+  expirationDate?: string;
+  quantity: number;
+  notes?: string;
+}
+
+// ==================== Stock Serial (Número de Série) ====================
+export type SerialStatus = 'available' | 'reserved' | 'sold' | 'returned';
+
+export interface StockSerial {
+  id: string;
+  tenantId: string;
+  productId: string;
+  warehouseId: string;
+  serialNumber: string;
+  status: SerialStatus;
+  movementId?: string | null;
+  createdAt: Date;
+  productName?: string;
+  warehouseName?: string;
+}
+
+export interface CreateSerialDTO {
+  productId: string;
+  warehouseId: string;
+  serialNumber: string;
+}
+
+// ==================== Stock Reservation ====================
+export type ReservationStatus = 'reserved' | 'consumed' | 'released' | 'cancelled' | 'expired';
+
+export interface StockReservation {
+  id: string;
+  tenantId: string;
+  orderId?: string | null;
+  orderType?: string | null;
+  productId: string;
+  warehouseId: string;
+  quantity: string;
+  status: ReservationStatus;
+  expiresAt?: Date | null;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  productName?: string;
+  warehouseName?: string;
+}
+
+export interface CreateReservationDTO {
+  orderId?: string;
+  orderType?: string;
+  productId: string;
+  warehouseId: string;
+  quantity: number;
+  expiresAt?: string;
+}
+
+// ==================== Inventory Scan (Bipagem) ====================
+export interface InventoryScan {
+  id: string;
+  tenantId: string;
+  inventoryCountId: string;
+  productId: string;
+  barcode?: string | null;
+  quantity: string;
+  userId: string;
+  scannedAt: Date;
+}
+
+export interface CreateScanDTO {
+  barcode?: string;
+  productId?: string;
+  quantity?: number;
+}
+
+// ==================== Integration ====================
+export interface FromSaleDTO {
+  saleId: string;
+  warehouseId: string;
+  items: Array<{
+    productId: string;
+    quantity: number;
+    unitCost?: number;
+  }>;
 }

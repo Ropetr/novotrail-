@@ -6,6 +6,13 @@ import type { StockMovementController } from './controllers/stock-movement-contr
 import type { StockTransferController } from './controllers/stock-transfer-controller';
 import type { InventoryCountController } from './controllers/inventory-count-controller';
 import type { StockSettingsController } from './controllers/stock-settings-controller';
+import type { KitController } from './controllers/kit-controller';
+import type { ProductionOrderController } from './controllers/production-order-controller';
+import type { BatchController } from './controllers/batch-controller';
+import type { SerialController } from './controllers/serial-controller';
+import type { ReservationController } from './controllers/reservation-controller';
+import type { IntegrationController } from './controllers/integration-controller';
+import type { ScanController } from './controllers/scan-controller';
 
 export function createEstoqueRoutes() {
   const router = new Hono<HonoContext>();
@@ -16,6 +23,13 @@ export function createEstoqueRoutes() {
   const getTransferCtrl = (c: any) => c.get('stockTransferController') as StockTransferController;
   const getInventoryCtrl = (c: any) => c.get('inventoryCountController') as InventoryCountController;
   const getSettingsCtrl = (c: any) => c.get('stockSettingsController') as StockSettingsController;
+  const getKitCtrl = (c: any) => c.get('kitController') as KitController;
+  const getProductionCtrl = (c: any) => c.get('productionOrderController') as ProductionOrderController;
+  const getBatchCtrl = (c: any) => c.get('batchController') as BatchController;
+  const getSerialCtrl = (c: any) => c.get('serialController') as SerialController;
+  const getReservationCtrl = (c: any) => c.get('reservationController') as ReservationController;
+  const getIntegrationCtrl = (c: any) => c.get('integrationController') as IntegrationController;
+  const getScanCtrl = (c: any) => c.get('scanController') as ScanController;
 
   // ==================== Depósitos (5) ====================
   router.get('/depositos', (c) => getWarehouseCtrl(c).list(c));
@@ -51,6 +65,39 @@ export function createEstoqueRoutes() {
   // ==================== Configurações (2) ====================
   router.get('/configuracoes', (c) => getSettingsCtrl(c).get(c));
   router.put('/configuracoes', (c) => getSettingsCtrl(c).update(c));
+
+  // ==================== Kits / BOM (5) ====================
+  router.get('/kits', (c) => getKitCtrl(c).list(c));
+  router.post('/kits', (c) => getKitCtrl(c).create(c));
+  router.get('/kits/:id', (c) => getKitCtrl(c).getById(c));
+  router.put('/kits/:id', (c) => getKitCtrl(c).update(c));
+  router.delete('/kits/:id', (c) => getKitCtrl(c).remove(c));
+
+  // ==================== Produção (4) ====================
+  router.get('/producao', (c) => getProductionCtrl(c).list(c));
+  router.post('/producao', (c) => getProductionCtrl(c).create(c));
+  router.get('/producao/:id', (c) => getProductionCtrl(c).getById(c));
+  router.patch('/producao/:id/status', (c) => getProductionCtrl(c).updateStatus(c));
+
+  // ==================== Lotes (3) ====================
+  router.get('/lotes', (c) => getBatchCtrl(c).list(c));
+  router.post('/lotes', (c) => getBatchCtrl(c).create(c));
+  router.get('/lotes/:id', (c) => getBatchCtrl(c).getById(c));
+
+  // ==================== Séries (2) ====================
+  router.get('/series', (c) => getSerialCtrl(c).list(c));
+  router.post('/series', (c) => getSerialCtrl(c).create(c));
+
+  // ==================== Reservas (3) ====================
+  router.get('/reservas', (c) => getReservationCtrl(c).list(c));
+  router.post('/reservas', (c) => getReservationCtrl(c).create(c));
+  router.patch('/reservas/:id/status', (c) => getReservationCtrl(c).updateStatus(c));
+
+  // ==================== Bipagem (1) ====================
+  router.post('/inventarios/:id/bipagem', (c) => getScanCtrl(c).scan(c));
+
+  // ==================== Integração (1) ====================
+  router.post('/movimentacoes/from-sale', (c) => getIntegrationCtrl(c).fromSale(c));
 
   return router;
 }
