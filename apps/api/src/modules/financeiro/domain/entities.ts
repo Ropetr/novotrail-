@@ -258,3 +258,118 @@ export interface DueSoonTitle {
   openValue: string;
   daysUntilDue: number;
 }
+
+// ==================== Bank Reconciliation ====================
+
+export interface BankReconciliation {
+  id: string;
+  tenantId: string;
+  bankAccountId: string;
+  periodStart: string;
+  periodEnd: string;
+  statementBalance: string;
+  status: 'open' | 'in_progress' | 'completed';
+  totalEntries: number;
+  matchedEntries: number;
+  createdAt: Date;
+  completedAt: Date | null;
+}
+
+export interface CreateReconciliationDTO {
+  bankAccountId: string;
+  periodStart: string;
+  periodEnd: string;
+  statementBalance: number;
+}
+
+export interface BankStatementEntry {
+  id: string;
+  tenantId: string;
+  reconciliationId: string;
+  entryDate: string;
+  description: string | null;
+  amount: string;
+  type: 'credit' | 'debit';
+  externalId: string | null;
+  matchedTransactionId: string | null;
+  status: 'pending' | 'matched' | 'reconciled' | 'ignored';
+  createdAt: Date;
+}
+
+export interface MatchEntryDTO {
+  entryId: string;
+  transactionId: string;
+}
+
+// ==================== Payment Rules (Régua de Cobrança) ====================
+
+export interface PaymentRule {
+  id: string;
+  tenantId: string;
+  name: string;
+  trigger: 'before_due' | 'on_due' | 'after_due';
+  daysOffset: number;
+  channel: 'email' | 'sms' | 'whatsapp';
+  template: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreatePaymentRuleDTO {
+  name: string;
+  trigger: 'before_due' | 'on_due' | 'after_due';
+  daysOffset: number;
+  channel: 'email' | 'sms' | 'whatsapp';
+  template: string;
+}
+
+export interface UpdatePaymentRuleDTO extends Partial<CreatePaymentRuleDTO> {
+  isActive?: boolean;
+}
+
+// ==================== Reports ====================
+
+export interface DRELine {
+  accountCode: string;
+  accountName: string;
+  accountType: string;
+  total: number;
+}
+
+export interface DREReport {
+  period: { startDate: string; endDate: string };
+  revenue: DRELine[];
+  totalRevenue: number;
+  expenses: DRELine[];
+  totalExpenses: number;
+  operationalResult: number;
+  costCenterId?: string;
+}
+
+export interface AgingBucket {
+  label: string;
+  minDays: number;
+  maxDays: number | null;
+  count: number;
+  total: number;
+  percentage: number;
+  titles: { id: string; personId: string; description: string | null; dueDate: string; openValue: string; daysOverdue: number }[];
+}
+
+export interface AgingReport {
+  type: TitleType;
+  referenceDate: string;
+  totalOverdue: number;
+  totalCount: number;
+  buckets: AgingBucket[];
+}
+
+export interface CashFlowRealized {
+  date: string;
+  forecastReceivable: number;
+  forecastPayable: number;
+  realizedInflow: number;
+  realizedOutflow: number;
+  cumulativeBalance: number;
+}

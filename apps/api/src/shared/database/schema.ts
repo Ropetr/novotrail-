@@ -50,4 +50,5 @@ export {
   chartOfAccounts, bankAccounts, costCenters,
   financialTitles, financialSettlements,
   financialTransactions, financialLogs,
+  bankReconciliations, bankStatementEntries, paymentRules,
 } from '../../modules/financeiro/infrastructure/schema';

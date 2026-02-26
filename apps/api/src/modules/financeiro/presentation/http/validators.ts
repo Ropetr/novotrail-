@@ -111,3 +111,56 @@ export const createTransferSchema = z.object({
   description: z.string().max(200).optional(),
   occurredAt: z.string().datetime().optional(),
 });
+
+// ==================== Conciliação Bancária ====================
+
+export const createReconciliationSchema = z.object({
+  bankAccountId: z.string().uuid(),
+  periodStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  periodEnd: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  statementBalance: z.number(),
+});
+
+export const matchEntrySchema = z.object({
+  entryId: z.string().uuid(),
+  transactionId: z.string().uuid(),
+});
+
+// ==================== Régua de Cobrança ====================
+
+export const createPaymentRuleSchema = z.object({
+  name: z.string().min(1).max(100),
+  trigger: z.enum(['before_due', 'on_due', 'after_due']),
+  daysOffset: z.number().int().min(0),
+  channel: z.enum(['email', 'sms', 'whatsapp']),
+  template: z.string().min(1),
+});
+
+export const updatePaymentRuleSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  trigger: z.enum(['before_due', 'on_due', 'after_due']).optional(),
+  daysOffset: z.number().int().min(0).optional(),
+  channel: z.enum(['email', 'sms', 'whatsapp']).optional(),
+  template: z.string().min(1).optional(),
+  isActive: z.boolean().optional(),
+});
+
+// ==================== Integração ====================
+
+export const fromSaleSchema = z.object({
+  saleId: z.string().uuid(),
+});
+
+export const fromPurchaseSchema = z.object({
+  supplierId: z.string().uuid(),
+  purchaseId: z.string().uuid().optional(),
+  documentNumber: z.string().max(50).optional(),
+  description: z.string().max(200).optional(),
+  issueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  origin: z.enum(['purchase', 'fiscal', 'manual']).optional(),
+  installments: z.array(z.object({
+    number: z.number().int().positive(),
+    value: z.number().positive(),
+    dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  })).min(1),
+});

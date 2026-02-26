@@ -108,6 +108,7 @@ export class FinancialTitleRepository implements IFinancialTitleRepository {
     if (data.costCenterId !== undefined) updates.costCenterId = data.costCenterId;
     if (data.accountId !== undefined) updates.accountId = data.accountId;
     if (data.bankAccountId !== undefined) updates.bankAccountId = data.bankAccountId;
+    if ((data as any).attachmentUrl !== undefined) updates.attachmentUrl = (data as any).attachmentUrl;
 
     const result = await this.db.update(financialTitles).set(updates)
       .where(and(eq(financialTitles.id, id), eq(financialTitles.tenantId, tenantId)))

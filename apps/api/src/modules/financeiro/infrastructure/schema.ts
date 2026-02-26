@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, numeric, timestamp, boolean, varchar, index, date } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, numeric, timestamp, boolean, varchar, index, date, integer } from 'drizzle-orm/pg-core';
 import { tenants } from '../../tenant/infrastructure/schema';
 import { users } from '../../auth/infrastructure/schema';
 
@@ -102,6 +102,51 @@ export const financialTransactions = pgTable('financial_transactions', {
   referenceType: varchar('reference_type', { length: 20 }),
   occurredAt: timestamp('occurred_at', { withTimezone: true }).defaultNow(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+});
+
+// ==================== Conciliação Bancária ====================
+
+export const bankReconciliations = pgTable('bank_reconciliations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  bankAccountId: uuid('bank_account_id').notNull().references(() => bankAccounts.id),
+  periodStart: date('period_start').notNull(),
+  periodEnd: date('period_end').notNull(),
+  statementBalance: numeric('statement_balance', { precision: 15, scale: 2 }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('open'), // open, in_progress, completed
+  totalEntries: integer('total_entries').default(0),
+  matchedEntries: integer('matched_entries').default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+});
+
+export const bankStatementEntries = pgTable('bank_statement_entries', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  reconciliationId: uuid('reconciliation_id').notNull().references(() => bankReconciliations.id, { onDelete: 'cascade' }),
+  entryDate: date('entry_date').notNull(),
+  description: varchar('description', { length: 200 }),
+  amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
+  type: varchar('type', { length: 10 }).notNull(), // credit, debit
+  externalId: varchar('external_id', { length: 100 }),
+  matchedTransactionId: uuid('matched_transaction_id').references(() => financialTransactions.id),
+  status: varchar('status', { length: 20 }).notNull().default('pending'), // pending, matched, reconciled, ignored
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+});
+
+// ==================== Régua de Cobrança ====================
+
+export const paymentRules = pgTable('payment_rules', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 100 }).notNull(),
+  trigger: varchar('trigger', { length: 20 }).notNull(), // before_due, on_due, after_due
+  daysOffset: integer('days_offset').notNull().default(0),
+  channel: varchar('channel', { length: 20 }).notNull(), // email, sms, whatsapp
+  template: text('template').notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
 
 // ==================== Logs/Auditoria ====================

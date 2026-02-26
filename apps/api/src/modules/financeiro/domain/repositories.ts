@@ -7,6 +7,9 @@ import {
   FinancialSettlement,
   FinancialLog, LogAction,
   FinancialDashboard, CashFlowItem, DueSoonTitle,
+  BankReconciliation, CreateReconciliationDTO, BankStatementEntry, MatchEntryDTO,
+  PaymentRule, CreatePaymentRuleDTO, UpdatePaymentRuleDTO,
+  DREReport, AgingReport, CashFlowRealized,
 } from './entities';
 
 export interface IChartOfAccountsRepository {
@@ -81,4 +84,30 @@ export interface IFinancialLogRepository {
     limit?: number;
   }): Promise<{ data: FinancialLog[]; total: number }>;
   create(tenantId: string, userId: string, entity: string, entityId: string, action: LogAction, details?: string): Promise<FinancialLog>;
+}
+
+export interface IReconciliationRepository {
+  list(tenantId: string, bankAccountId?: string): Promise<BankReconciliation[]>;
+  getById(id: string, tenantId: string): Promise<BankReconciliation | null>;
+  create(tenantId: string, data: CreateReconciliationDTO): Promise<BankReconciliation>;
+  getEntries(reconciliationId: string, tenantId: string): Promise<BankStatementEntry[]>;
+  importEntries(reconciliationId: string, tenantId: string, entries: Omit<BankStatementEntry, 'id' | 'tenantId' | 'reconciliationId' | 'matchedTransactionId' | 'status' | 'createdAt'>[]): Promise<number>;
+  matchEntry(entryId: string, tenantId: string, transactionId: string): Promise<BankStatementEntry | null>;
+  ignoreEntry(entryId: string, tenantId: string): Promise<boolean>;
+  autoMatch(reconciliationId: string, tenantId: string): Promise<number>;
+  finalize(id: string, tenantId: string): Promise<BankReconciliation | null>;
+}
+
+export interface IPaymentRuleRepository {
+  list(tenantId: string): Promise<PaymentRule[]>;
+  getById(id: string, tenantId: string): Promise<PaymentRule | null>;
+  create(tenantId: string, data: CreatePaymentRuleDTO): Promise<PaymentRule>;
+  update(id: string, tenantId: string, data: UpdatePaymentRuleDTO): Promise<PaymentRule | null>;
+  remove(id: string, tenantId: string): Promise<boolean>;
+}
+
+export interface IReportRepository {
+  getDRE(tenantId: string, startDate: string, endDate: string, costCenterId?: string): Promise<DREReport>;
+  getAging(tenantId: string, type: 'payable' | 'receivable', referenceDate?: string): Promise<AgingReport>;
+  getCashFlowRealized(tenantId: string, startDate: string, endDate: string, bankAccountId?: string): Promise<CashFlowRealized[]>;
 }
