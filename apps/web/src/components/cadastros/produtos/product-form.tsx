@@ -34,6 +34,7 @@ import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { useCreateProduto, useUpdateProduto, useProdutos } from "@/hooks/use-produtos"
+import type { CreateProductInput } from "@/services/produtos/produtos"
 
 interface Product {
   id: string
@@ -93,12 +94,12 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
 
   // Carrega produtos da API para composição de kits
   const { data: produtosData } = useProdutos({ limit: 200 })
-  const availableProducts = (produtosData?.data || []).map((p: any) => ({
-    id: p.id,
-    sku: p.sku || p.code || "",
-    name: p.name || "Sem nome",
-    price: Number(p.salePrice || p.price || 0),
-    unit: p.unit || "UN",
+  const availableProducts = (produtosData?.data || []).map((p: Record<string, unknown>) => ({
+    id: String(p.id ?? ""),
+    sku: String(p.sku ?? p.code ?? ""),
+    name: String(p.name ?? "Sem nome"),
+    price: Number(p.salePrice ?? p.price ?? 0),
+    unit: String(p.unit ?? "UN"),
   }))
   
   const [formData, setFormData] = useState({
@@ -177,7 +178,7 @@ export function ProductForm({ product, onClose, viewMode = "new" }: ProductFormP
       if (viewMode === "edit" && product?.id) {
         await updateProduto.mutateAsync({ id: product.id, data: payload })
       } else {
-        await createProduto.mutateAsync(payload as any)
+        await createProduto.mutateAsync(payload as CreateProductInput)
       }
       onClose()
     } catch (error) {

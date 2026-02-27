@@ -4,7 +4,7 @@ import { createContext, useContext, useState, ReactNode } from "react"
 export interface ExportData {
   sourceType: "cliente" | "fornecedor" | "parceiro" | "produto"
   targetType: "cliente" | "fornecedor" | "parceiro" | "produto"
-  data: any // Os dados da entidade sendo exportada
+  data: Record<string, unknown> // Os dados da entidade sendo exportada
   tabId?: string // ID da aba de destino
 }
 
