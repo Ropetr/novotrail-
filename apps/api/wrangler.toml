@@ -9,6 +9,7 @@ compatibility_flags = ["nodejs_compat"]
 [[hyperdrive]]
 binding = "HYPERDRIVE"
 id = "05c0084815424cd1ba53a7fe6b1dad82"
+# localConnectionString → definida em .dev.vars via CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE
 
 # ============================================
 # KV Namespaces
