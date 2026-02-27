@@ -54,7 +54,7 @@ export function SalesChart() {
                 color: "hsl(var(--foreground))",
               }}
               labelStyle={{ color: "hsl(var(--foreground))" }}
-              formatter={(value: number, _name: string, props: any) => {
+              formatter={(value: number, _name: string, props: { color?: string }) => {
                 const formatted = new Intl.NumberFormat("pt-BR", {
                   style: "currency",
                   currency: "BRL",

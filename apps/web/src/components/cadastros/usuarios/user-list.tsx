@@ -48,10 +48,10 @@ export function UserList() {
     if (savedFilters) setAvailableFilters(JSON.parse(savedFilters))
   }, [])
 
-  const filteredUsers = users.filter((user: any) => {
+  const filteredUsers = users.filter((user: Record<string, unknown>) => {
     const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.\-/\s()@]/g, "")
     const s = norm(searchTerm)
-    const matchSearch = !searchTerm || norm(user.name || "").includes(s) || norm(user.email || "").includes(s)
+    const matchSearch = !searchTerm || norm(String(user.name ?? "")).includes(s) || norm(String(user.email ?? "")).includes(s)
     const matchRole = roleFilter === "all" || user.role === roleFilter
     const matchStatus = statusFilter === "all" || user.status === statusFilter
     return matchSearch && matchRole && matchStatus
@@ -131,9 +131,9 @@ export function UserList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((user: any, index: number) => {
-                    const status = statusConfig[user.status] || { label: user.status, className: "" }
-                    const role = roleConfig[user.role] || { label: user.role, className: "" }
+                  {filteredUsers.map((user: Record<string, unknown>, index: number) => {
+                    const status = statusConfig[String(user.status ?? "")] || { label: String(user.status ?? ""), className: "" }
+                    const role = roleConfig[String(user.role ?? "")] || { label: String(user.role ?? ""), className: "" }
                     return (
                       <tr key={user.id} className={cn("border-b border-border transition-colors hover:bg-muted/30", index % 2 === 0 ? "bg-card" : "bg-muted/10")}>
                         <td className="px-4 py-3">
