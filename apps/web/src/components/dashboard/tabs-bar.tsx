@@ -339,7 +339,7 @@ export function TabsBar() {
         <div className="fixed inset-x-0 top-10 h-24 bg-green-500/10 border-2 border-dashed border-green-500 z-40 flex items-center justify-center">
           <div className="flex items-center gap-2 text-green-600 font-medium">
             <ExternalLink className="h-5 w-5 rotate-180" />
-            <span>Soltar para reintegrar Ã  janela principal</span>
+            <span>Soltar para reintegrar à janela principal</span>
           </div>
         </div>
       )}

@@ -11,8 +11,25 @@ import { toast } from "sonner"
 import { useCreateParceiro, useUpdateParceiro } from "@/hooks/use-parceiros"
 import type { CreateParceiroInput } from "@/services/cadastros/parceiros"
 
+interface PartnerEntity {
+  id: string
+  name?: string
+  tradeName?: string
+  type?: "pf" | "pj"
+  document?: string
+  email?: string
+  phone?: string
+  cellphone?: string
+  city?: string
+  state?: string
+  commissionRate?: number
+  totalCommission?: number
+  notes?: string
+  status?: "active" | "inactive"
+}
+
 interface PartnerFormProps {
-  partner?: Record<string, unknown>
+  partner?: PartnerEntity | null
   onClose: () => void
   viewMode?: "new" | "edit" | "view"
 }

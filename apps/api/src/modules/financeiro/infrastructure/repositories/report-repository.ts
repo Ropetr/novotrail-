@@ -1,11 +1,11 @@
 import { eq, and, sql, gte, lte, or, ne } from 'drizzle-orm';
-import type { DrizzleDatabase } from '../../../../shared/database/connection';
+import type { DatabaseConnection } from '../../../../shared/database/connection';
 import { financialTitles, financialTransactions, chartOfAccounts } from '../schema';
 import type { IReportRepository } from '../../domain/repositories';
 import type { DREReport, DRELine, AgingReport, AgingBucket, CashFlowRealized } from '../../domain/entities';
 
 export class ReportRepository implements IReportRepository {
-  constructor(private db: DrizzleDatabase) {}
+  constructor(private db: DatabaseConnection) {}
 
   async getDRE(tenantId: string, startDate: string, endDate: string, costCenterId?: string): Promise<DREReport> {
     // Get settled titles in the period grouped by chart of account type

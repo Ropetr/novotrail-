@@ -10,7 +10,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 
-interface ReceivableFormProps { receivable?: any; onClose: () => void; viewMode?: "new" | "edit" | "view" }
+interface ReceivableEntity {
+  id: string
+  code: string
+  client: string
+  description: string
+  origin: string
+  dueDate: string
+  value: number
+  receivedValue: number
+  status: "pending" | "received" | "overdue" | "partial" | "cancelled"
+  paymentMethod?: string
+  receivedAt?: string
+  saleCode?: string
+}
+
+interface ReceivableFormProps { receivable?: ReceivableEntity | null; onClose: () => void; viewMode?: "new" | "edit" | "view" }
 
 export function ReceivableForm({ receivable, onClose, viewMode = "new" }: ReceivableFormProps) {
   const [isSaving, setIsSaving] = useState(false)

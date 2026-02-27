@@ -1,11 +1,11 @@
 import { eq, and, sql, between } from 'drizzle-orm';
-import type { DrizzleDatabase } from '../../../../shared/database/connection';
+import type { DatabaseConnection } from '../../../../shared/database/connection';
 import { bankReconciliations, bankStatementEntries, financialTransactions } from '../schema';
 import type { IReconciliationRepository } from '../../domain/repositories';
 import type { BankReconciliation, BankStatementEntry, CreateReconciliationDTO } from '../../domain/entities';
 
 export class ReconciliationRepository implements IReconciliationRepository {
-  constructor(private db: DrizzleDatabase) {}
+  constructor(private db: DatabaseConnection) {}
 
   async list(tenantId: string, bankAccountId?: string): Promise<BankReconciliation[]> {
     const conditions = [eq(bankReconciliations.tenantId, tenantId)];

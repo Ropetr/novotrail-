@@ -26,8 +26,28 @@ import { toast } from "sonner"
 import { useCreateCliente, useUpdateCliente } from "@/hooks/use-clientes"
 import type { CreateClientInput } from "@/services/cadastros/clientes"
 
+interface ClientEntity {
+  id: string
+  code?: string
+  name: string
+  tradeName?: string
+  type?: "pf" | "pj"
+  document?: string
+  rg?: string
+  stateRegistration?: string
+  email?: string
+  phone?: string
+  cellphone?: string
+  city?: string
+  state?: string
+  status?: "active" | "inactive" | "blocked"
+  creditLimit?: number
+  balance?: number
+  notes?: string
+}
+
 interface ClientFormProps {
-  client?: Record<string, unknown>
+  client?: ClientEntity | null
   onClose: () => void
   viewMode?: "new" | "edit" | "view"
 }

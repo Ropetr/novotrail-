@@ -20,8 +20,56 @@ import { toast } from "sonner"
 import { useCreateColaborador, useUpdateColaborador } from "@/hooks/use-colaboradores"
 import type { CreateColaboradorInput } from "@/services/cadastros/colaboradores"
 
+interface EmployeeEntity {
+  id?: string
+  code?: string
+  name?: string
+  cpf?: string
+  email?: string
+  phone?: string
+  cellphone?: string
+  position?: string
+  department?: string
+  admissionDate?: string
+  contractType?: string
+  status?: string
+  salary?: string | number
+  workSchedule?: string
+  manager?: string
+  birthDate?: string
+  birthPlace?: string
+  gender?: string
+  maritalStatus?: string
+  nationality?: string
+  rg?: string
+  rgIssuer?: string
+  voterRegistration?: string
+  militaryService?: string
+  ctps?: string
+  ctpsSeries?: string
+  ctpsUf?: string
+  pis?: string
+  bankAccount?: string
+  street?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  reference?: string
+  mealVoucher?: number
+  transportVoucher?: number
+  healthInsurance?: string
+  dentalInsurance?: string
+  emergencyContact?: string
+  emergencyPhone?: string
+  skills?: string
+  notes?: string
+}
+
 interface EmployeeFormProps {
-  employee?: Record<string, unknown>
+  employee?: EmployeeEntity | null
   onClose: () => void
   viewMode?: "new" | "edit" | "view"
 }

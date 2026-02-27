@@ -22,8 +22,32 @@ import { toast } from "sonner"
 import { useCreateFornecedor, useUpdateFornecedor } from "@/hooks/use-fornecedores"
 import type { CreateFornecedorInput } from "@/services/cadastros/fornecedores"
 
+interface SupplierEntity {
+  id: string
+  name?: string
+  tradeName?: string
+  document?: string
+  stateRegistration?: string
+  email?: string
+  phone?: string
+  cellphone?: string
+  zipCode?: string
+  address?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
+  paymentTerms?: string
+  notes?: string
+  status?: "active" | "inactive" | "pending"
+  category?: string
+  balance?: number
+  deliveryDays?: number
+}
+
 interface SupplierFormProps {
-  supplier?: Record<string, unknown>
+  supplier?: SupplierEntity | null
   onClose: () => void
   viewMode?: "new" | "edit" | "view"
 }

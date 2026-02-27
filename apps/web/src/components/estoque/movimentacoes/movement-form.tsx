@@ -9,7 +9,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 
-interface MovementFormProps { movement?: any; onClose: () => void; viewMode?: "new" | "view" }
+interface MovementEntity {
+  id: string
+  code: string
+  type: string
+  product: string
+  productCode: string
+  quantity: number
+  unit: string
+  warehouse: string
+  reason: string
+  date: string
+  user: string
+  nfNumber?: string
+}
+
+interface MovementFormProps { movement?: MovementEntity | null; onClose: () => void; viewMode?: "new" | "view" }
 export function MovementForm({ movement, onClose, viewMode = "new" }: MovementFormProps) {
   const [isSaving, setIsSaving] = useState(false)
   const isViewOnly = viewMode === "view"
