@@ -2,10 +2,6 @@
 
 import React, { createContext, useContext, useState, useCallback, useRef, useMemo } from "react"
 
-// Helper condicional para logs em desenvolvimento - Issue #2: Remover console.logs de produção
-const isDev = process.env.NODE_ENV === 'development'
-const log = (...args: any[]) => isDev && console.log(...args)
-
 export interface Tab {
   id: string
   title: string
@@ -50,11 +46,8 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
   const tabsRef = useRef(tabs)
   tabsRef.current = tabs
 
-  log("[v0] TabsProvider render - tabs:", tabs.map(t => t.title), "activeTabId:", activeTabId)
-
   const addTab = useCallback((tab: Omit<Tab, "id">) => {
     const currentTabs = tabsRef.current
-    log("[v0] addTab called - title:", tab.title, "href:", tab.href, "type:", tab.type, "entityId:", tab.entityId, "allowDuplicates:", tab.allowDuplicates, "currentTabs:", currentTabs.map(t => t.title))
 
     // Se allowDuplicates for true, sempre cria nova aba
     if (tab.allowDuplicates) {
@@ -76,8 +69,6 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
         closable: tab.closable !== false,
       }
 
-      log("[v0] addTab - creating duplicate tab:", newTab.id, newTab.title)
-
       setTabs((prev) => {
         // Limita a 10 abas
         if (prev.length >= 10) {
@@ -86,9 +77,7 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
             prev = prev.filter((t) => t.id !== tabToRemove.id)
           }
         }
-        const newTabs = [...prev, newTab]
-        log("[v0] setTabs - new tabs array:", newTabs.map(t => t.title))
-        return newTabs
+        return [...prev, newTab]
       })
       setActiveTabId(newId)
       return newId
@@ -102,7 +91,6 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
       // Verifica se já existe uma aba com o mesmo type+entityId
       const existingTab = currentTabs.find((t) => t.id === newId)
       if (existingTab) {
-        log("[v0] addTab - tab already exists (by type+entityId), activating:", existingTab.id)
         setActiveTabId(existingTab.id)
         return existingTab.id
       }
@@ -110,7 +98,6 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
       // Para abas sem type/entityId (como Dashboard), verifica por href
       const existingTab = currentTabs.find((t) => t.href === tab.href && !t.type)
       if (existingTab) {
-        log("[v0] addTab - tab already exists (by href), activating:", existingTab.id)
         setActiveTabId(existingTab.id)
         return existingTab.id
       }
@@ -123,8 +110,6 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
       id: newId,
       closable: tab.closable !== false,
     }
-    log("[v0] addTab - creating new tab:", newTab.id, newTab.title)
-
     setTabs((prev) => {
       // Limita a 10 abas
       if (prev.length >= 10) {
@@ -133,9 +118,7 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
           prev = prev.filter((t) => t.id !== tabToRemove.id)
         }
       }
-      const newTabs = [...prev, newTab]
-      log("[v0] setTabs - new tabs array:", newTabs.map(t => t.title))
-      return newTabs
+      return [...prev, newTab]
     })
     setActiveTabId(newId)
     return newId

@@ -2,6 +2,7 @@ import { pgTable, uuid, varchar, text, timestamp, integer, boolean, real, unique
 import { tenants } from '../../tenant/infrastructure/schema';
 import { users } from '../../auth/infrastructure/schema';
 import { clients } from '../../cadastros/infrastructure/schema';
+import { crmOpportunities } from '../../crm/infrastructure/schema';
 
 // ============================================================
 // DOMÍNIO: CANAIS E CONFIGURAÇÃO
@@ -56,7 +57,7 @@ export const contacts = pgTable('omni_contacts', {
     .notNull()
     .references(() => tenants.id, { onDelete: 'cascade' }),
   erpCustomerId: uuid('erp_customer_id')
-    .references(() => clients.id),
+    .references(() => clients.id, { onDelete: 'set null' }),
   name: varchar('name', { length: 255 }),
   phone: varchar('phone', { length: 30 }),
   email: varchar('email', { length: 255 }),
@@ -131,7 +132,8 @@ export const conversations = pgTable('omni_conversations', {
     .references(() => queues.id),
   assignedTo: uuid('assigned_to'),
   // Integração com CRM existente (Módulo 13)
-  crmOpportunityId: uuid('crm_opportunity_id'),
+  crmOpportunityId: uuid('crm_opportunity_id')
+    .references(() => crmOpportunities.id),
   status: text('status', { enum: ['open', 'waiting', 'ai_handling', 'assigned', 'resolved', 'closed'] }).notNull().default('open'),
   priority: text('priority', { enum: ['urgent', 'high', 'normal', 'low'] }).notNull().default('normal'),
   subject: varchar('subject', { length: 255 }),

@@ -1,5 +1,6 @@
 import { pgTable, uuid, varchar, text, timestamp, numeric, boolean, integer, date } from 'drizzle-orm/pg-core';
 import { tenants } from '../../tenant/infrastructure/schema';
+import { users } from '../../auth/infrastructure/schema';
 import { products } from '../../produtos/infrastructure/schema';
 
 // ==================== Warehouses (Depósitos) ====================
@@ -81,7 +82,9 @@ export const stockMovements = pgTable('stock_movements', {
   reason: text('reason'),
   batchId: uuid('batch_id'),
   serialId: uuid('serial_id'),
-  userId: uuid('user_id').notNull(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -237,7 +240,9 @@ export const productionOrders = pgTable('production_orders', {
   notes: text('notes'),
   startedAt: timestamp('started_at', { withTimezone: true }),
   finishedAt: timestamp('finished_at', { withTimezone: true }),
-  userId: uuid('user_id').notNull(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

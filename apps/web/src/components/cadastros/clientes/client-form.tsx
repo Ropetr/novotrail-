@@ -24,9 +24,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { useCreateCliente, useUpdateCliente } from "@/hooks/use-clientes"
+import type { CreateClientInput } from "@/services/cadastros/clientes"
 
 interface ClientFormProps {
-  client?: any
+  client?: Record<string, unknown>
   onClose: () => void
   viewMode?: "new" | "edit" | "view"
 }
@@ -214,10 +215,10 @@ export function ClientForm({ client, onClose, viewMode = "new" }: ClientFormProp
       if (isEditing && client?.id) {
         await updateCliente.mutateAsync({ id: client.id, data: payload })
       } else {
-        await createCliente.mutateAsync(payload as any)
+        await createCliente.mutateAsync(payload as CreateClientInput)
       }
       onClose()
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao salvar cliente:", error)
       // toast já é disparado pelo hook
     } finally {

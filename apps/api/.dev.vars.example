@@ -1,3 +1,9 @@
 # Neon PostgreSQL (via Hyperdrive em produção)
 DATABASE_URL=postgresql://neondb_owner:YOUR_PASSWORD@ep-YOUR-ENDPOINT.sa-east-1.aws.neon.tech/neondb?sslmode=require
+
+# Autenticação JWT
 JWT_SECRET=your-jwt-secret-change-in-production
+
+# Nuvem Fiscal - Sandbox
+NUVEM_FISCAL_CLIENT_ID=your-nuvem-fiscal-client-id
+NUVEM_FISCAL_CLIENT_SECRET=your-nuvem-fiscal-client-secret

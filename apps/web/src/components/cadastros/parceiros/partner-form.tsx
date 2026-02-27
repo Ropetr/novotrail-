@@ -9,9 +9,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { useCreateParceiro, useUpdateParceiro } from "@/hooks/use-parceiros"
+import type { CreateParceiroInput } from "@/services/cadastros/parceiros"
 
 interface PartnerFormProps {
-  partner?: any
+  partner?: Record<string, unknown>
   onClose: () => void
   viewMode?: "new" | "edit" | "view"
 }
@@ -51,10 +52,10 @@ export function PartnerForm({ partner, onClose, viewMode = "new" }: PartnerFormP
       if (isEditing && partner?.id) {
         await updateParceiro.mutateAsync({ id: partner.id, data: { commissionRate, notes: getVal("notes") || undefined } })
       } else {
-        await createParceiro.mutateAsync(payload as any)
+        await createParceiro.mutateAsync(payload as CreateParceiroInput)
       }
       onClose()
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao salvar parceiro:", error)
     } finally {
       setIsSaving(false)

@@ -18,9 +18,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { InputPhone } from "@/components/ui/input-phone"
 import { toast } from "sonner"
 import { useCreateColaborador, useUpdateColaborador } from "@/hooks/use-colaboradores"
+import type { CreateColaboradorInput } from "@/services/cadastros/colaboradores"
 
 interface EmployeeFormProps {
-  employee?: any
+  employee?: Record<string, unknown>
   onClose: () => void
   viewMode?: "new" | "edit" | "view"
 }
@@ -72,7 +73,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
       if (isEditing && employee?.id) {
         await updateColaborador.mutateAsync({ id: employee.id, data: payload })
       } else {
-        await createColaborador.mutateAsync(payload as any)
+        await createColaborador.mutateAsync(payload as CreateColaboradorInput)
       }
       onClose()
     } catch (error) {
@@ -102,7 +103,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
           </TabsTrigger>
           <TabsTrigger value="notes" className="gap-2">
             <MessageSquare className="h-4 w-4" />
-            Observações
+            Observaï¿½ï¿½es
           </TabsTrigger>
         </TabsList>
           <div className="flex items-center gap-2 self-end">
@@ -134,13 +135,13 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
         <TabsContent value="personal" className="space-y-3">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Identificação</CardTitle>
+              <CardTitle className="text-lg">Identificaï¿½ï¿½o</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {/* Linha 1: Código, Nome Completo */}
+              {/* Linha 1: Cï¿½digo, Nome Completo */}
               <div className="grid grid-cols-6 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="code">Código</Label>
+                  <Label htmlFor="code">Cï¿½digo</Label>
                   <Input
                     id="code"
                     placeholder="Auto"
@@ -193,8 +194,8 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                       <SelectItem value="single">Solteiro(a)</SelectItem>
                       <SelectItem value="married">Casado(a)</SelectItem>
                       <SelectItem value="divorced">Divorciado(a)</SelectItem>
-                      <SelectItem value="widowed">Viúvo(a)</SelectItem>
-                      <SelectItem value="stable_union">União Estável</SelectItem>
+                      <SelectItem value="widowed">Viï¿½vo(a)</SelectItem>
+                      <SelectItem value="stable_union">Uniï¿½o Estï¿½vel</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -264,7 +265,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Endereço</CardTitle>
+              <CardTitle className="text-lg">Endereï¿½o</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-4 gap-3">
@@ -287,10 +288,10 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="number">Número</Label>
+                  <Label htmlFor="number">Nï¿½mero</Label>
                   <Input
                     id="number"
-                    placeholder="Nº"
+                    placeholder="Nï¿½"
                     defaultValue={employee?.number}
                     disabled={isViewOnly}
                   />
@@ -316,10 +317,10 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reference">Referência</Label>
+                  <Label htmlFor="reference">Referï¿½ncia</Label>
                   <Input
                     id="reference"
-                    placeholder="Ponto de referência"
+                    placeholder="Ponto de referï¿½ncia"
                     defaultValue={employee?.reference}
                     disabled={isViewOnly}
                   />
@@ -404,7 +405,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="rgIssuer">Órgão Emissor</Label>
+                  <Label htmlFor="rgIssuer">ï¿½rgï¿½o Emissor</Label>
                   <Input
                     id="rgIssuer"
                     placeholder="SSP/UF"
@@ -415,7 +416,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="voterRegistration">Título de Eleitor</Label>
+                  <Label htmlFor="voterRegistration">Tï¿½tulo de Eleitor</Label>
                   <Input
                     id="voterRegistration"
                     placeholder="0000 0000 0000"
@@ -443,7 +444,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
             <CardContent className="space-y-3">
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="ctps">CTPS (Número)</Label>
+                  <Label htmlFor="ctps">CTPS (Nï¿½mero)</Label>
                   <Input
                     id="ctps"
                     placeholder="0000000"
@@ -452,7 +453,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="ctpsSeries">CTPS (Série)</Label>
+                  <Label htmlFor="ctpsSeries">CTPS (Sï¿½rie)</Label>
                   <Input
                     id="ctpsSeries"
                     placeholder="0000"
@@ -471,7 +472,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                       <SelectItem value="SP">SP</SelectItem>
                       <SelectItem value="RJ">RJ</SelectItem>
                       <SelectItem value="MG">MG</SelectItem>
-                      {/* Adicionar outros estados conforme necessário */}
+                      {/* Adicionar outros estados conforme necessï¿½rio */}
                     </SelectContent>
                   </Select>
                 </div>
@@ -487,10 +488,10 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="bankAccount">Conta Bancária (Salário)</Label>
+                  <Label htmlFor="bankAccount">Conta Bancï¿½ria (Salï¿½rio)</Label>
                   <Input
                     id="bankAccount"
-                    placeholder="Banco - Agência - Conta"
+                    placeholder="Banco - Agï¿½ncia - Conta"
                     defaultValue={employee?.bankAccount}
                     disabled={isViewOnly}
                   />
@@ -509,7 +510,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
             <CardContent className="space-y-3">
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="admissionDate">Data de Admissão *</Label>
+                  <Label htmlFor="admissionDate">Data de Admissï¿½o *</Label>
                   <Input
                     id="admissionDate"
                     type="date"
@@ -526,8 +527,8 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                     <SelectContent>
                       <SelectItem value="CLT">CLT</SelectItem>
                       <SelectItem value="PJ">PJ</SelectItem>
-                      <SelectItem value="Estagio">Estágio</SelectItem>
-                      <SelectItem value="Temporario">Temporário</SelectItem>
+                      <SelectItem value="Estagio">Estï¿½gio</SelectItem>
+                      <SelectItem value="Temporario">Temporï¿½rio</SelectItem>
                       <SelectItem value="Aprendiz">Aprendiz</SelectItem>
                     </SelectContent>
                   </Select>
@@ -540,7 +541,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ativo">Ativo</SelectItem>
-                      <SelectItem value="ferias">Férias</SelectItem>
+                      <SelectItem value="ferias">Fï¿½rias</SelectItem>
                       <SelectItem value="afastado">Afastado</SelectItem>
                       <SelectItem value="desligado">Desligado</SelectItem>
                     </SelectContent>
@@ -574,7 +575,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                     <SelectContent>
                       <SelectItem value="Comercial">Comercial</SelectItem>
                       <SelectItem value="Financeiro">Financeiro</SelectItem>
-                      <SelectItem value="Logística">Logística</SelectItem>
+                      <SelectItem value="Logï¿½stica">Logï¿½stica</SelectItem>
                       <SelectItem value="Administrativo">Administrativo</SelectItem>
                       <SelectItem value="TI">TI</SelectItem>
                       <SelectItem value="Recursos Humanos">Recursos Humanos</SelectItem>
@@ -585,7 +586,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="salary">Salário</Label>
+                  <Label htmlFor="salary">Salï¿½rio</Label>
                   <Input
                     id="salary"
                     type="number"
@@ -628,12 +629,12 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Benefícios</CardTitle>
+              <CardTitle className="text-lg">Benefï¿½cios</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="mealVoucher">Vale Refeição (R$/dia)</Label>
+                  <Label htmlFor="mealVoucher">Vale Refeiï¿½ï¿½o (R$/dia)</Label>
                   <Input
                     id="mealVoucher"
                     type="number"
@@ -657,27 +658,27 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="healthInsurance">Plano de Saúde</Label>
+                  <Label htmlFor="healthInsurance">Plano de Saï¿½de</Label>
                   <Select defaultValue={employee?.healthInsurance} disabled={isViewOnly}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">Não possui</SelectItem>
-                      <SelectItem value="basic">Básico</SelectItem>
-                      <SelectItem value="standard">Padrão</SelectItem>
+                      <SelectItem value="none">Nï¿½o possui</SelectItem>
+                      <SelectItem value="basic">Bï¿½sico</SelectItem>
+                      <SelectItem value="standard">Padrï¿½o</SelectItem>
                       <SelectItem value="premium">Premium</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="dentalInsurance">Plano Odontológico</Label>
+                  <Label htmlFor="dentalInsurance">Plano Odontolï¿½gico</Label>
                   <Select defaultValue={employee?.dentalInsurance} disabled={isViewOnly}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">Não possui</SelectItem>
+                      <SelectItem value="none">Nï¿½o possui</SelectItem>
                       <SelectItem value="yes">Sim</SelectItem>
                     </SelectContent>
                   </Select>
@@ -691,21 +692,21 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
         <TabsContent value="notes" className="space-y-3">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Observações e Informações Adicionais</CardTitle>
+              <CardTitle className="text-lg">Observaï¿½ï¿½es e Informaï¿½ï¿½es Adicionais</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
-                <Label htmlFor="notes">Observações Gerais</Label>
+                <Label htmlFor="notes">Observaï¿½ï¿½es Gerais</Label>
                 <Textarea
                   id="notes"
-                  placeholder="Informações adicionais sobre o colaborador..."
+                  placeholder="Informaï¿½ï¿½es adicionais sobre o colaborador..."
                   rows={5}
                   defaultValue={employee?.notes}
                   disabled={isViewOnly}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="skills">Habilidades e Competências</Label>
+                <Label htmlFor="skills">Habilidades e Competï¿½ncias</Label>
                 <Textarea
                   id="skills"
                   placeholder="Liste as principais habilidades do colaborador..."
@@ -716,7 +717,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="emergencyContact">Contato de Emergência</Label>
+                  <Label htmlFor="emergencyContact">Contato de Emergï¿½ncia</Label>
                   <Input
                     id="emergencyContact"
                     placeholder="Nome do contato"
@@ -725,7 +726,7 @@ export function EmployeeForm({ employee, onClose, viewMode = "new" }: EmployeeFo
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="emergencyPhone">Telefone de Emergência</Label>
+                  <Label htmlFor="emergencyPhone">Telefone de Emergï¿½ncia</Label>
                   <Input
                     id="emergencyPhone"
                     placeholder="(00) 00000-0000"

@@ -293,10 +293,8 @@ export default function AtendimentoPage() {
     )
   }
 
-  const handleSendMessage = (message: string) => {
-    console.log("Sending message:", message)
+  const handleSendMessage = (_message: string) => {
     // Aqui você implementaria a lógica de envio real
-    // Por enquanto, só logamos
   }
 
   return (
@@ -326,10 +324,10 @@ export default function AtendimentoPage() {
         <InfoPanel
           clientInfo={selectedConversationId ? mockClientInfo[selectedConversationId] : null}
           activities={selectedConversationId ? mockActivities[selectedConversationId] || [] : []}
-          onCreateQuote={() => console.log("Criar orçamento")}
-          onCreateSale={() => console.log("Criar venda")}
-          onScheduleFollowup={() => console.log("Agendar follow-up")}
-          onAddNote={() => console.log("Adicionar nota")}
+          onCreateQuote={() => undefined}
+          onCreateSale={() => undefined}
+          onScheduleFollowup={() => undefined}
+          onAddNote={() => undefined}
         />
       </div>
     </div>

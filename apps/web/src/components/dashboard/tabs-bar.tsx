@@ -4,7 +4,7 @@ import React from "react"
 
 import { X, ExternalLink } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { useTabs } from "@/contexts/tabs-context"
+import { useTabs, Tab } from "@/contexts/tabs-context"
 import { cn } from "@/lib/utils"
 import {
   DndContext,
@@ -25,11 +25,6 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 
-// Issue #2: Helper condicional para logs em desenvolvimento
-const isDev = process.env.NODE_ENV === "development"
-const log = (...args: any[]) => isDev && console.log(...args)
-
-
 // Zona de detecÃ§Ã£o para reintegrar aba (pixels abaixo da barra de abas em janela destacada)
 const REINTEGRATE_ZONE_HEIGHT = 100
 
@@ -46,7 +41,7 @@ function SortableTab({
   onCloseTab,
   setTabRef,
 }: {
-  tab: any
+  tab: Tab
   isActive: boolean
   onTabClick: (tabId: string, href: string) => void
   onCloseTab: (e: React.MouseEvent, tabId: string) => void
@@ -194,26 +189,10 @@ export function TabsBar() {
       // Em janela destacada: verifica se estÃ¡ ABAIXO da barra (para reintegrar)
       const isBelowReintegrateZone =
         mouseY > rect.bottom && mouseY < rect.bottom + REINTEGRATE_ZONE_HEIGHT
-      console.log(
-        "[ReintegrateZone] mouseY:",
-        mouseY,
-        "rect.bottom:",
-        rect.bottom,
-        "isBelowZone:",
-        isBelowReintegrateZone
-      )
       setIsOverReintegrateZone(isBelowReintegrateZone)
     } else {
       // Em janela normal: verifica se estÃ¡ ACIMA da barra (para destacar)
       const isAboveDropZone = mouseY < rect.top
-      console.log(
-        "[DropZone] mouseY:",
-        mouseY,
-        "rect.top:",
-        rect.top,
-        "isAboveDropZone:",
-        isAboveDropZone
-      )
       setIsOverDropZone(isAboveDropZone)
     }
   }, [activeId, mouseY, isDetached])
@@ -239,9 +218,6 @@ export function TabsBar() {
       if (event.origin !== window.location.origin) return
 
       if (event.data.type === "REINTEGRATE_TAB") {
-        console.log("[PostMessage] Recebendo aba para reintegrar:", event.data.tab)
-
-        // Adiciona a aba de volta Ã  janela principal
         addTab(event.data.tab)
       }
     }
@@ -260,8 +236,6 @@ export function TabsBar() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   )
-
-  log("[v0] TabsBar render - tabs:", tabs.map((t) => t.title), "activeTabId:", activeTabId)
 
   const handleTabClick = (tabId: string, href: string) => {
     setActiveTab(tabId)
@@ -299,9 +273,6 @@ export function TabsBar() {
     if (isDetached && isOverReintegrateZone && activeId) {
       const tabToReintegrate = tabs.find((tab) => tab.id === activeId)
       if (tabToReintegrate && window.opener) {
-        console.log("[DragEnd] Reintegrando aba para janela principal")
-        console.log("[DragEnd] Tab:", tabToReintegrate.title)
-
         // Envia mensagem para janela principal para reintegrar a aba
         window.opener.postMessage(
           {
@@ -328,11 +299,6 @@ export function TabsBar() {
       const tabToDetach = tabs.find((tab) => tab.id === activeId)
       if (tabToDetach) {
         const targetUrl = `${window.location.origin}${tabToDetach.href}`
-
-        console.log("[DragEnd] Abrindo aba em nova janela")
-        console.log("[DragEnd] Tab:", tabToDetach.title)
-        console.log("[DragEnd] Target URL:", targetUrl)
-        console.log("[DragEnd] Token no localStorage:", !!localStorage.getItem("erp_auth_token"))
 
         // Abre nova janela com a rota da aba
         const newWindow = window.open(targetUrl, "_blank", "width=1200,height=800")

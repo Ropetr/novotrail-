@@ -32,8 +32,14 @@ export async function seed(db: any) {
   }
 
   // Create demo users
-  const adminPasswordHash = await bcrypt.hash('admin123', 10);
-  const demoPasswordHash = await bcrypt.hash('123456', 10);
+  // SEGURANCA: senhas de seed devem ser alteradas apos primeiro login em producao
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+  const demoPassword = process.env.SEED_DEMO_PASSWORD || '123456';
+  if (!process.env.SEED_ADMIN_PASSWORD || !process.env.SEED_DEMO_PASSWORD) {
+    console.warn('[WARN] Usando senhas padrao de seed. Defina SEED_ADMIN_PASSWORD e SEED_DEMO_PASSWORD em producao.');
+  }
+  const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
+  const demoPasswordHash = await bcrypt.hash(demoPassword, 10);
 
   const usersToEnsure = [
     {

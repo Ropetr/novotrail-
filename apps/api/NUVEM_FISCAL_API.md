@@ -392,20 +392,22 @@ Todos os endpoints retornam erros no formato:
 
 ## Variáveis de Ambiente
 
-Configure no `wrangler.toml` ou `.env`:
+Configure via `.dev.vars` (local) ou `wrangler secret put` (producao). **NUNCA** coloque credenciais no `wrangler.toml`:
 
 ```toml
 # Nuvem Fiscal - SANDBOX
-NUVEM_FISCAL_CLIENT_ID = "r1QOKi55XgwNI3oHVoyH"
-NUVEM_FISCAL_CLIENT_SECRET = "9jsQ8Ii9wMdZFZ4KX0YAycKqGryP6ho1ZFJqj9Cu"
+# Credenciais configuradas via .dev.vars (local) ou wrangler secret put (producao)
+NUVEM_FISCAL_CLIENT_ID = "<DEFINIDO_VIA_ENV>"
+NUVEM_FISCAL_CLIENT_SECRET = "<DEFINIDO_VIA_ENV>"
 NUVEM_FISCAL_API_URL = "https://api-sandbox.nuvemfiscal.com.br"
 NUVEM_FISCAL_TOKEN_URL = "https://api-sandbox.nuvemfiscal.com.br/oauth/token"
 ```
 
 Para **PRODUÇÃO**, altere para:
 ```toml
-NUVEM_FISCAL_CLIENT_ID = "Wj2Ij3NZOZcUPHjTvtpA"
-NUVEM_FISCAL_CLIENT_SECRET = "IRji37MTWZrF1M7OSgemmPYXX0syiwqvNmZVlyDF"
+# Credenciais de producao configuradas via wrangler secret put
+NUVEM_FISCAL_CLIENT_ID = "<CONFIGURADO_NO_CLOUDFLARE_DASHBOARD>"
+NUVEM_FISCAL_CLIENT_SECRET = "<CONFIGURADO_NO_CLOUDFLARE_DASHBOARD>"
 NUVEM_FISCAL_API_URL = "https://api.nuvemfiscal.com.br"
 NUVEM_FISCAL_TOKEN_URL = "https://api.nuvemfiscal.com.br/oauth/token"
 ```

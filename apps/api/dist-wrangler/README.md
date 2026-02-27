@@ -1,1 +1,0 @@
-This folder contains the built output assets for the worker "novotrail-api" generated at 2026-02-26T14:09:31.074Z.

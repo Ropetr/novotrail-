@@ -63,9 +63,7 @@ export default function RegisterPage() {
 
     try {
       // Registra usuário e salva token automaticamente
-      const response = await register(name.trim(), email.trim(), password)
-
-      console.log("[Register] Sucesso:", response)
+      await register(name.trim(), email.trim(), password)
 
       setSuccess(true)
 
@@ -73,9 +71,9 @@ export default function RegisterPage() {
       setTimeout(() => {
         navigate("/dashboard", { replace: true })
       }, 1500)
-    } catch (err: any) {
-      console.error("[Register] Erro:", err)
-      setError(err.message || "Erro ao criar conta. Tente novamente.")
+    } catch (err) {
+      const error = err as { message?: string }
+      setError(error?.message || "Erro ao criar conta. Tente novamente.")
     } finally {
       setLoading(false)
     }
