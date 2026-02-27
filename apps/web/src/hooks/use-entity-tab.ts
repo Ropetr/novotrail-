@@ -33,13 +33,6 @@ export function useEntityTab() {
       // Constrói o href baseado no tipo e ID
       const href = basePath ? `${basePath}/${entityId}` : `/${type}/${entityId}`
 
-      console.log("[useEntityTab] Opening entity tab:", {
-        type,
-        entityId,
-        title,
-        href,
-      })
-
       // Adiciona a aba com type e entityId para ID único
       const tabId = addTab({
         title,
@@ -48,8 +41,6 @@ export function useEntityTab() {
         entityId,
         closable: true,
       })
-
-      console.log("[useEntityTab] Tab created/activated:", tabId)
 
       // Navega para a rota
       navigate(href)

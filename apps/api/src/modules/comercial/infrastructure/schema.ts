@@ -3,6 +3,7 @@ import { tenants } from '../../tenant/infrastructure/schema';
 import { clients } from '../../cadastros/infrastructure/schema';
 import { employees } from '../../cadastros/infrastructure/schema';
 import { products } from '../../produtos/infrastructure/schema';
+import { users } from '../../auth/infrastructure/schema';
 
 // ==================== Quotes (Orçamentos) ====================
 export const quotes = pgTable('quotes', {
@@ -221,7 +222,8 @@ export const clientCreditMovements = pgTable('client_credit_movements', {
   amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
   saleId: uuid('sale_id').references(() => sales.id),
   deliveryId: uuid('delivery_id').references(() => saleDeliveries.id),
-  userId: uuid('user_id'),
+  userId: uuid('user_id')
+    .references(() => users.id),
   notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -245,7 +247,8 @@ export const returns = pgTable('returns', {
     .default('pending'),
   reason: text('reason'),
   refundType: text('refund_type', { enum: ['money', 'credit', 'decide_later'] }),
-  creditGeneratedId: uuid('credit_generated_id'),
+  creditGeneratedId: uuid('credit_generated_id')
+    .references(() => clientCredits.id),
   subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
   total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
   notes: text('notes'),

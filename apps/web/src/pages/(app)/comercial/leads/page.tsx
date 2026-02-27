@@ -14,6 +14,7 @@ import {
   usePipelineStages,
   useSeedPipelineStages,
 } from "@/hooks/use-crm"
+import type { PipelineStage, Opportunity } from "@/services/crm"
 
 const sourceLabels: Record<string, string> = {
   whatsapp: "WhatsApp",
@@ -87,7 +88,7 @@ export default function LeadsPage() {
   }
 
   const isLoading = stagesLoading || oppsLoading
-  const stageMap = new Map(stages.map((s: any) => [s.id, s]))
+  const stageMap = new Map((stages as PipelineStage[]).map((s) => [s.id, s]))
 
   return (
     <div className="space-y-4 p-1">
@@ -172,8 +173,8 @@ export default function LeadsPage() {
       {/* Leads List */}
       {!isLoading && (
         <div className="space-y-2">
-          {opportunities.map((opp: any) => {
-            const stage = stageMap.get(opp.stageId) as any
+          {(opportunities as Opportunity[]).map((opp) => {
+            const stage = stageMap.get(opp.stageId)
             const daysOpen = Math.floor(
               (Date.now() - new Date(opp.createdAt).getTime()) / (1000 * 60 * 60 * 24)
             )

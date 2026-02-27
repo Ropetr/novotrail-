@@ -1,11 +1,11 @@
 import { eq, and, sql } from 'drizzle-orm';
-import type { DrizzleDatabase } from '../../../../shared/database/connection';
+import type { DatabaseConnection } from '../../../../shared/database/connection';
 import { paymentRules } from '../schema';
 import type { IPaymentRuleRepository } from '../../domain/repositories';
 import type { PaymentRule, CreatePaymentRuleDTO, UpdatePaymentRuleDTO } from '../../domain/entities';
 
 export class PaymentRuleRepository implements IPaymentRuleRepository {
-  constructor(private db: DrizzleDatabase) {}
+  constructor(private db: DatabaseConnection) {}
 
   async list(tenantId: string): Promise<PaymentRule[]> {
     const rows = await this.db.select().from(paymentRules)

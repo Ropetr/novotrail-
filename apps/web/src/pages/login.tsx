@@ -34,20 +34,18 @@ export default function LoginPage() {
 
     try {
       // Faz login e salva token automaticamente
-      const response = await login(email, password)
-
-      console.log("[Login] Sucesso:", response)
+      await login(email, password)
 
       // Redireciona para dashboard
       navigate("/dashboard", { replace: true })
-    } catch (err: any) {
-      console.error("[Login] Erro:", err)
-      if (err?.error === "NETWORK_ERROR") {
+    } catch (err) {
+      const error = err as { error?: string; message?: string }
+      if (error?.error === "NETWORK_ERROR") {
         setError(
           "Não foi possível conectar ao servidor. Tente novamente em alguns instantes."
         )
       } else {
-        setError(err.message || "Erro ao fazer login. Verifique suas credenciais.")
+        setError(error?.message || "Erro ao fazer login. Verifique suas credenciais.")
       }
     } finally {
       setLoading(false)
@@ -149,16 +147,18 @@ export default function LoginPage() {
             </div>
           </form>
 
-          {/* Informações de Demo (opcional, remover em produção) */}
-          <div className="mt-6 pt-6 border-t border-border">
-            <p className="text-xs text-center text-muted-foreground mb-2">
-              Conta de demonstração:
-            </p>
-            <div className="text-xs text-center space-y-1">
-              <p className="font-mono">admin@demo.com</p>
-              <p className="font-mono">senha: 123456</p>
+          {/* Credenciais demo controladas por variavel de ambiente */}
+          {import.meta.env.VITE_SHOW_DEMO_LOGIN === 'true' && (
+            <div className="mt-6 pt-6 border-t border-border">
+              <p className="text-xs text-center text-muted-foreground mb-2">
+                Conta de demonstração:
+              </p>
+              <div className="text-xs text-center space-y-1">
+                <p className="font-mono">{import.meta.env.VITE_DEMO_EMAIL || 'Configurar VITE_DEMO_EMAIL'}</p>
+                <p className="font-mono">senha: {import.meta.env.VITE_DEMO_PASSWORD || 'Configurar VITE_DEMO_PASSWORD'}</p>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

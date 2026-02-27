@@ -3,7 +3,7 @@
 Documentação profissional completa do TrailSystem ERP.  
 Produto SaaS multi-tenant para distribuidoras de materiais de construção.
 
-**Stack:** Cloudflare Workers + D1 + KV + R2 + Queues | React 18 + shadcn/ui | Hono + Drizzle ORM
+**Stack:** Cloudflare Workers + Neon PostgreSQL (via Hyperdrive) + KV + R2 + Queues | React 18 + shadcn/ui | Hono + Drizzle ORM
 
 ---
 
@@ -81,7 +81,7 @@ Produto SaaS multi-tenant para distribuidoras de materiais de construção.
 |---------|--------|--------|--------|--------|--------|-----------|
 | Documentos .docx | 14 | 4 | 1 | 5 | 3 + 2 análises | **29** |
 | Parágrafos | 8.137 | 2.821 | 1.012 | 1.750 | 860 + 653 | **~18.280** |
-| Tabelas D1 | 34 | 27 | 6 | 19 | 15 | **~101** |
+| Tabelas Neon | 34 | 27 | 6 | 19 | 15 | **~101** |
 | Endpoints REST | 109 | 94 | 27 | 76 | 32 | **~338** |
 | Regras de negócio | — | 15 | 5 | 18 | 10 | **48** |
 | User Stories | 25+ | 14 | 6 | 15 | 4 | **64+** |

@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import React, { useState } from "react"
 import { FileText, Download, Calendar, Clock, BarChart3, DollarSign, Users, Package, Truck, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
-interface Report { id: string; name: string; description: string; category: string; icon: any; lastGenerated?: string; format: string[] }
+interface Report { id: string; name: string; description: string; category: string; icon: React.ElementType; lastGenerated?: string; format: string[] }
 
 const reports: Report[] = [
   { id: "1", name: "Faturamento por Período", description: "Receita total, descontos e impostos por período selecionado", category: "Financeiro", icon: DollarSign, lastGenerated: "2026-02-23", format: ["PDF", "Excel"] },

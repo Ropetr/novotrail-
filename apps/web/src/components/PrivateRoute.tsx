@@ -28,14 +28,7 @@ export function PrivateRoute({ children }: PrivateRouteProps) {
   const location = useLocation()
   const authenticated = isAuthenticated()
 
-  console.log("[PrivateRoute] Verificando autenticação:", {
-    authenticated,
-    path: location.pathname,
-  })
-
   if (!authenticated) {
-    console.warn("[PrivateRoute] Usuário não autenticado. Redirecionando para /login")
-
     // Redireciona para login, salvando a rota original para voltar depois
     return <Navigate to="/login" state={{ from: location }} replace />
   }

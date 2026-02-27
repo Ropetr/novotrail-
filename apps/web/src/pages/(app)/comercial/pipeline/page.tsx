@@ -12,6 +12,7 @@ import {
   useSeedPipelineStages,
   useMoveOpportunityStage,
 } from "@/hooks/use-crm"
+import type { PipelineStage, Opportunity } from "@/services/crm"
 
 export default function PipelinePage() {
   const { data: stagesData, isLoading: stagesLoading } = usePipelineStages()
@@ -26,16 +27,16 @@ export default function PipelinePage() {
 
   // Filtra estágios ativos (sem Ganho/Perdido no kanban principal)
   const activeStages = useMemo(
-    () => stages.filter((s: any) => !s.isWon && !s.isLost).sort((a: any, b: any) => a.order - b.order),
+    () => (stages as PipelineStage[]).filter((s) => !s.isWon && !s.isLost).sort((a, b) => a.order - b.order),
     [stages]
   )
-  const wonStage = stages.find((s: any) => s.isWon) as any
-  const lostStage = stages.find((s: any) => s.isLost) as any
+  const wonStage = (stages as PipelineStage[]).find((s) => s.isWon)
+  const lostStage = (stages as PipelineStage[]).find((s) => s.isLost)
 
   // Agrupa oportunidades por estágio
   const oppsByStage = useMemo(() => {
-    const map = new Map<string, any[]>()
-    for (const opp of opportunities) {
+    const map = new Map<string, Opportunity[]>()
+    for (const opp of opportunities as Opportunity[]) {
       const list = map.get(opp.stageId) || []
       list.push(opp)
       map.set(opp.stageId, list)
@@ -138,9 +139,9 @@ export default function PipelinePage() {
       {/* Kanban Board */}
       {!isLoading && (
         <div className="flex gap-3 overflow-x-auto pb-4">
-          {activeStages.map((stage: any) => {
+          {activeStages.map((stage) => {
             const stageOpps = oppsByStage.get(stage.id) || []
-            const stageTotal = stageOpps.reduce((sum: number, o: any) => sum + Number(o.estimatedValue || 0), 0)
+            const stageTotal = stageOpps.reduce((sum: number, o) => sum + Number(o.estimatedValue || 0), 0)
 
             return (
               <div
@@ -169,7 +170,7 @@ export default function PipelinePage() {
 
                 {/* Cards */}
                 <div className="p-2 space-y-2 min-h-[200px]">
-                  {stageOpps.map((opp: any) => {
+                  {stageOpps.map((opp) => {
                     const daysInStage = Math.max(1, Math.floor(
                       (Date.now() - new Date(opp.updatedAt || opp.createdAt).getTime()) / (1000 * 60 * 60 * 24)
                     ))
@@ -237,7 +238,7 @@ export default function PipelinePage() {
                 </div>
               </div>
               <div className="p-2 space-y-1">
-                {(oppsByStage.get(wonStage.id) || []).map((opp: any) => (
+                {(oppsByStage.get(wonStage.id) || []).map((opp) => (
                   <div key={opp.id} className="text-xs p-2 bg-green-100 dark:bg-green-900/40 rounded">
                     <p className="font-medium">{opp.title}</p>
                     <p className="text-green-700 dark:text-green-300">
@@ -262,7 +263,7 @@ export default function PipelinePage() {
                 </div>
               </div>
               <div className="p-2 space-y-1">
-                {(oppsByStage.get(lostStage.id) || []).map((opp: any) => (
+                {(oppsByStage.get(lostStage.id) || []).map((opp) => (
                   <div key={opp.id} className="text-xs p-2 bg-red-100 dark:bg-red-900/40 rounded">
                     <p className="font-medium">{opp.title}</p>
                     <p className="text-red-700 dark:text-red-300">

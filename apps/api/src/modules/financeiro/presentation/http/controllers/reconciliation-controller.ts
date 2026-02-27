@@ -65,7 +65,8 @@ export class ReconciliationController {
       const transactions = parseOFX(ofxContent);
       if (transactions.length === 0) return fail(c, 'No transactions found in OFX content', 400);
 
-      const imported = await this.reconRepo.importEntries(id, user.tenantId, transactions);
+      const entries = transactions.map(t => ({ ...t, amount: String(t.amount) }));
+      const imported = await this.reconRepo.importEntries(id, user.tenantId, entries);
       await this.logRepo.create(user.tenantId, user.id, 'bank_reconciliation', id, 'update', `Imported ${imported} entries from OFX`);
       return ok(c, { message: `Imported ${imported} entries`, entries: transactions.length }, 201);
     } catch (error: any) {

@@ -20,9 +20,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
 import { useCreateFornecedor, useUpdateFornecedor } from "@/hooks/use-fornecedores"
+import type { CreateFornecedorInput } from "@/services/cadastros/fornecedores"
+
+interface SupplierEntity {
+  id: string
+  name?: string
+  tradeName?: string
+  document?: string
+  stateRegistration?: string
+  email?: string
+  phone?: string
+  cellphone?: string
+  zipCode?: string
+  address?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
+  paymentTerms?: string
+  notes?: string
+  status?: "active" | "inactive" | "pending"
+  category?: string
+  balance?: number
+  deliveryDays?: number
+}
 
 interface SupplierFormProps {
-  supplier?: any
+  supplier?: SupplierEntity | null
   onClose: () => void
   viewMode?: "new" | "edit" | "view"
 }
@@ -124,10 +149,10 @@ export function SupplierForm({ supplier, onClose, viewMode = "new" }: SupplierFo
       if (isEditing && supplier?.id) {
         await updateFornecedor.mutateAsync({ id: supplier.id, data: payload })
       } else {
-        await createFornecedor.mutateAsync(payload as any)
+        await createFornecedor.mutateAsync(payload as CreateFornecedorInput)
       }
       onClose()
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao salvar fornecedor:", error)
     } finally {
       setIsSaving(false)

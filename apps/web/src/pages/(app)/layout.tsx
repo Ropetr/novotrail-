@@ -90,8 +90,6 @@ export default function AppLayout({
     const existingTab = tabs.find((t) => t.href === currentPath)
     if (existingTab) return
 
-    console.log('[AppLayout] URL acessada diretamente, criando aba:', currentPath)
-
     const pathParts = currentPath.split("/")
     const type = pathParts[pathParts.length - 1]
 

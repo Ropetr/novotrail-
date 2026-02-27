@@ -36,13 +36,17 @@ docs/status.md       → Status atual do sprint/projeto
 | R2 CERTIFICATES | novotraildesktop-certificates | Certificados A1 |
 | Queue | novotrail-tasks | Processamento assíncrono |
 
-## Banco Neon — 41 tabelas
+## Banco Neon — 74 tabelas
 - Auth (2): tenants, users
-- Cadastros (6): clients, suppliers, partners, employees, client_credits, client_credit_movements
-- Produtos (2): categories, products
-- Comercial (8): quotes, quote_items, sales, sale_items, returns, return_items, sale_deliveries, sale_delivery_items
+- Cadastros (4): clients, suppliers, partners, employees
+- Produtos (3): categories, products, productTaxRules
+- Comercial (11): quotes, quote_items, sales, sale_items, sale_deliveries, sale_delivery_items, sale_payments, returns, return_items, client_credits, client_credit_movements
 - CRM (4): crm_pipeline_stages, crm_opportunities, crm_activities, crm_scoring_rules
-- Omnichannel (19): todas as tabelas omni_*
+- Omnichannel (18): todas as tabelas omni_*
+- Estoque (16): warehouses, stock_levels, stock_movements, stock_transfers, stock_transfer_items, inventory_counts, inventory_count_items, stock_settings, product_kits, production_orders, production_order_items, stock_batches, stock_serials, stock_reservations, inventory_scans
+- Financeiro (10): chart_of_accounts, bank_accounts, cost_centers, financial_titles, financial_settlements, financial_transactions, bank_reconciliations, bank_statement_entries, payment_rules, financial_logs
+- Fiscal (3): fiscal_config, fiscal_audit_log, fiscal_digital_certificates
+- Configurações (1): tenant_settings
 
 ## Módulos — Status
 | Módulo | Backend | Frontend | Schema |
@@ -51,8 +55,12 @@ docs/status.md       → Status atual do sprint/projeto
 | Cadastros | ✅ | ✅ parcial | ✅ |
 | Produtos | ✅ | ⬜ | ✅ |
 | Comercial | ✅ | ✅ parcial | ✅ |
-| Fiscal | ✅ | ⬜ | — |
+| Fiscal | ✅ | ⬜ | ✅ |
 | CRM | ✅ | ⬜ | ✅ |
+| Estoque | ✅ | ⬜ | ✅ |
+| Financeiro | ✅ | ⬜ | ✅ |
+| Configurações | ✅ | ⬜ | ✅ |
+| Tenant | ✅ parcial | ⬜ | ✅ |
 | Omnichannel | ⬜ pendente | ⬜ mock | ✅ |
 
 ## Comandos
@@ -81,5 +89,5 @@ cd apps/web && pnpm deploy       # Deploy Frontend
 
 ## API em Produção
 - URL: https://novotrail-api.planacacabamentos.workers.dev
-- Login teste: admin@demo.com / 123456
+- Login teste: <CREDENCIAIS_EM_ENV_VARS — ver .dev.vars>
 - Tenant: 00000000-0000-0000-0000-000000000001
