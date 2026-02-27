@@ -10,7 +10,7 @@ import { resolveTenant } from './core/tenancy/resolve-tenant';
 
 // Modules
 import { createAuthModule } from './modules/auth/index';
-import { createFiscalModule } from './modules/fiscal/index';
+import { createNuvemFiscalModule, createFiscalModule } from './modules/fiscal/index';
 import { createCadastrosModule } from './modules/cadastros/index';
 import { createProdutosModule } from './modules/produtos/index';
 import { createComercialModule } from './modules/comercial/index';
@@ -131,13 +131,21 @@ apiV1.get('/protected/me', (c) => {
   });
 });
 
-// Fiscal module (PROTECTED routes)
+// Fiscal module - Nuvem Fiscal integration (PROTECTED routes)
 apiV1.use('/nuvem-fiscal/*', async (c, next) => {
   const authService = new AuthService(c.env.JWT_SECRET);
   const authMiddleware = createAuthMiddleware(authService);
   return authMiddleware(c, next);
 });
-apiV1.route('/nuvem-fiscal', createFiscalModule());
+apiV1.route('/nuvem-fiscal', createNuvemFiscalModule());
+
+// Fiscal module - Config + Tax Rules (PROTECTED routes - Onda 0)
+apiV1.use('/fiscal/*', async (c, next) => {
+  const authService = new AuthService(c.env.JWT_SECRET);
+  const authMiddleware = createAuthMiddleware(authService);
+  return authMiddleware(c, next);
+});
+apiV1.route('/fiscal', createFiscalModule());
 
 // Cadastros module (PROTECTED routes)
 apiV1.use('/cadastros/*', async (c, next) => {

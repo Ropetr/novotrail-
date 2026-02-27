@@ -14,7 +14,7 @@ export { users, uniqueEmailPerTenant } from '../../modules/auth/infrastructure/s
 export { clients, suppliers, partners, employees } from '../../modules/cadastros/infrastructure/schema';
 
 // Produtos module schema
-export { categories, products } from '../../modules/produtos/infrastructure/schema';
+export { categories, products, productTaxRules } from '../../modules/produtos/infrastructure/schema';
 
 // Comercial module schema
 export { quotes, quoteItems, sales, saleItems, salePayments, returns, returnItems } from '../../modules/comercial/infrastructure/schema';
@@ -52,3 +52,8 @@ export {
   financialTransactions, financialLogs,
   bankReconciliations, bankStatementEntries, paymentRules,
 } from '../../modules/financeiro/infrastructure/schema';
+
+// Fiscal module schema (Onda 0)
+export {
+  fiscalConfig, fiscalAuditLog, fiscalDigitalCertificates,
+} from '../../modules/fiscal/infrastructure/schema';

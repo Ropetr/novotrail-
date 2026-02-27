@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, numeric } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, numeric, integer, boolean } from 'drizzle-orm/pg-core';
 import { tenants } from '../../tenant/infrastructure/schema';
 import { users } from '../../auth/infrastructure/schema';
 
@@ -32,6 +32,14 @@ export const clients = pgTable('clients', {
   balance: numeric('balance', { precision: 12, scale: 2 }).notNull().default('0'),
   lastPurchase: timestamp('last_purchase', { withTimezone: true }),
   notes: text('notes'),
+  // ==================== Campos Fiscais (Onda 0) ====================
+  indicadorIe: integer('indicador_ie').default(9),                        // 1=Contrib, 2=Isento, 9=Não contrib
+  inscricaoMunicipal: varchar('inscricao_municipal', { length: 20 }),
+  codigoMunicipioIbge: varchar('codigo_municipio_ibge', { length: 7 }),
+  codigoPais: varchar('codigo_pais', { length: 4 }).default('1058'),
+  isConsumidorFinal: boolean('is_consumidor_final').default(false),
+  suframa: varchar('suframa', { length: 12 }),
+  emailNfe: varchar('email_nfe', { length: 255 }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -68,6 +76,10 @@ export const suppliers = pgTable('suppliers', {
     .default('active'),
   paymentTerms: varchar('payment_terms', { length: 100 }),
   notes: text('notes'),
+  // ==================== Campos Fiscais (Onda 0) ====================
+  indicadorIe: integer('indicador_ie').default(1),
+  inscricaoMunicipal: varchar('inscricao_municipal', { length: 20 }),
+  codigoMunicipioIbge: varchar('codigo_municipio_ibge', { length: 7 }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

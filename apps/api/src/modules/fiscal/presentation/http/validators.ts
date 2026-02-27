@@ -80,3 +80,64 @@ export const configuracaoDistribuicaoNFeSchema = z.object({
   ciencia_automatica: z.boolean().nullable().optional(),
   ambiente: z.enum(['homologacao', 'producao']),
 });
+
+// ============================================
+// SCHEMAS DE VALIDACAO - FISCAL CONFIG (Onda 0)
+// ============================================
+
+export const updateFiscalConfigSchema = z.object({
+  cnpjEmpresa: z.string().length(14).optional(),
+  ieEmpresa: z.string().max(20).optional(),
+  razaoSocial: z.string().max(500).optional(),
+  regimeTributario: z.enum(['simples_nacional', 'lucro_presumido', 'lucro_real']).optional(),
+  ufEmpresa: z.string().length(2).optional(),
+  codigoMunicipioIbge: z.string().length(7).optional(),
+  inboxSyncAutomatico: z.boolean().optional(),
+  inboxIntervaloMinutos: z.number().int().min(15).max(1440).optional(),
+  inboxManifestacaoAutomatica: z.boolean().optional(),
+  inboxTipoManifestacaoAuto: z.string().optional(),
+  emissaoAmbiente: z.enum(['homologacao', 'producao']).optional(),
+  emissaoSerieNfe: z.number().int().min(1).max(999).optional(),
+  emissaoSerieNfse: z.number().int().min(1).max(999).optional(),
+  emissaoSerieCte: z.number().int().min(1).max(999).optional(),
+  gnreGeracaoAutomatica: z.boolean().optional(),
+  adrcstOpcaoRecuperacao: z.boolean().optional(),
+  adrcstOpcaoRessarcimento: z.boolean().optional(),
+  adrcstOpcaoComplementacao: z.boolean().optional(),
+  onboardingCompleto: z.boolean().optional(),
+  onboardingEtapaAtual: z.number().int().min(0).max(5).optional(),
+});
+
+// ============================================
+// SCHEMAS DE VALIDACAO - PRODUCT TAX RULES (Onda 0)
+// ============================================
+
+export const createProductTaxRuleSchema = z.object({
+  ufDestino: z.string().length(2).nullable().optional(),
+  tipoOperacao: z.string().max(20).default('venda'),
+  tipoCliente: z.string().max(20).nullable().default('contribuinte'),
+  cfopDentroEstado: z.string().length(4),
+  cfopForaEstado: z.string().length(4),
+  cstIcms: z.string().max(3).nullable().optional(),
+  csosn: z.string().max(4).nullable().optional(),
+  aliquotaIcms: z.string().optional().default('0'),
+  aliquotaIcmsSt: z.string().optional().default('0'),
+  reducaoBc: z.string().optional().default('0'),
+  mva: z.string().optional().default('0'),
+  aliquotaIcmsInterestadual: z.string().nullable().optional(),
+  cstIpi: z.string().max(2).optional().default('99'),
+  aliquotaIpi: z.string().optional().default('0'),
+  cstPis: z.string().max(2).optional().default('49'),
+  aliquotaPis: z.string().optional().default('0'),
+  cstCofins: z.string().max(2).optional().default('49'),
+  aliquotaCofins: z.string().optional().default('0'),
+  codigoBeneficio: z.string().max(10).nullable().optional(),
+  isDefault: z.boolean().optional().default(true),
+});
+
+export const updateProductTaxRuleSchema = createProductTaxRuleSchema.partial();
+
+export const seedTaxRulesSchema = z.object({
+  tipoOperacao: z.string().max(20).default('venda'),
+  overwrite: z.boolean().default(false),
+});
