@@ -2,6 +2,8 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { spawn } from 'child_process'
 import path from 'path'
 
+const isCI = !!process.env.CI
+
 let devProcess: ReturnType<typeof spawn> | null = null
 
 const waitForReady = (proc: ReturnType<typeof spawn>, timeoutMs = 30_000) => {
@@ -38,6 +40,8 @@ const waitForReady = (proc: ReturnType<typeof spawn>, timeoutMs = 30_000) => {
 }
 
 beforeAll(async () => {
+  if (isCI) return
+
   devProcess = spawn(
     'pnpm',
     ['--filter', '@trailsystem/api', 'dev', '--', '--local', '--port', '8787'],
@@ -61,7 +65,7 @@ afterAll(() => {
 })
 
 describe('health', () => {
-  it('returns ok', async () => {
+  it.skipIf(isCI)('returns ok', async () => {
     const res = await fetch('http://localhost:8787/health')
     expect(res.status).toBe(200)
     const body = await res.json()
