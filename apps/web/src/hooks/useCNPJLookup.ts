@@ -58,8 +58,8 @@ export function useCNPJLookup(options?: UseCNPJLookupOptions) {
           options.onError(errorMsg);
         }
       }
-    } catch (err) {
-      const errorMsg = (err as { message?: string })?.message || 'Erro ao consultar CNPJ';
+    } catch (err: any) {
+      const errorMsg = err.message || 'Erro ao consultar CNPJ';
       setError(errorMsg);
       toast.error(errorMsg, { id: 'cnpj-lookup' });
 

@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils"
 import { PeriodFilter } from "@/components/common/period-filter"
 import { FilterCustomizer, FilterOption } from "@/components/common/filter-customizer"
 import { useUsuarios, useUpdateUsuario, useDeleteUsuario } from "@/hooks/use-usuarios"
-import type { UserData } from "@/services/cadastros/usuarios"
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   active: { label: "Ativo", className: "text-green-600 bg-green-50" },
@@ -49,7 +48,7 @@ export function UserList() {
     if (savedFilters) setAvailableFilters(JSON.parse(savedFilters))
   }, [])
 
-  const filteredUsers = (users as UserData[]).filter((user) => {
+  const filteredUsers = users.filter((user: any) => {
     const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.\-/\s()@]/g, "")
     const s = norm(searchTerm)
     const matchSearch = !searchTerm || norm(user.name || "").includes(s) || norm(user.email || "").includes(s)
@@ -132,7 +131,7 @@ export function UserList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((user, index: number) => {
+                  {filteredUsers.map((user: any, index: number) => {
                     const status = statusConfig[user.status] || { label: user.status, className: "" }
                     const role = roleConfig[user.role] || { label: user.role, className: "" }
                     return (

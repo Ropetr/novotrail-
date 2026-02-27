@@ -90,20 +90,20 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
   const createMutation = useCreateDevolucao()
   const updateMutation = useUpdateDevolucao()
 
-  const availableSales = (vendasData?.data || []).map((v: Record<string, unknown>) => ({
-    id: String(v.id ?? ""),
-    number: String(v.number ?? ""),
-    date: v.date ? String(v.date).split("T")[0] : "",
-    clientName: String(v.clientName ?? "Cliente"),
-    clientDocument: String(v.clientDocument ?? ""),
-    clientId: String(v.clientId ?? ""),
-    totalValue: Number(v.total ?? 0),
-    items: (Array.isArray(v.items) ? v.items : []).map((i: Record<string, unknown>) => ({
-      id: String(i.id ?? ""),
-      productId: String(i.productId ?? ""),
-      name: String(i.productName ?? "Produto"),
-      quantity: Number(i.quantity ?? 0),
-      unitPrice: Number(i.unitPrice ?? 0),
+  const availableSales = (vendasData?.data || []).map((v: any) => ({
+    id: v.id,
+    number: v.number || "",
+    date: v.date ? v.date.split("T")[0] : "",
+    clientName: v.clientName || "Cliente",
+    clientDocument: v.clientDocument || "",
+    clientId: v.clientId || "",
+    totalValue: Number(v.total || 0),
+    items: (v.items || []).map((i: any) => ({
+      id: i.id,
+      productId: i.productId,
+      name: i.productName || "Produto",
+      quantity: Number(i.quantity || 0),
+      unitPrice: Number(i.unitPrice || 0),
       returned: 0,
     })),
   }))
@@ -205,13 +205,13 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
 
       const payload = {
         saleId: selectedSale.id,
-        clientId: selectedSale.clientId,
+        clientId: (selectedSale as any).clientId || "",
         date: formData.date,
         reason: formData.reason || undefined,
-        refundType: formData.refundMethod === "credit" ? "credit" as const : "money" as const,
+        refundType: (formData as any).refundMethod === "credit" ? "credit" as const : "money" as const,
         notes: formData.notes || undefined,
         items: returnItems.map((item) => ({
-          productId: item.itemId,
+          productId: (item as any).productId || item.itemId,
           quantity: item.returnQuantity,
           unitPrice: item.unitPrice,
           reason: formData.reason || undefined,
@@ -471,7 +471,7 @@ export function ReturnForm({ returnData, onClose, viewMode = "new" }: ReturnForm
                     <div className="space-y-2">
                       <Label>Itens da Venda {selectedSale.number}</Label>
                       <div className="border border-border rounded-md">
-                        {selectedSale.items.map((item) => {
+                        {selectedSale.items.map((item: any) => {
                           const isSelected = returnItems.some((ri) => ri.itemId === item.id)
                           const returnItem = returnItems.find((ri) => ri.itemId === item.id)
 

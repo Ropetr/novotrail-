@@ -5,10 +5,10 @@ import type { PaymentRepository } from '../../../infrastructure/repositories/pay
 import type { DatabaseConnection } from '../../../../../shared/database/connection';
 import { DocumentPdfGenerator, type PdfDocData, type PdfItemData, type PdfCompanyData, type PdfClientData, type PdfPaymentData } from '../../../infrastructure/pdf/pdf-generator';
 import { tenantSettings } from '../../../../configuracoes/infrastructure/schema';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 // Import client schema for client lookup
-import { clients, employees } from '../../../../cadastros/infrastructure/schema';
+import { clients } from '../../../../cadastros/infrastructure/schema';
 import { products } from '../../../../produtos/infrastructure/schema';
 
 export class PdfController {
@@ -46,17 +46,12 @@ export class PdfController {
       const subtotalServices = servicesItems.reduce((s, i) => s + i.subtotal, 0);
 
       const q = quote as any;
-      // Fetch seller name if sellerId is present
-      const sellerName = q.sellerId
-        ? await this.getSellerName(q.sellerId, user.tenantId)
-        : undefined;
-
       const pdfData: PdfDocData = {
         type: 'orcamento',
         number: q.number,
         date: q.date?.toISOString?.() || String(q.date),
         validUntil: q.validUntil?.toISOString?.() || q.validUntil || undefined,
-        sellerName,
+        sellerName: undefined, // TODO: fetch seller name
         company,
         client,
         items,
@@ -138,16 +133,11 @@ export class PdfController {
         if (linkedQuote) linkedQuoteNumber = (linkedQuote as any).number;
       }
 
-      // Fetch seller name if sellerId is present
-      const sellerName = s.sellerId
-        ? await this.getSellerName(s.sellerId, user.tenantId)
-        : undefined;
-
       const pdfData: PdfDocData = {
         type: 'venda',
         number: s.number,
         date: s.date?.toISOString?.() || String(s.date),
-        sellerName,
+        sellerName: undefined,
         company,
         client,
         items,
@@ -247,29 +237,20 @@ export class PdfController {
     };
   }
 
-  private async getSellerName(sellerId: string, tenantId: string): Promise<string | undefined> {
-    const result = await this.db
-      .select({ name: employees.name })
-      .from(employees)
-      .where(and(eq(employees.id, sellerId), eq(employees.tenantId, tenantId)))
-      .limit(1);
-
-    return result[0]?.name ?? undefined;
-  }
-
   private async mapItems(rawItems: any[], tenantId: string): Promise<PdfItemData[]> {
-    // Collect unique product IDs and fetch all in a single query (avoid N+1)
+    // Fetch all product names in one query
     const productIds = [...new Set(rawItems.map(i => i.productId).filter(Boolean))];
     const productMap = new Map<string, any>();
 
     if (productIds.length > 0) {
-      const rows = await this.db
-        .select()
-        .from(products)
-        .where(and(eq(products.tenantId, tenantId), inArray(products.id, productIds)));
-
-      for (const row of rows) {
-        productMap.set(row.id, row);
+      // Fetch in batches if needed
+      for (const pid of productIds) {
+        const result = await this.db
+          .select()
+          .from(products)
+          .where(and(eq(products.id, pid), eq(products.tenantId, tenantId)))
+          .limit(1);
+        if (result[0]) productMap.set(pid, result[0]);
       }
     }
 

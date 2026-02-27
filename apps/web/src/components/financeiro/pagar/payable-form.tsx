@@ -12,24 +12,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 
-interface PayableEntity {
-  id: string
-  code: string
-  supplier: string
-  description: string
-  category: string
-  dueDate: string
-  value: number
-  paidValue: number
-  status: "pending" | "paid" | "overdue" | "partial" | "cancelled"
-  paymentMethod?: string
-  paidAt?: string
-  nfNumber?: string
-  notes?: string
-}
-
 interface PayableFormProps {
-  payable?: PayableEntity | null
+  payable?: any
   onClose: () => void
   viewMode?: "new" | "edit" | "view"
 }

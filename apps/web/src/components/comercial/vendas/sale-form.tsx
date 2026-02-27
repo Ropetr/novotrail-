@@ -90,24 +90,24 @@ export function SaleForm({ sale, onClose, viewMode = "new" }: SaleFormProps) {
   const createMutation = useCreateVenda()
   const updateMutation = useUpdateVenda()
 
-  const availableClients = (clientesData?.data || []).map((c: Record<string, unknown>) => ({
-    id: String(c.id ?? ""),
-    name: String(c.name ?? c.tradeName ?? "Sem nome"),
-    document: String(c.document ?? ""),
+  const availableClients = (clientesData?.data || []).map((c: any) => ({
+    id: c.id,
+    name: c.name || c.tradeName || "Sem nome",
+    document: c.document || "",
   }))
 
-  const availableSellers = (colaboradoresData?.data || []).map((e: Record<string, unknown>) => ({
-    id: String(e.id ?? ""),
-    name: String(e.name ?? "Sem nome"),
+  const availableSellers = (colaboradoresData?.data || []).map((e: any) => ({
+    id: e.id,
+    name: e.name || "Sem nome",
   }))
 
-  const availableProducts = (produtosData?.data || []).map((p: Record<string, unknown>) => ({
-    id: String(p.id ?? ""),
-    sku: String(p.sku ?? p.code ?? ""),
-    name: String(p.name ?? "Sem nome"),
-    price: Number(p.salePrice ?? p.price ?? 0),
-    unit: String(p.unit ?? "UN"),
-    stock: Number(p.currentStock ?? p.stock ?? 0),
+  const availableProducts = (produtosData?.data || []).map((p: any) => ({
+    id: p.id,
+    sku: p.sku || p.code || "",
+    name: p.name || "Sem nome",
+    price: Number(p.salePrice || p.price || 0),
+    unit: p.unit || "UN",
+    stock: Number(p.currentStock || p.stock || 0),
   }))
 
   const [items, setItems] = useState<SaleItem[]>([])

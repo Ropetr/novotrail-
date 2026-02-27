@@ -75,14 +75,9 @@ max_batch_timeout = 30
 # ============================================
 [vars]
 ENVIRONMENT = "development"
-# URLs publicas (nao sao segredos)
+JWT_SECRET = "development-secret-change-in-production"
+
+NUVEM_FISCAL_CLIENT_ID = "r1QOKi55XgwNI3oHVoyH"
+NUVEM_FISCAL_CLIENT_SECRET = "9jsQ8Ii9wMdZFZ4KX0YAycKqGryP6ho1ZFJqj9Cu"
 NUVEM_FISCAL_API_URL = "https://api-sandbox.nuvemfiscal.com.br"
 NUVEM_FISCAL_TOKEN_URL = "https://api-sandbox.nuvemfiscal.com.br/oauth/token"
-
-# ============================================
-# SEGREDOS — NAO colocar aqui!
-# Configurar via .dev.vars (local) ou wrangler secret put (producao):
-#   wrangler secret put JWT_SECRET
-#   wrangler secret put NUVEM_FISCAL_CLIENT_ID
-#   wrangler secret put NUVEM_FISCAL_CLIENT_SECRET
-# ============================================

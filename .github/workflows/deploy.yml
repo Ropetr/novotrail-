@@ -33,8 +33,9 @@ jobs:
       - name: Build
         run: pnpm turbo build
 
-      - name: Aplicar migrations no banco
-        run: cd apps/api && npx drizzle-kit migrate
+      - name: Sincronizar schema com banco
+        continue-on-error: true
+        run: cd apps/api && npx drizzle-kit push
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 

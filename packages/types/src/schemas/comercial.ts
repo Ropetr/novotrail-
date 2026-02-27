@@ -53,7 +53,7 @@ const saleItemSchema = z.object({
 });
 
 const paymentSchema = z.object({
-  paymentMethod: z.enum(['dinheiro', 'pix', 'boleto', 'cheque', 'cartao_credito', 'cartao_debito', 'transferencia', 'credito_cliente']),
+  paymentMethod: z.string().min(1, 'Forma de pagamento obrigatória'),
   installmentNumber: z.number().int().min(1).default(1),
   totalInstallments: z.number().int().min(1).default(1),
   documentNumber: z.string().optional(),

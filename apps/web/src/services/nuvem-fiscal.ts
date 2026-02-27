@@ -53,7 +53,7 @@ export interface CNPJResponse {
   success: boolean;
   data?: CNPJData;
   error?: string;
-  details?: unknown;
+  details?: any;
 }
 
 /**
@@ -66,17 +66,17 @@ export async function consultarCNPJ(cnpj: string): Promise<CNPJResponse> {
     });
 
     return response.data;
-  } catch (error) {
-    const apiError = error as { statusCode?: number; message?: string }
+  } catch (error: any) {
+    console.error('[NuvemFiscal] Erro ao consultar CNPJ:', error);
 
     // Se for erro de autenticação (401), propaga o erro para o interceptor tratar
-    if (apiError.statusCode === 401 || apiError.message?.includes('authorization')) {
+    if (error.statusCode === 401 || error.message?.includes('authorization')) {
       throw error;
     }
 
     return {
       success: false,
-      error: apiError.message || 'Erro ao consultar CNPJ',
+      error: error.message || 'Erro ao consultar CNPJ',
       details: error,
     };
   }
@@ -100,7 +100,7 @@ export function validarCNPJ(cnpj: string): boolean {
   // Validação do primeiro dígito verificador
   let tamanho = cnpjLimpo.length - 2;
   let numeros = cnpjLimpo.substring(0, tamanho);
-  const digitos = cnpjLimpo.substring(tamanho);
+  let digitos = cnpjLimpo.substring(tamanho);
   let soma = 0;
   let pos = tamanho - 7;
 

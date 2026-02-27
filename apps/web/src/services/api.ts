@@ -44,13 +44,23 @@ export const api = axios.create({
   },
 })
 
+const isDev = import.meta.env.DEV
+const log = (...args: unknown[]) => { if (isDev) console.log(...args) }
+const warn = (...args: unknown[]) => { if (isDev) console.warn(...args) }
+const errorLog = (...args: unknown[]) => { if (isDev) console.error(...args) }
+
 // Interceptador de Request: Adiciona token JWT em todas as requisições
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getToken()
 
+    log(`[API] 🔑 Token obtido do localStorage:`, token ? `${token.substring(0, 20)}...` : 'null')
+
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
+      log(`[API] ✅ Token adicionado ao header Authorization`)
+    } else {
+      log(`[API] ⚠️ Nenhum token disponível para adicionar`)
     }
 
     // Envia tenant ID em todas as requisições
@@ -58,9 +68,15 @@ api.interceptors.request.use(
       config.headers["x-tenant-id"] = DEV_TENANT_ID
     }
 
+    log(`[API] ${config.method?.toUpperCase()} ${config.url}`, {
+      headers: config.headers,
+      data: config.data,
+    })
+
     return config
   },
   (error) => {
+    errorLog("[API] Request error:", error)
     return Promise.reject(error)
   }
 )
@@ -68,9 +84,14 @@ api.interceptors.request.use(
 // Interceptador de Response: Trata erros globalmente
 api.interceptors.response.use(
   (response) => {
+    log(`[API] Response ${response.config.url}:`, response.data)
     return response
   },
   (error: AxiosError<ErrorResponse>) => {
+    errorLog("[API] Response error:", error)
+    errorLog("[API] Response data:", error.response?.data)
+    errorLog("[API] Response status:", error.response?.status)
+
     // Erro de rede (sem resposta do servidor)
     if (!error.response) {
       return Promise.reject({
@@ -81,11 +102,23 @@ api.interceptors.response.use(
 
     // Token expirado ou inválido (401)
     if (error.response.status === 401) {
+      errorLog("[API] 🚨 401 Unauthorized detectado!")
+      errorLog("[API] 📍 URL da requisição:", error.config?.url)
+      errorLog("[API] 🔑 Token presente no localStorage:", !!getToken())
+      errorLog("[API] 📤 Authorization header enviado:", error.config?.headers?.Authorization)
+      errorLog("[API] 📥 Dados da resposta:", error.response.data)
+      errorLog("[API] 📊 Status completo:", {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        headers: error.response.headers,
+      })
+
       clearToken()
 
       // Redireciona para login apenas se não estiver em rotas públicas
       if (!window.location.pathname.includes("/login") &&
           !window.location.pathname.includes("/register")) {
+        warn("[API] 🔄 Redirecionando para /login...")
         window.location.href = "/login"
       }
     }
@@ -124,6 +157,7 @@ api.interceptors.response.use(
  */
 export function setToken(token: string): void {
   localStorage.setItem(TOKEN_KEY, token)
+  log("[Auth] Token salvo no localStorage")
 }
 
 /**
@@ -138,6 +172,7 @@ export function getToken(): string | null {
  */
 export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY)
+  log("[Auth] Token removido do localStorage")
 }
 
 /**
@@ -160,13 +195,12 @@ export async function login(email: string, password: string, tenantId?: string):
   })
 
   // Compatível com respostas { token, user } ou { success, data: { token, user } }
-  const envelope = response.data as ApiEnvelope<AuthResponse>
-  const data: AuthResponse = envelope?.data ?? (response.data as AuthResponse)
+  const data: any = (response.data as any)?.data ?? response.data
 
   // Salva o token automaticamente
   setToken(data.token)
 
-  return data
+  return data as AuthResponse
 }
 
 /**
@@ -186,13 +220,12 @@ export async function register(
   })
 
   // Compatível com respostas { token, user } ou { success, data: { token, user } }
-  const envelope = response.data as ApiEnvelope<AuthResponse>
-  const data: AuthResponse = envelope?.data ?? (response.data as AuthResponse)
+  const data: any = (response.data as any)?.data ?? response.data
 
   // Salva o token automaticamente após registro
   setToken(data.token)
 
-  return data
+  return data as AuthResponse
 }
 
 /**

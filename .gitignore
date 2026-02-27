@@ -1,13 +1,10 @@
 node_modules
 dist
-dist-wrangler
 .wrangler
 .dev.vars
 .env
 .env.local
-.env.production
 .env.*.local
-.env.*
 *.log
 .DS_Store
 .idea
@@ -30,17 +27,12 @@ lpt[0-9]
 
 # Sensitive credentials
 CREDENTIALS.md
-TRAILSYSTEM_MASTER.md
-credentials.json
 credentials/
 .secrets/
 *.key
 *.pem
 *.p12
 *.pfx
-
-# Claude Code local settings (podem conter tokens em permissoes)
-**/.claude/settings.local.json
 
 # Husky
 .husky/_

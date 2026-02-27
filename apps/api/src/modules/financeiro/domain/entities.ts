@@ -94,7 +94,7 @@ export interface UpdateCostCenterDTO {
 // ==================== Títulos (Contas a Pagar/Receber) ====================
 
 export type TitleType = 'payable' | 'receivable';
-export type TitleOrigin = 'purchase' | 'sale' | 'manual' | 'adjustment' | 'fiscal';
+export type TitleOrigin = 'purchase' | 'sale' | 'manual' | 'adjustment';
 export type TitleStatus = 'open' | 'partial' | 'paid' | 'cancelled' | 'overdue';
 
 export interface FinancialTitle {
